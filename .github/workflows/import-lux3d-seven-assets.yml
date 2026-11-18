@@ -1,0 +1,72 @@
+name: Import seven Lux3D assets
+
+on:
+  push:
+    paths:
+      - '.github/workflows/import-lux3d-seven-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download and validate GLB archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lux3d public/assets/3d/bridges public/assets/3d/architecture
+          declare -A urls=(
+            [teahouse]='https://github.com/user-attachments/files/35027518/teahouse.glb.zip'
+            [stone-arch-bridge]='https://github.com/user-attachments/files/35027537/stone-arch-bridge.glb.zip'
+            [riverside-commercial-building]='https://github.com/user-attachments/files/35027559/riverside-commercial-building.glb.zip'
+            [restaurant-wine-house]='https://github.com/user-attachments/files/35027587/restaurant-wine-house.glb.zip'
+            [hongqiao]='https://github.com/user-attachments/files/35027629/hongqiao.glb.zip'
+            [wharf-dock]='https://github.com/user-attachments/files/35024747/wharf-dock.glb.zip'
+            [timber-arch-bridge]='https://github.com/user-attachments/files/35024774/timber-arch-bridge.glb.zip'
+          )
+          for name in "${!urls[@]}"; do
+            echo "Downloading $name"
+            curl -fL --retry 3 --retry-delay 2 "${urls[$name]}" -o "/tmp/lux3d/$name.zip"
+            mkdir -p "/tmp/lux3d/$name"
+            unzip -oq "/tmp/lux3d/$name.zip" -d "/tmp/lux3d/$name"
+            src="$(find "/tmp/lux3d/$name" -type f -iname '*.glb' ! -path '*/__MACOSX/*' | head -n 1)"
+            test -n "$src"
+            if [[ "$name" == "stone-arch-bridge" || "$name" == "timber-arch-bridge" || "$name" == "hongqiao" ]]; then
+              dest="public/assets/3d/bridges/$name.glb"
+            else
+              dest="public/assets/3d/architecture/$name.glb"
+            fi
+            cp "$src" "$dest"
+            python - "$dest" <<'PY'
+          import os, struct, sys
+          p=sys.argv[1]
+          with open(p,'rb') as f:
+              h=f.read(12)
+          if len(h)!=12 or h[:4]!=b'glTF':
+              raise SystemExit(f'Invalid GLB header: {p}')
+          version,length=struct.unpack('<II',h[4:12])
+          actual=os.path.getsize(p)
+          if version != 2 or length != actual:
+              raise SystemExit(f'Invalid GLB structure: {p} version={version} declared={length} actual={actual}')
+          print(f'VALID {p}: {actual:,} bytes, GLB {version}')
+          PY
+          done
+      - name: Commit imported models
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/3d/bridges public/assets/3d/architecture
+          if git diff --cached --quiet; then
+            echo "No model changes to commit."
+          else
+            git commit -m "Import seven verified Lux3D scene assets"
+            git push
+          fi

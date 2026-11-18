@@ -1,0 +1,19 @@
+{
+  "quoteId": "quote_556192b82a7840dda82e561e01490b3e",
+  "pricingScope": "BEFORE_ACCOUNT_BENEFITS",
+  "quotedAt": "2026-11-18T19:10:08.738360019+08:00",
+  "expiresAt": "2026-11-18T19:15:08.738360019+08:00",
+  "estimatedCreditsTotal": 65,
+  "details": {
+    "1": 13,
+    "2": 13,
+    "3": 13,
+    "4": 13,
+    "5": 13
+  },
+  "review": {
+    "reviewId": "review_556192b82a7840dda82e561e01490b3e",
+    "status": "OK",
+    "reason": "Collection only; no substantive quality review in this release"
+  }
+}

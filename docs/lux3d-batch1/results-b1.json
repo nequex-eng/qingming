@@ -1,0 +1,56 @@
+{
+  "results": {
+    "stone-arch-bridge": {
+      "status": 3,
+      "taskId": "8307983",
+      "downloaded": [
+        [
+          "/home/hatch/workspace/qingming/public/assets/3d/bridges/stone-arch-bridge.glb",
+          20304624
+        ]
+      ]
+    },
+    "restaurant-wine-house": {
+      "status": 3,
+      "taskId": "8308007",
+      "downloaded": [
+        [
+          "/home/hatch/workspace/qingming/public/assets/3d/architecture/restaurant-wine-house.glb",
+          26525756
+        ]
+      ]
+    },
+    "teahouse": {
+      "status": 3,
+      "taskId": "8308013",
+      "downloaded": [
+        [
+          "/home/hatch/workspace/qingming/public/assets/3d/architecture/teahouse.glb",
+          26003916
+        ]
+      ]
+    },
+    "wharf-dock": {
+      "status": 3,
+      "taskId": "8308022",
+      "downloaded": [
+        [
+          "/home/hatch/workspace/qingming/public/assets/3d/architecture/wharf-dock.glb",
+          20349260
+        ]
+      ]
+    },
+    "riverside-commercial-building": {
+      "status": 3,
+      "taskId": "8307995",
+      "downloaded": [
+        [
+          "/home/hatch/workspace/qingming/public/assets/3d/architecture/riverside-commercial-building.glb",
+          24763760
+        ]
+      ]
+    }
+  },
+  "unfinished": [],
+  "finishedAt": "2026-11-18T11:14:47.582003+00:00"
+}

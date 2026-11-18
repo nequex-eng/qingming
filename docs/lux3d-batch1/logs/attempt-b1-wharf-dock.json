@@ -1,0 +1,24 @@
+{
+  "itemId": "wharf-dock",
+  "planStepId": "2",
+  "planVersion": 2,
+  "operation": "text-to-3d",
+  "modelVersion": "G1-Turbo",
+  "outputFormats": [
+    "glb"
+  ],
+  "quoteId": "quote_556192b82a7840dda82e561e01490b3e",
+  "quoteExpiresAt": "2026-11-18T19:15:08.738360019+08:00",
+  "status": "succeeded",
+  "submittedAt": "2026-11-18T11:10:28.264530+00:00",
+  "providerTaskId": "8308022",
+  "providerStatus": 3,
+  "lastPollAt": "2026-11-18T11:14:06.377672+00:00",
+  "terminalAt": "2026-11-18T11:14:06.377696+00:00",
+  "downloaded": [
+    [
+      "/home/hatch/workspace/qingming/public/assets/3d/architecture/wharf-dock.glb",
+      20349260
+    ]
+  ]
+}

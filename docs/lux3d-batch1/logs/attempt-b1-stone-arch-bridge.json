@@ -1,0 +1,24 @@
+{
+  "itemId": "stone-arch-bridge",
+  "planStepId": "2",
+  "planVersion": 2,
+  "operation": "text-to-3d",
+  "modelVersion": "G1-Turbo",
+  "outputFormats": [
+    "glb"
+  ],
+  "quoteId": "quote_556192b82a7840dda82e561e01490b3e",
+  "quoteExpiresAt": "2026-11-18T19:15:08.738360019+08:00",
+  "status": "succeeded",
+  "submittedAt": "2026-11-18T11:10:16.646739+00:00",
+  "providerTaskId": "8307983",
+  "providerStatus": 3,
+  "lastPollAt": "2026-11-18T11:13:08.030219+00:00",
+  "terminalAt": "2026-11-18T11:13:08.030260+00:00",
+  "downloaded": [
+    [
+      "/home/hatch/workspace/qingming/public/assets/3d/bridges/stone-arch-bridge.glb",
+      20304624
+    ]
+  ]
+}

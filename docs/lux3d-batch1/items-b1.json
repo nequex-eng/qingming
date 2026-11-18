@@ -1,0 +1,77 @@
+{
+  "1": {
+    "endpoint": {
+      "method": "POST",
+      "path": "/lux3d/v1/generate/text-to-3d/task/create"
+    },
+    "parameters": {
+      "body": {
+        "version": "G1-Turbo",
+        "prompt": "Traditional Chinese stone arch bridge, grey weathered masonry blocks, single round arch with clear opening beneath, stone balustrade with carved posts, worn stone steps at both ends, Song dynasty style, realistic PBR materials, standalone bridge, no water, no background, no people",
+        "outputFormat": [
+          "glb"
+        ]
+      }
+    }
+  },
+  "2": {
+    "endpoint": {
+      "method": "POST",
+      "path": "/lux3d/v1/generate/text-to-3d/task/create"
+    },
+    "parameters": {
+      "body": {
+        "version": "G1-Turbo",
+        "prompt": "Large traditional Chinese riverside commercial building, two to three storeys, timber frame, curved grey tiled roof with upturned eaves, wooden balconies with lattice railings, open shopfront on ground floor, large hanging wooden signboard, aged wood and plaster walls, Song dynasty Lin'an style, realistic, standalone building with real depth and openings, no background, no people",
+        "outputFormat": [
+          "glb"
+        ]
+      }
+    }
+  },
+  "3": {
+    "endpoint": {
+      "method": "POST",
+      "path": "/lux3d/v1/generate/text-to-3d/task/create"
+    },
+    "parameters": {
+      "body": {
+        "version": "G1-Turbo",
+        "prompt": "Traditional Chinese restaurant and wine house, two storeys, timber structure, curved tiled roof, detailed shopfront with wooden lattice windows and open entrance, upper floor balcony, large hanging wine sign and flag, warm wooden tones, Song dynasty style, realistic, standalone building with real interior depth visible through openings, no background, no people",
+        "outputFormat": [
+          "glb"
+        ]
+      }
+    }
+  },
+  "4": {
+    "endpoint": {
+      "method": "POST",
+      "path": "/lux3d/v1/generate/text-to-3d/task/create"
+    },
+    "parameters": {
+      "body": {
+        "version": "G1-Turbo",
+        "prompt": "Traditional Chinese teahouse, timber frame, tiled roof, recognizable tea house frontage with wooden counter, lattice windows, open entrance, hanging tea sign, bamboo and linen details, Song dynasty style, realistic, standalone building, no background, no people",
+        "outputFormat": [
+          "glb"
+        ]
+      }
+    }
+  },
+  "5": {
+    "endpoint": {
+      "method": "POST",
+      "path": "/lux3d/v1/generate/text-to-3d/task/create"
+    },
+    "parameters": {
+      "body": {
+        "version": "G1-Turbo",
+        "prompt": "Traditional Chinese riverside timber wharf dock, wooden platform on piles, stone and timber steps down to the water, mooring posts with coiled rope, loading area with cargo, weathered wood, Song dynasty style, realistic, modular standalone dock, no water surface, no background, no people",
+        "outputFormat": [
+          "glb"
+        ]
+      }
+    }
+  }
+}

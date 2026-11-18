@@ -81,5 +81,6 @@
   - 茶馆 teahouse.glb：https://drive.google.com/file/d/1tomdiy98WGtakhX0MgyZJUS6t-M9aRSU/view?usp=drivesdk
   - 码头 wharf-dock.glb：https://drive.google.com/file/d/1lYX0Vh_YNJ5BITfNYrmJXGTdsctf_h8G/view?usp=drivesdk
   - 文件夹：https://drive.google.com/drive/folders/1Tw9_A-VKO79DJB5DKautvIGiH3x5-36W
+  - 如果上面链接打不开或下载不了，不要反复试链接：请用户直接把6个GLB文件上传到对话里（用户Library的Lux3D测试文件夹和Drive文件夹里都有）。
 - Lux3D国内区API密钥不在仓库里，也不会有人把它发给你。需要调Lux3D接口（例如提交REPORT）时，让用户在你那边通过安全方式提供密钥；如果用户不提供，REPORT这一步就做不了，如实记下来，不要编造。
 - 上面列出的Muse沙箱本地路径（`~/workspace/...`）你访问不到，不要按那些路径找文件；以本仓库和用户发给你的链接为准。

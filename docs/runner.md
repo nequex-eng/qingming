@@ -16,6 +16,18 @@ Blender jobs can be dispatched from GitHub instead of run interactively.
 - Watchdog: `/home/hatch/workspace/runner/watchdog.sh` (cron, every 5 min,
   restarts the listener if it died)
 
+## Dispatch hub — qingming serves all projects (2026-11-18 user decision)
+
+`nequex-eng` is a personal account, not an organization, so there is no
+org-level runner. qingming is the dispatch hub: every Blender job for every
+project is dispatched from qingming's workflows, because `blender-clean.yml`
+takes the GLB as a host path (`source_glb`) and does not care which project
+the file belongs to. Runs show up under qingming's Actions history. A new
+project needs no new runner registration — just dispatch from here with the
+right path. (Per-repo runner instances are the alternative if hub history
+ever gets confusing; org-level runners would require creating an org and
+moving the repos into it, which is not worth it for this alone.)
+
 ## How to dispatch (GPT)
 
 Trigger a workflow manually — GitHub UI (Actions tab → workflow → Run

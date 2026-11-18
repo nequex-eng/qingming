@@ -1,0 +1,46 @@
+# Clean one GLB on the self-hosted Blender runner.
+# Trigger ONLY via workflow_dispatch (manual). Never add pull_request triggers:
+# this repo is public and the runner executes on the host VM.
+name: Blender clean GLB
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_glb:
+        description: 'GLB path on the runner host, e.g. /home/hatch/workspace/qingming/public/assets/3d/buildings/restaurant-wine-house.glb'
+        required: true
+        type: string
+      target_faces:
+        description: 'Target face count after decimation'
+        required: false
+        default: '60000'
+        type: string
+      texture_size:
+        description: 'Texture size in px after downscale'
+        required: false
+        default: '1024'
+        type: string
+      bake_scale:
+        description: 'Bake scale factor (manifest scale for this asset)'
+        required: false
+        default: '1'
+        type: string
+
+jobs:
+  clean:
+    runs-on: [self-hosted, linux, x64, blender]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clean GLB
+        run: |
+          /home/hatch/workspace/blender/blender -b --python /home/hatch/workspace/blender-work/clean.py -- \
+            "${{ inputs.source_glb }}" /tmp/clean.glb \
+            "${{ inputs.target_faces }}" "${{ inputs.texture_size }}" "${{ inputs.bake_scale }}"
+          ls -la /tmp/clean.glb
+
+      - name: Upload cleaned GLB
+        uses: actions/upload-artifact@v4
+        with:
+          name: cleaned-glb
+          path: /tmp/clean.glb

@@ -1,6 +1,9 @@
 name: Verify README asset direct links
 
 on:
+  push:
+    paths:
+      - '.github/workflows/verify-readme-asset-links.yml'
   workflow_dispatch:
 
 permissions:

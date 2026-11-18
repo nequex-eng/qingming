@@ -1,0 +1,58 @@
+name: Verify README asset direct links
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download six direct links and compare with repository assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/readme-assets
+          declare -A urls=(
+            [timber-arch-bridge]='https://qingming-assets.pages.dev/timber-arch-bridge.glb'
+            [stone-arch-bridge]='https://qingming-assets.pages.dev/stone-arch-bridge.glb'
+            [riverside-commercial-building]='https://qingming-assets.pages.dev/riverside-commercial-building.glb'
+            [restaurant-wine-house]='https://qingming-assets.pages.dev/restaurant-wine-house.glb.gz'
+            [teahouse]='https://qingming-assets.pages.dev/teahouse.glb'
+            [wharf-dock]='https://qingming-assets.pages.dev/wharf-dock.glb'
+          )
+          for name in timber-arch-bridge stone-arch-bridge riverside-commercial-building restaurant-wine-house teahouse wharf-dock; do
+            echo "Testing README direct link: $name"
+            curl -fL --retry 3 --retry-delay 2 "${urls[$name]}" -o "/tmp/readme-assets/$name.download"
+            if [[ "$name" == "restaurant-wine-house" ]]; then
+              gzip -dc "/tmp/readme-assets/$name.download" > "/tmp/readme-assets/$name.glb"
+            else
+              mv "/tmp/readme-assets/$name.download" "/tmp/readme-assets/$name.glb"
+            fi
+            case "$name" in
+              timber-arch-bridge|stone-arch-bridge) repo="public/assets/3d/bridges/$name.glb" ;;
+              *) repo="public/assets/3d/architecture/$name.glb" ;;
+            esac
+            python - "$repo" "/tmp/readme-assets/$name.glb" <<'PY'
+          import hashlib, os, struct, sys
+          a,b=sys.argv[1:]
+          for p in (a,b):
+              with open(p,'rb') as f: h=f.read(12)
+              if len(h)!=12 or h[:4]!=b'glTF': raise SystemExit(f'Invalid GLB: {p}')
+              version,length=struct.unpack('<II',h[4:12])
+              if version!=2 or length!=os.path.getsize(p): raise SystemExit(f'Invalid GLB length/version: {p}')
+          def sha(p):
+              x=hashlib.sha256()
+              with open(p,'rb') as f:
+                  for block in iter(lambda:f.read(1024*1024),b''): x.update(block)
+              return x.hexdigest()
+          ha,hb=sha(a),sha(b)
+          print(f'{os.path.basename(a)} repo={os.path.getsize(a):,}B direct={os.path.getsize(b):,}B')
+          print(f'SHA256 repo={ha} direct={hb}')
+          if ha!=hb: raise SystemExit('Direct link content differs from committed model')
+          print('MATCH')
+          PY
+          done

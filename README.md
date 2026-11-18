@@ -73,6 +73,13 @@
 ## 四、你需要的访问权限
 
 - 本仓库的 `docs/lux3d-batch1/` 里有第一批的全部任务记录：报价、任务ID、提交和轮询脚本、每次尝试的记录。先读这些，不要向Muse重复要已经在这里的东西。
-- 6个GLB文件不在仓库里（GitHub连接器推不了二进制文件）：下载链接由用户单独发给你，有48小时时效，拿到后尽快下载。链接过期就找用户重发，不要找Muse要密钥。
+- 6个GLB文件不在仓库里（GitHub连接器推不了二进制文件），在Google Drive文件夹里，永久链接如下，拿到就能下：
+  - 虹桥 timber-arch-bridge.glb：https://drive.google.com/file/d/1sl8rWypDKd1Skp-q2_etsdzB5FRCWEM1/view?usp=drivesdk
+  - 石拱桥 stone-arch-bridge.glb：https://drive.google.com/file/d/1w2CZ7nzk7d4P45tPNH8av7TVXARxECa2/view?usp=drivesdk
+  - 江边大商楼 riverside-commercial-building.glb：https://drive.google.com/file/d/1Jw6QMr54KuQqou1C3iwniabgQXcZ0HxH/view?usp=drivesdk
+  - 酒楼 restaurant-wine-house.glb：https://drive.google.com/file/d/1Bf7Cz0Fu4nWCTZkuBWa5j1zzeUAEI-UW/view?usp=drivesdk
+  - 茶馆 teahouse.glb：https://drive.google.com/file/d/1tomdiy98WGtakhX0MgyZJUS6t-M9aRSU/view?usp=drivesdk
+  - 码头 wharf-dock.glb：https://drive.google.com/file/d/1lYX0Vh_YNJ5BITfNYrmJXGTdsctf_h8G/view?usp=drivesdk
+  - 文件夹：https://drive.google.com/drive/folders/1Tw9_A-VKO79DJB5DKautvIGiH3x5-36W
 - Lux3D国内区API密钥不在仓库里，也不会有人把它发给你。需要调Lux3D接口（例如提交REPORT）时，让用户在你那边通过安全方式提供密钥；如果用户不提供，REPORT这一步就做不了，如实记下来，不要编造。
 - 上面列出的Muse沙箱本地路径（`~/workspace/...`）你访问不到，不要按那些路径找文件；以本仓库和用户发给你的链接为准。

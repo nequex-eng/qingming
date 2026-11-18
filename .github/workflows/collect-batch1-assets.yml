@@ -1,0 +1,62 @@
+name: Collect Lux3D batch 1 assets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download model archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming output
+          curl -fL --retry 3 --retry-delay 2 -A "Mozilla/5.0" \
+            "https://github.com/user-attachments/files/35024747/wharf-dock.glb.zip" \
+            -o incoming/wharf-dock.glb.zip
+          curl -fL --retry 3 --retry-delay 2 -A "Mozilla/5.0" \
+            "https://github.com/user-attachments/files/35024774/timber-arch-bridge.glb.zip" \
+            -o incoming/timber-arch-bridge.glb.zip
+          file incoming/*.zip
+          unzip -t incoming/wharf-dock.glb.zip
+          unzip -t incoming/timber-arch-bridge.glb.zip
+
+      - name: Extract and validate GLB files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for archive in incoming/*.zip; do
+            unzip -oq "$archive" -d output
+          done
+          python - <<'PY'
+          from pathlib import Path
+          import struct
+          files = sorted(Path("output").rglob("*.glb"))
+          if len(files) < 2:
+              raise SystemExit(f"Expected at least 2 GLB files, found {len(files)}")
+          for p in files:
+              data = p.read_bytes()
+              if len(data) < 12 or data[:4] != b"glTF":
+                  raise SystemExit(f"Invalid GLB magic/header: {p}")
+              version, declared_length = struct.unpack_from("<II", data, 4)
+              if version != 2 or declared_length != len(data):
+                  raise SystemExit(
+                      f"Invalid GLB v/length for {p}: version={version}, "
+                      f"declared={declared_length}, actual={len(data)}"
+                  )
+              print(f"VALID {p} | {len(data)} bytes | GLB v{version}")
+          PY
+
+      - name: Upload verified model files
+        uses: actions/upload-artifact@v4
+        with:
+          name: lux3d-batch1-models
+          path: output/**/*.glb
+          if-no-files-found: error
+          retention-days: 7

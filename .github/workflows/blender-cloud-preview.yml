@@ -1,0 +1,52 @@
+name: Cloud Blender - Qingming asset inspection
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qingming-cloud-blender
+  cancel-in-progress: false
+
+jobs:
+  inspect-and-render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out project assets
+        uses: actions/checkout@v4
+
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+          blender --version
+
+      - name: Prepare compressed model
+        run: |
+          python3 - <<'PY'
+          import gzip, pathlib
+          src = pathlib.Path("public/assets/3d/architecture/restaurant-wine-house.glb.gz")
+          dst = pathlib.Path("/tmp/restaurant-wine-house.glb")
+          with gzip.open(src, "rb") as f, dst.open("wb") as out:
+              out.write(f.read())
+          print(f"Decompressed wine-house model: {dst.stat().st_size:,} bytes")
+          PY
+
+      - name: Render asset inspection board
+        run: |
+          mkdir -p output
+          blender --background --factory-startup --python-exit-code 1 --python scripts/blender_cloud_preview.py
+
+      - name: Upload Blender preview and project
+        uses: actions/upload-artifact@v4
+        with:
+          name: qingming-blender-inspection
+          path: |
+            output/qingming-assets-overview.png
+            output/qingming-assets.blend
+            output/model-dimensions.json
+          if-no-files-found: error
+          retention-days: 14

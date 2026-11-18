@@ -1,0 +1,28 @@
+# Runner smoke test — proves the self-hosted runner can run Blender.
+# Trigger ONLY via workflow_dispatch (manual). Never add pull_request triggers:
+# this repo is public and the runner executes on the host VM.
+name: Runner smoke test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, linux, x64, blender]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Blender version
+        run: /home/hatch/workspace/blender/blender --version
+
+      - name: Render test frame
+        run: |
+          /home/hatch/workspace/blender/blender -b --python /home/hatch/workspace/blender-work/render2.py -- \
+            /home/hatch/workspace/blender-work/restaurant-wine-house.clean.glb /tmp/smoke.png
+          ls -la /tmp/smoke.png
+
+      - name: Upload render
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-render
+          path: /tmp/smoke.png

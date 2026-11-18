@@ -6,17 +6,17 @@ import tempfile
 import gzip
 from mathutils import Vector
 
-ROOT = os.getcwd()
+ROOT = os.getcwd()\nASSET_ROOT = os.environ.get("QINGMING_ASSET_ROOT", os.path.join(ROOT, "public/assets/3d"))
 OUT = os.path.join(ROOT, "output")
 os.makedirs(OUT, exist_ok=True)
 
 ASSETS = [
-    ("Timber arch bridge", "public/assets/3d/bridges/timber-arch-bridge.glb"),
-    ("Stone arch bridge", "public/assets/3d/bridges/stone-arch-bridge.glb"),
-    ("Riverside commercial building", "public/assets/3d/architecture/riverside-commercial-building.glb"),
+    ("Timber arch bridge", "bridges/timber-arch-bridge.glb"),
+    ("Stone arch bridge", "bridges/stone-arch-bridge.glb"),
+    ("Riverside commercial building", "architecture/riverside-commercial-building.glb"),
     ("Restaurant / wine house", "/tmp/restaurant-wine-house.glb"),
-    ("Teahouse", "public/assets/3d/architecture/teahouse.glb"),
-    ("Wharf / dock", "public/assets/3d/architecture/wharf-dock.glb"),
+    ("Teahouse", "architecture/teahouse.glb"),
+    ("Wharf / dock", "architecture/wharf-dock.glb"),
 ]
 
 # Clean factory scene and create a neutral inspection stage.
@@ -26,13 +26,13 @@ for datablocks in (bpy.data.materials, bpy.data.meshes, bpy.data.curves, bpy.dat
     pass
 
 scene = bpy.context.scene
-scene.render.engine = "BLENDER_EEVEE_NEXT" if hasattr(bpy.types, "SceneEEVEE") else "BLENDER_EEVEE"
+scene.render.engine = "BLENDER_EEVEE_NEXT" if bpy.app.version >= (4, 2, 0) else "BLENDER_EEVEE"
 scene.render.resolution_x = 1800
 scene.render.resolution_y = 1200
 scene.render.resolution_percentage = 100
 scene.render.image_settings.file_format = "PNG"
 scene.render.film_transparent = False
-scene.world.color = (0.055, 0.065, 0.08)
+scene.world.color = (0.93, 0.88, 0.74)\nscene.world.use_nodes = True\nscene.world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.93, 0.88, 0.74, 1)\nscene.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 1.1
 scene.view_settings.view_transform = "Standard"
 
 # Soft ground.
@@ -40,7 +40,7 @@ bpy.ops.mesh.primitive_plane_add(size=200, location=(0, 0, -0.08))
 ground = bpy.context.object
 ground.name = "Inspection Ground"
 mat = bpy.data.materials.new("Warm neutral ground")
-mat.diffuse_color = (0.19, 0.22, 0.22, 1)
+mat.diffuse_color = (0.62, 0.54, 0.40, 1)
 ground.data.materials.append(mat)
 
 # Soft studio lighting.
@@ -52,7 +52,7 @@ def area_light(name, loc, power, size):
     obj = bpy.data.objects.new(name, data)
     scene.collection.objects.link(obj)
     obj.location = loc
-    direction = (0, 0, 0) - obj.location
+    direction = Vector((0, 0, 0)) - obj.location
     obj.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
     return obj
 
@@ -63,7 +63,7 @@ area_light("Rim softbox", (0, 10, 12), 1500, 7)
 # Six assets arranged independently in a 3 x 2 inspection grid.
 records = []
 for idx, (label, relpath) in enumerate(ASSETS):
-    path = relpath if os.path.isabs(relpath) else os.path.join(ROOT, relpath)
+    path = relpath if os.path.isabs(relpath) else os.path.join(ASSET_ROOT, relpath)
     if not os.path.isfile(path):
         raise FileNotFoundError(f"Missing model: {path}")
 
@@ -100,7 +100,7 @@ for idx, (label, relpath) in enumerate(ASSETS):
     coords2 = []
     for obj in mesh_objects:
         for corner in obj.bound_box:
-            coords2.append(obj.matrix_world @ bpy.mathutils.Vector(corner))
+            coords2.append(obj.matrix_world @ Vector(corner))
     mins2 = [min(v[i] for v in coords2) for i in range(3)]
     maxs2 = [max(v[i] for v in coords2) for i in range(3)]
     center = [(mins2[i] + maxs2[i]) / 2 for i in range(3)]

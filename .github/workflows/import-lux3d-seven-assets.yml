@@ -68,5 +68,6 @@ jobs:
             echo "No model changes to commit."
           else
             git commit -m "Import seven verified Lux3D scene assets"
+            git pull --rebase origin "$GITHUB_REF_NAME"
             git push
           fi

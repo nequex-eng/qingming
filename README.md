@@ -8,6 +8,10 @@
 
 资产目录：`public/assets/3d/`（architecture、bridges、boats、transport、characters、animals、stalls、props、previews），文档在 `docs/`。
 
+## Runner（Blender任务分发）
+
+本机已注册自托管Runner muse-blender并在线，Blender任务从本仓库Actions手动派发（`runner-smoke.yml`冒烟、`blender-clean.yml`清GLB，2026-11-18冒烟已跑绿），细则见`docs/runner.md`。qingming是所有项目的总调度：nequex-eng是个人账号、无组织、没有组织级Runner，各项目Blender任务都从这里派发，`source_glb`按本机路径指到对应项目。工作流只手动触发，绝不接PR（公开仓库）。
+
 ---
 
 # 给GPT的命令：完成第一批

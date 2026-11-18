@@ -18,9 +18,19 @@ function addTree(x,z,s=1){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(
 function addHouse(x,z,w=5,d=3,h=3){const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(0xb9a98b));body.position.set(x,h/2,z);body.castShadow=true;body.receiveShadow=true;scene.add(body);const roof=new THREE.Mesh(new THREE.ConeGeometry(w*.78,1.45,4),mat(0x686b5d));roof.position.set(x,h+.68,z);roof.rotation.y=Math.PI/4;roof.scale.z=d/w;roof.castShadow=true;scene.add(roof);const porch=new THREE.Mesh(new THREE.BoxGeometry(w*.62,.18,.9),woodMat);porch.position.set(x,.85,z+(z>0?-d/2-.4:d/2+.4));scene.add(porch);}
 // 以真实南宋建筑资产替换临时方盒建筑，沿两岸形成市井街面。
 const loader=new GLTFLoader(),ROOT='./public/assets/3d/';
+async function fetchGLTF(file){
+  if(!file.endsWith('.gz')) return loader.loadAsync(ROOT+file);
+  const response=await fetch(ROOT+file);
+  if(!response.ok) throw new Error('HTTP '+response.status+' loading '+file);
+  if(!('DecompressionStream' in window)) throw new Error('当前浏览器不支持gzip解压');
+  const compressed=await response.arrayBuffer();
+  const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
+  const data=await new Response(stream).arrayBuffer();
+  return loader.parseAsync(data,'');
+}
 const loaded=[];
 async function loadModel(file,label,position,targetFootprint,rotationY=0){
-  const gltf=await loader.loadAsync(ROOT+file),model=gltf.scene;
+  const gltf=await fetchGLTF(file),model=gltf.scene;
   model.rotation.y=rotationY;
   model.updateMatrixWorld(true);
   let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());
@@ -48,7 +58,7 @@ async function assembleAssets(){
     ()=>loadModel('bridges/stone-arch-bridge.glb','石拱桥',[-19,0,0],12.5,0),
     ()=>loadModel('architecture/wharf-dock.glb','临河码头',[7,0,5.25],7,Math.PI/2),
     ()=>loadModel('architecture/teahouse.glb','茶馆',[-23,0,11],7.5,0),
-    ()=>loadModel('architecture/restaurant-wine-house.glb','酒楼',[-8,0,11],8,0),
+    ()=>loadModel('architecture/restaurant-wine-house.glb.gz','酒楼',[-8,0,11],8,0),
     ()=>loadModel('architecture/riverside-commercial-building.glb','江边大商楼',[19,0,-11],9,Math.PI)
   ];
   const results=await Promise.allSettled(jobs.map(fn=>fn()));

@@ -1,54 +1,63 @@
-name: Cloud Blender - Qingming asset inspection
+name: Muse Blender - Qingming asset inspection
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/blender-cloud-preview.yml'
-      - 'scripts/blender_cloud_preview.py'
-      - 'public/assets/3d/**'
 
 permissions:
   contents: read
 
 concurrency:
-  group: qingming-cloud-blender
+  group: qingming-muse-blender
   cancel-in-progress: false
 
 jobs:
   inspect-and-render:
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, blender]
     timeout-minutes: 45
     steps:
-      - name: Check out project assets
+      - name: Check out project scripts
         uses: actions/checkout@v4
 
-      - name: Install Blender
+      - name: Verify Muse Blender and source assets
+        env:
+          ASSET_ROOT: /home/hatch/workspace/qingming/public/assets/3d
         run: |
-          sudo apt-get update
-          sudo apt-get install -y blender
-          blender --version
+          /home/hatch/workspace/blender/blender --version
+          test -d "$ASSET_ROOT"
+          find "$ASSET_ROOT" -maxdepth 3 -type f \( -name '*.glb' -o -name '*.glb.gz' \) -printf '%p %s bytes\n' | sort
+          for f in \
+            bridges/timber-arch-bridge.glb \
+            bridges/stone-arch-bridge.glb \
+            architecture/riverside-commercial-building.glb \
+            architecture/teahouse.glb \
+            architecture/wharf-dock.glb; do
+            test -s "$ASSET_ROOT/$f" || { echo "Missing asset: $ASSET_ROOT/$f"; exit 1; }
+          done
+          test -s "$ASSET_ROOT/architecture/restaurant-wine-house.glb" -o -s "$ASSET_ROOT/architecture/restaurant-wine-house.glb.gz"
 
-      - name: Prepare compressed model
+      - name: Prepare compressed wine-house model
+        env:
+          ASSET_ROOT: /home/hatch/workspace/qingming/public/assets/3d
         run: |
-          python3 - <<'PY'
-          import gzip, pathlib
-          src = pathlib.Path("public/assets/3d/architecture/restaurant-wine-house.glb.gz")
-          dst = pathlib.Path("/tmp/restaurant-wine-house.glb")
-          with gzip.open(src, "rb") as f, dst.open("wb") as out:
-              out.write(f.read())
-          print(f"Decompressed wine-house model: {dst.stat().st_size:,} bytes")
-          PY
+          if [ -s "$ASSET_ROOT/architecture/restaurant-wine-house.glb" ]; then
+            cp "$ASSET_ROOT/architecture/restaurant-wine-house.glb" /tmp/restaurant-wine-house.glb
+          else
+            gzip -dc "$ASSET_ROOT/architecture/restaurant-wine-house.glb.gz" > /tmp/restaurant-wine-house.glb
+          fi
+          test -s /tmp/restaurant-wine-house.glb
+          stat -c '%n %s bytes' /tmp/restaurant-wine-house.glb
 
-      - name: Render asset inspection board
+      - name: Render six assets under Song-painting light
+        env:
+          QINGMING_ASSET_ROOT: /home/hatch/workspace/qingming/public/assets/3d
         run: |
           mkdir -p output
-          blender --background --factory-startup --python-exit-code 1 --python scripts/blender_cloud_preview.py
+          /home/hatch/workspace/blender/blender --background --factory-startup --python-exit-code 1 --python scripts/blender_cloud_preview.py
 
       - name: Upload Blender preview and project
         uses: actions/upload-artifact@v4
         with:
-          name: qingming-blender-inspection
+          name: qingming-muse-blender-inspection
           path: |
             output/qingming-assets-overview.png
             output/qingming-assets.blend

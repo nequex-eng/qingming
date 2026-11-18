@@ -6,7 +6,8 @@ import tempfile
 import gzip
 from mathutils import Vector
 
-ROOT = os.getcwd()\nASSET_ROOT = os.environ.get("QINGMING_ASSET_ROOT", os.path.join(ROOT, "public/assets/3d"))
+ROOT = os.getcwd()
+ASSET_ROOT = os.environ.get("QINGMING_ASSET_ROOT", os.path.join(ROOT, "public/assets/3d"))
 OUT = os.path.join(ROOT, "output")
 os.makedirs(OUT, exist_ok=True)
 
@@ -32,7 +33,10 @@ scene.render.resolution_y = 1200
 scene.render.resolution_percentage = 100
 scene.render.image_settings.file_format = "PNG"
 scene.render.film_transparent = False
-scene.world.color = (0.93, 0.88, 0.74)\nscene.world.use_nodes = True\nscene.world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.93, 0.88, 0.74, 1)\nscene.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 1.1
+scene.world.color = (0.93, 0.88, 0.74)
+scene.world.use_nodes = True
+scene.world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.93, 0.88, 0.74, 1)
+scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 1.1
 scene.view_settings.view_transform = "Standard"
 
 # Soft ground.
@@ -56,9 +60,9 @@ def area_light(name, loc, power, size):
     obj.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
     return obj
 
-area_light("Key softbox", (7, -10, 15), 1800, 9)
-area_light("Fill softbox", (-10, -4, 9), 1100, 8)
-area_light("Rim softbox", (0, 10, 12), 1500, 7)
+area_light("Warm Song-style key", (7, -10, 15), 2.2, 9)
+area_light("Cool soft fill", (-10, -4, 9), 0.7, 8)
+area_light("Warm rim", (0, 10, 12), 1.0, 7)
 
 # Six assets arranged independently in a 3 x 2 inspection grid.
 records = []

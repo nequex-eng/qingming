@@ -1,1 +1,1 @@
-Trigger the riverside scene asset assembly workflow. Models remain limited to the verified bridge and wharf.
+Cloudflare Pages source connected; trigger the first production deployment of the two-model riverside prototype.

@@ -73,10 +73,13 @@
 ## 四、你需要的访问权限
 
 - 本仓库的 `docs/lux3d-batch1/` 里有第一批的全部任务记录：报价、任务ID、提交和轮询脚本、每次尝试的记录。先读这些，不要向Muse重复要已经在这里的东西。
-- 6个GLB文件不在仓库里（GitHub连接器推不了二进制文件）。先用下面这两个直链下载（Cloudflare Pages直出文件，无跳转、无JS，已验证整文件可下）：
+- 6个GLB文件不在仓库里（GitHub连接器推不了二进制文件）。用下面这些直链下载（Cloudflare Pages直出文件，无跳转、无JS，6个全部验证整文件可下）：
   - 虹桥 timber-arch-bridge.glb：https://qingming-assets.pages.dev/timber-arch-bridge.glb
+  - 石拱桥 stone-arch-bridge.glb：https://qingming-assets.pages.dev/stone-arch-bridge.glb
+  - 江边大商楼 riverside-commercial-building.glb：https://qingming-assets.pages.dev/riverside-commercial-building.glb
+  - 酒楼 restaurant-wine-house.glb.gz：https://qingming-assets.pages.dev/restaurant-wine-house.glb.gz （gzip压缩过，下载后gunzip得到.glb，解压后26,525,756字节）
+  - 茶馆 teahouse.glb：https://qingming-assets.pages.dev/teahouse.glb
   - 码头 wharf-dock.glb：https://qingming-assets.pages.dev/wharf-dock.glb
-- 其余4个还没传（石拱桥、江边大商楼、酒楼、茶馆），能下就先做这两个的验看，等用户补传其余4个。
-- 备用：Release里也有这两个的zip包（下载后解压得到.glb）：https://github.com/nequex-eng/qingming/releases/tag/batch1 ；Google Drive文件夹：https://drive.google.com/drive/folders/1Tw9_A-VKO79DJB5DKautvIGiH3x5-36W ，但Drive查看页要JS跳转，下载器可能拿不到。
+- 备用：Release里也有这6个的zip包（下载后解压得到.glb）：https://github.com/nequex-eng/qingming/releases/tag/batch1 ；Google Drive文件夹：https://drive.google.com/drive/folders/1Tw9_A-VKO79DJB5DKautvIGiH3x5-36W ，但Drive查看页要JS跳转，下载器可能拿不到。
 - Lux3D国内区API密钥不在仓库里，也不会有人把它发给你。需要调Lux3D接口（例如提交REPORT）时，让用户在你那边通过安全方式提供密钥；如果用户不提供，REPORT这一步就做不了，如实记下来，不要编造。
 - 上面列出的Muse沙箱本地路径（`~/workspace/...`）你访问不到，不要按那些路径找文件；以本仓库和用户发给你的链接为准。

@@ -4,6 +4,7 @@ import json
 import math
 import tempfile
 import gzip
+from mathutils import Vector
 
 ROOT = os.getcwd()
 OUT = os.path.join(ROOT, "output")
@@ -33,7 +34,6 @@ scene.render.image_settings.file_format = "PNG"
 scene.render.film_transparent = False
 scene.world.color = (0.055, 0.065, 0.08)
 scene.view_settings.view_transform = "Standard"
-scene.view_settings.look = "AgX - Medium High Contrast" if "AgX - Medium High Contrast" in [x.name for x in bpy.types.ColorManagedViewSettings.bl_rna.properties["look"].enum_items] else "Medium High Contrast"
 
 # Soft ground.
 bpy.ops.mesh.primitive_plane_add(size=200, location=(0, 0, -0.08))
@@ -82,7 +82,7 @@ for idx, (label, relpath) in enumerate(ASSETS):
     coords = []
     for obj in mesh_objects:
         for corner in obj.bound_box:
-            coords.append(obj.matrix_world @ bpy.mathutils.Vector(corner))
+            coords.append(obj.matrix_world @ Vector(corner))
     mins = [min(v[i] for v in coords) for i in range(3)]
     maxs = [max(v[i] for v in coords) for i in range(3)]
     dims = [maxs[i] - mins[i] for i in range(3)]
@@ -128,7 +128,7 @@ cam = bpy.data.objects.new("Inspection Camera", cam_data)
 scene.collection.objects.link(cam)
 cam.location = (16, -22, 23)
 target = (0, 0, 0)
-direction = bpy.mathutils.Vector(target) - cam.location
+direction = Vector(target) - cam.location
 cam.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
 cam.data.type = "ORTHO"
 cam.data.ortho_scale = 25.5

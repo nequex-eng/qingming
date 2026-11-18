@@ -2,6 +2,11 @@ name: Cloud Blender - Qingming asset inspection
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/blender-cloud-preview.yml'
+      - 'scripts/blender_cloud_preview.py'
+      - 'public/assets/3d/**'
 
 permissions:
   contents: read

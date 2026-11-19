@@ -59,7 +59,12 @@
       1.75,
       0.412
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      0.678,
+      1.75,
+      0.412
+    ]
   },
   {
     "file": "assets/3d/characters/boatman.glb",
@@ -79,7 +84,12 @@
       1.75,
       0.413
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      0.847,
+      1.75,
+      0.413
+    ]
   },
   {
     "file": "assets/3d/characters/scholar-literati.glb",
@@ -99,7 +109,12 @@
       1.75,
       0.518
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      0.677,
+      1.75,
+      0.518
+    ]
   },
   {
     "file": "assets/3d/characters/street-vendor.glb",
@@ -119,7 +134,12 @@
       1.75,
       0.425
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      1.061,
+      1.75,
+      0.425
+    ]
   },
   {
     "file": "assets/3d/characters/merchant-shopkeeper.glb",
@@ -139,7 +159,12 @@
       1.75,
       0.42
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      1.123,
+      1.75,
+      0.42
+    ]
   },
   {
     "file": "assets/3d/characters/shop-assistant.glb",
@@ -159,7 +184,12 @@
       1.75,
       0.43
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      0.793,
+      1.75,
+      0.43
+    ]
   },
   {
     "file": "assets/3d/characters/teahouse-worker.glb",
@@ -179,7 +209,12 @@
       1.75,
       0.411
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      1.027,
+      1.75,
+      0.411
+    ]
   },
   {
     "file": "assets/3d/characters/porter-laborer.glb",
@@ -199,7 +234,12 @@
       1.75,
       0.373
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      0.98,
+      1.75,
+      0.373
+    ]
   },
   {
     "file": "assets/3d/boats/cargo-boat.glb",
@@ -219,7 +259,12 @@
       5.384,
       2.637
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      7,
+      5.384,
+      2.637
+    ]
   },
   {
     "file": "assets/3d/boats/covered-boat.glb",
@@ -239,7 +284,12 @@
       2.089,
       1.889
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      5,
+      2.089,
+      1.889
+    ]
   },
   {
     "file": "assets/3d/boats/ferry-boat.glb",
@@ -259,7 +309,12 @@
       2.081,
       5.5
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      5.5,
+      2.081,
+      4.071
+    ]
   },
   {
     "file": "assets/3d/boats/skiff.glb",
@@ -279,7 +334,12 @@
       2.914,
       4.5
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      4.5,
+      2.914,
+      2.093
+    ]
   },
   {
     "file": "assets/3d/boats/passenger-boat.glb",
@@ -299,7 +359,12 @@
       4.111,
       6
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      6,
+      4.111,
+      2.469
+    ]
   },
   {
     "file": "assets/3d/transport/cargo-cart.glb",
@@ -319,7 +384,12 @@
       1.92,
       1.558
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      2.799,
+      1.92,
+      1.558
+    ]
   },
   {
     "file": "assets/3d/transport/handcart.glb",
@@ -333,13 +403,18 @@
     ],
     "scale": 0.500939,
     "target_size_basis": "1.6m length (Z axis)",
-    "recommended_rotationY": 0,
+    "recommended_rotationY": 1.5707963267948966,
     "scaled_dimensions_m": [
       0.902,
       0.875,
       1.6
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      1.6,
+      0.875,
+      0.902
+    ]
   },
   {
     "file": "assets/3d/transport/sedan-chair.glb",
@@ -353,12 +428,17 @@
     ],
     "scale": 0.773558,
     "target_size_basis": "2.2m overall height",
-    "recommended_rotationY": 0,
+    "recommended_rotationY": 1.5707963267948966,
     "scaled_dimensions_m": [
       1.392,
       2.2,
       2.801
     ],
-    "scale_baked": 1
+    "scale_baked": 1,
+    "world_dimensions_m": [
+      2.801,
+      2.2,
+      1.392
+    ]
   }
 ]

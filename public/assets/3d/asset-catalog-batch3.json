@@ -1,0 +1,44 @@
+[
+  {
+    "id": "barrels-set",
+    "file": "assets/3d/environment/barrels-set.glb",
+    "size_bytes": 119108,
+    "format": "GLB 2.0 Draco",
+    "batch": "batch3"
+  },
+  {
+    "id": "ceramics-set",
+    "file": "assets/3d/environment/ceramics-set.glb",
+    "size_bytes": 9508,
+    "format": "GLB 2.0 Draco",
+    "batch": "batch3"
+  },
+  {
+    "id": "ground",
+    "file": "assets/3d/environment/ground.glb",
+    "size_bytes": 172648,
+    "format": "GLB 2.0 Draco",
+    "batch": "batch3"
+  },
+  {
+    "id": "paper-lantern",
+    "file": "assets/3d/environment/paper-lantern.glb",
+    "size_bytes": 73732,
+    "format": "GLB 2.0 Draco",
+    "batch": "batch3"
+  },
+  {
+    "id": "river",
+    "file": "assets/3d/environment/river.glb",
+    "size_bytes": 153976,
+    "format": "GLB 2.0 Draco",
+    "batch": "batch3"
+  },
+  {
+    "id": "shopfront-fabric-awning",
+    "file": "assets/3d/environment/shopfront-fabric-awning.glb",
+    "size_bytes": 69052,
+    "format": "GLB 2.0 Draco",
+    "batch": "batch3"
+  }
+]

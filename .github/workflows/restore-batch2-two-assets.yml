@@ -10,7 +10,7 @@ permissions:
 jobs:
   restore:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,15 +41,16 @@ jobs:
               shutil.copy2(candidates[0],dest)
               print('RESTORED',dest,len(data))
           PY
-      - name: Verify all six CDN URLs
+      - name: Verify all six CDN objects by downloading and checking exact byte lengths
         shell: bash
         run: |
           set -euo pipefail
           while read -r name expected; do
             url="https://qingming-assets.pages.dev/$name"
-            actual="$(curl -fsSI "$url" | awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub("\r","");print $2}' | tail -n1)"
-            echo "$name expected=$expected cdn_content_length=${actual:-unknown}"
-            test -n "$actual"
+            file="/tmp/cdn-$name"
+            curl -fsSL --retry 2 "$url" -o "$file"
+            actual="$(wc -c < "$file" | tr -d ' ')"
+            echo "$name expected=$expected actual=$actual"
             test "$actual" = "$expected"
           done <<'EOF'
           timber-arch-bridge.glb 2854480

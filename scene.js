@@ -17,10 +17,10 @@ function addTree(x,z,s=1){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(
 [[-17,-10],[-9,-10],[10,-10],[18,-10],[-18,10],[-12,10],[13,10],[19,10]].forEach((p,i)=>addTree(p[0],p[1],.85+(i%3)*.12));
 function addHouse(x,z,w=5,d=3,h=3){const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(0xb9a98b));body.position.set(x,h/2,z);body.castShadow=true;body.receiveShadow=true;scene.add(body);const roof=new THREE.Mesh(new THREE.ConeGeometry(w*.78,1.45,4),mat(0x686b5d));roof.position.set(x,h+.68,z);roof.rotation.y=Math.PI/4;roof.scale.z=d/w;roof.castShadow=true;scene.add(roof);const porch=new THREE.Mesh(new THREE.BoxGeometry(w*.62,.18,.9),woodMat);porch.position.set(x,.85,z+(z>0?-d/2-.4:d/2+.4));scene.add(porch);}
 // 以真实南宋建筑资产替换临时方盒建筑，沿两岸形成市井街面。
-const loader=new GLTFLoader(),ROOT='./public/assets/3d/';
-async function fetchGLTF(file){
-  if(!file.endsWith('.gz')) return loader.loadAsync(ROOT+file);
-  const response=await fetch(ROOT+file);
+const loader=new GLTFLoader();
+async function fetchGLTF(url){
+  if(!url.endsWith('.gz')) return loader.loadAsync(url);
+  const response=await fetch(url);
   if(!response.ok) throw new Error('HTTP '+response.status+' loading '+file);
   if(!('DecompressionStream' in window)) throw new Error('当前浏览器不支持gzip解压');
   const compressed=await response.arrayBuffer();
@@ -29,14 +29,14 @@ async function fetchGLTF(file){
   return loader.parseAsync(data,'');
 }
 const loaded=[];
-async function loadModel(file,label,position,targetFootprint,rotationY=0){
-  const gltf=await fetchGLTF(file),model=gltf.scene;
+async function loadModel(url,label,position,targetFootprint,rotationY=0,assetScale=1){
+  const gltf=await fetchGLTF(url),model=gltf.scene;
   model.rotation.y=rotationY;
   model.updateMatrixWorld(true);
   let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());
   const horizontal=Math.max(size.x,size.z);
   const scale=horizontal>0?Math.min(targetFootprint/horizontal,1.8):1;
-  model.scale.setScalar(scale);
+  model.scale.setScalar(scale*assetScale);
   model.updateMatrixWorld(true);
   bounds.setFromObject(model);
   const center=bounds.getCenter(new THREE.Vector3());
@@ -52,15 +52,10 @@ async function loadModel(file,label,position,targetFootprint,rotationY=0){
   return item;
 }
 async function assembleAssets(){
-  const jobs=[
-    // 虹桥跨越河道；原始文件保留，场景中按真实世界占地自动归一比例
-    ()=>loadModel('bridges/timber-arch-bridge.glb','虹桥',[0,0,0],14,0),
-    ()=>loadModel('bridges/stone-arch-bridge.glb','石拱桥',[-19,0,0],12.5,0),
-    ()=>loadModel('architecture/wharf-dock.glb','临河码头',[7,0,5.25],7,Math.PI/2),
-    ()=>loadModel('architecture/teahouse.glb','茶馆',[-23,0,11],7.5,0),
-    ()=>loadModel('architecture/restaurant-wine-house.glb','酒楼',[-8,0,11],8,0),
-    ()=>loadModel('architecture/riverside-commercial-building.glb','江边大商楼',[19,0,-11],9,Math.PI)
-  ];
+  const manifestResponse=await fetch('./public/assets/manifest.json',{cache:'no-cache'});
+  if(!manifestResponse.ok) throw new Error('资产清单加载失败：HTTP '+manifestResponse.status);
+  const manifest=await manifestResponse.json();
+  const jobs=(manifest.assets||[]).map(asset=>()=>loadModel(asset.url,asset.label,asset.position,asset.targetFootprint,asset.rotationY,asset.scale||1));
   const results=await Promise.allSettled(jobs.map(fn=>fn()));
   const failed=results.map((r,i)=>r.status==='rejected'?({i,error:r.reason}):null).filter(Boolean);
   if(failed.length){
@@ -70,7 +65,7 @@ async function assembleAssets(){
     status.textContent='六种独立资产全部载入 · 虹桥只保留一份';
   }
 }
-assembleAssets();
+assembleAssets().catch(error=>{console.error('Scene asset manifest error:',error);status.textContent='场景资产清单加载失败';});
 for(let i=0;i<4;i++){const step=new THREE.Mesh(new THREE.BoxGeometry(1.7,.13,.42),stoneMat);step.position.set(5.6,.08-i*.08,7.1+i*.38);step.receiveShadow=true;scene.add(step);}
 const keys=new Set();addEventListener('keydown',e=>{if('wasdqe'.includes(e.key.toLowerCase())){keys.add(e.key.toLowerCase());e.preventDefault();}});addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 function move(dt){const f=new THREE.Vector3();camera.getWorldDirection(f);f.y=0;f.normalize();const right=new THREE.Vector3().crossVectors(f,camera.up).normalize(),v=dt*8;if(keys.has('w'))camera.position.addScaledVector(f,v);if(keys.has('s'))camera.position.addScaledVector(f,-v);if(keys.has('a'))camera.position.addScaledVector(right,-v);if(keys.has('d'))camera.position.addScaledVector(right,v);if(keys.has('q'))camera.position.y-=v;if(keys.has('e'))camera.position.y+=v;if(keys.size)controls.target.copy(camera.position).add(f.multiplyScalar(7));}

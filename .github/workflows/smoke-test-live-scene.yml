@@ -7,6 +7,7 @@ on:
       - 'scene.js'
       - 'src/asset-manager.js'
       - 'public/assets/manifest.json'
+      - 'public/assets/3d/asset-catalog-batch2.json'
   workflow_dispatch:
 permissions:
   contents: read
@@ -42,7 +43,7 @@ jobs:
             page.on('requestfailed',r=>errors.push('requestfailed: '+r.url()+' '+r.failure()?.errorText));
             page.on('response',r=>{if(r.url().includes('qingming-assets.pages.dev'))loaded.push({url:r.url(),status:r.status(),bytes:r.headers()['content-length']||''});});
             const base='https://qingming-riverside-2wq.pages.dev';
-            let deployed=false; for(let i=0;i<36;i++){const r=await page.request.get(base+'/scene.js'); const m=await page.request.get(base+'/src/asset-manager.js'); if(r.ok()&&m.ok()&&(await r.text()).includes('AssetManager')&&(await m.text()).includes('model.scale.setScalar(scale)')&&!(await m.text()).includes('targetFootprint')){deployed=true;break;} await page.waitForTimeout(5000);} if(!deployed)throw new Error('Latest AssetManager modules are not deployed yet');
+            let deployed=false; for(let i=0;i<36;i++){const r=await page.request.get(base+'/scene.js'); const m=await page.request.get(base+'/src/asset-manager.js'); if(r.ok()&&m.ok()&&(await r.text()).includes('AssetManager')&&(await m.text()).includes('window.__qingmingAssetManager')&&(await m.text()).includes('model.scale.setScalar(scale)')&&!(await m.text()).includes('targetFootprint')){deployed=true;break;} await page.waitForTimeout(5000);} if(!deployed)throw new Error('Latest AssetManager modules are not deployed yet');
             const manifest=await page.request.get(base+'/public/assets/manifest.json');
             if(!manifest.ok()) throw new Error('Manifest HTTP '+manifest.status());
             const data=await manifest.json();
@@ -60,6 +61,22 @@ jobs:
             if(geometry.length!==6)throw new Error('Expected six parsed GLB models, got '+geometry.length);
             for(const x of geometry){if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid model dimensions: '+x.label);if(Math.abs(x.minY-x.expectedPosition[1])>0.05)throw new Error('Ground contact changed: '+x.label);if(Math.abs(x.centerX-x.expectedPosition[0])>0.05||Math.abs(x.centerZ-x.expectedPosition[2])>0.05)throw new Error('Model placement changed: '+x.label);if(!(x.appliedScale>0&&Number.isFinite(x.appliedScale)))throw new Error('Invalid applied scale: '+x.label);}
             if(loaded.filter(x=>x.status===200).length<6)throw new Error('Not all six CDN GLBs returned HTTP 200');
+            const catalogResult=await page.evaluate(async()=>{
+              const manager=window.__qingmingAssetManager;
+              const catalog=await manager.loadCatalog();
+              const measured=catalog.filter(a=>Array.isArray(a.measured_dimensions_m));
+              const results=[];
+              for(let i=0;i<measured.length;i++){
+                const a=measured[i], id=a.file.split('/').pop().replace(/\\.glb$/i,'');
+                const item=await manager.loadCatalogModel(id,[i*5,0,25]);
+                results.push({id,scale:item.appliedScale,rotationY:item.rotationY,minY:item.bounds.min.y,size:[item.size.x,item.size.y,item.size.z],measured:a.measured_dimensions_m});
+                manager.scene.remove(item.model);
+              }
+              return {count:results.length,results};
+            });
+            console.log('CATALOG_RESULT '+JSON.stringify(catalogResult));
+            if(catalogResult.count!==16)throw new Error('Expected 16 measured catalog assets, got '+catalogResult.count);
+            for(const x of catalogResult.results){if(!(x.scale>0&&Number.isFinite(x.scale)))throw new Error('Invalid catalog scale: '+x.id);if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid catalog dimensions: '+x.id);if(Math.abs(x.minY)>0.05)throw new Error('Catalog model not grounded: '+x.id);}
             if(errors.length)throw new Error('Browser errors detected: '+errors.join(' | '));
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1);});

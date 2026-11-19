@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { AssetManager } from './src/asset-manager.js';
 import { createWorld } from './src/world.js';
-import { WORLD_LAYOUT } from './src/world-layout.js';
+import { WORLD_LAYOUT, riverCenterZ, riverCenterSlope } from './src/world-layout.js';
 
 const host = document.querySelector('#view');
 const status = document.querySelector('#status');
@@ -20,7 +20,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.18;
+renderer.toneMappingExposure = 1.02;
 host.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -34,8 +34,8 @@ controls.maxDistance = 230;
 // Match the Blender reference: pale silk ambient world, warm sun and cool fill.
 const silkWorld = new THREE.Color().setRGB(.93, .88, .74);
 const earthBounce = new THREE.Color().setRGB(.62, .58, .48);
-scene.add(new THREE.HemisphereLight(silkWorld, earthBounce, 1.1));
-const sun = new THREE.DirectionalLight(0xffe2b9, 2.2);
+scene.add(new THREE.HemisphereLight(silkWorld, earthBounce, 1.0));
+const sun = new THREE.DirectionalLight(0xffead4, 1.8);
 sun.position.set(-34, 52, 28);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -45,7 +45,7 @@ sun.shadow.camera.top = 75;
 sun.shadow.camera.bottom = -75;
 sun.shadow.bias = -.00015;
 scene.add(sun);
-const coolFill = new THREE.DirectionalLight(0xc9d9e6, .7);
+const coolFill = new THREE.DirectionalLight(0xd5d8d0, .42);
 coolFill.position.set(42, 30, -36);
 scene.add(coolFill);
 
@@ -190,7 +190,7 @@ async function loadAllAssets() {
   // Reveal the playable environment after the six landmarks; stream the
   // remaining models in the background so a 70 MB asset set is not a blank
   // loading screen on mobile connections.
-  document.querySelector('#loading-label').textContent = '河岸场景已就绪，正在补充船只与市井人物…';
+  const loadingLabel = document.querySelector('#loading-label');\n  if (loadingLabel) loadingLabel.textContent = '河岸场景已就绪，正在补充船只与市井人物…';
   loading.classList.add('hide');
   setTimeout(() => loading.remove(), 500);
 
@@ -198,7 +198,7 @@ async function loadAllAssets() {
   let completed = 0;
   for (const spec of WORLD_LAYOUT.catalog) {
     try {
-      const item = await assetManager.loadCatalogModel(spec.id, spec.position);
+      const placement = [...spec.position];\n      if (Number.isFinite(spec.speed)) placement[2] += riverCenterZ(placement[0]);\n      const item = await assetManager.loadCatalogModel(spec.id, placement);
       item.model.userData.assetId = spec.id;
       if (npcDialogues[spec.id]) {
         item.model.userData.interaction = { kind: 'npc', id: spec.id };
@@ -206,7 +206,7 @@ async function loadAllAssets() {
       }
       item.model.userData.assetPosition = [...spec.position];
       window.__qingmingCatalogModels.push(item);
-      if (Number.isFinite(spec.speed)) movingBoats.push({ model: item.model, speed: spec.speed });
+      if (Number.isFinite(spec.speed)) movingBoats.push({ model: item.model, speed: spec.speed, riverOffset: spec.position[2] });
     } catch (error) {
       console.error('Catalog model failed:', spec.id, error);
       status.textContent = '新增资产载入异常：' + spec.id + '（继续载入其余模型）';
@@ -225,7 +225,7 @@ async function loadAllAssets() {
 loadAllAssets().catch(error => {
   console.error('Qingming scene initialization failed:', error);
   status.textContent = '场景初始化失败：' + error.message;
-  document.querySelector('#loading-label').textContent = '场景载入遇到问题';
+  const label = document.querySelector('#loading-label');\n  if (label) label.textContent = '场景载入遇到问题';
 });
 
 const raycaster = new THREE.Raycaster();
@@ -253,7 +253,7 @@ function animate(now) {
   moveCamera(dt);
   controls.update();
   for (const boat of movingBoats) {
-    boat.model.position.x += boat.speed * dt;
+    boat.model.position.x += boat.speed * dt;\n    boat.model.position.z = riverCenterZ(boat.model.position.x) + boat.riverOffset;
     if (boat.speed > 0 && boat.model.position.x > 91) boat.model.position.x = -91;
     if (boat.speed < 0 && boat.model.position.x < -91) boat.model.position.x = 91;
   }

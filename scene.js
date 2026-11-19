@@ -1,30 +1,142 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { AssetManager } from './src/asset-manager.js';
-const host=document.querySelector('#view'),status=document.querySelector('#status'),loading=document.querySelector('#loading');
-const scene=new THREE.Scene();scene.background=new THREE.Color(0xc8d3c7);scene.fog=new THREE.Fog(0xc8d3c7,42,105);
-const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,240);camera.position.set(17,13,19);
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;host.appendChild(renderer.domElement);
-const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.1,0);controls.enableDamping=true;controls.dampingFactor=.06;controls.maxPolarAngle=Math.PI*.48;controls.minDistance=5;controls.maxDistance=62;
-scene.add(new THREE.HemisphereLight(0xe6eee1,0x766b55,1.55));const sun=new THREE.DirectionalLight(0xffe0b1,2.2);sun.position.set(-18,28,14);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-35;sun.shadow.camera.right=35;sun.shadow.camera.top=35;sun.shadow.camera.bottom=-35;scene.add(sun);
-const mat=(c,r=1)=>new THREE.MeshStandardMaterial({color:c,roughness:r}),groundMat=mat(0x9b9b78),bankMat=mat(0xb2a27f),stoneMat=mat(0x77796b),grassMat=mat(0x78866b),woodMat=mat(0x76583b);
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(100,100),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.08;ground.receiveShadow=true;scene.add(ground);
-const river=new THREE.Mesh(new THREE.PlaneGeometry(68,10,100,18),new THREE.MeshStandardMaterial({color:0x557f80,roughness:.22,metalness:.08,transparent:true,opacity:.94}));river.rotation.x=-Math.PI/2;river.position.y=.015;river.receiveShadow=true;scene.add(river);
-const ripples=new THREE.Group();scene.add(ripples);for(let i=0;i<42;i++){const r=new THREE.Mesh(new THREE.BoxGeometry(.7,.012,.025),new THREE.MeshBasicMaterial({color:0xc0d0bd,transparent:true,opacity:.16}));r.position.set((Math.random()-.5)*58,.045,(Math.random()-.5)*8.6);r.rotation.y=(Math.random()-.5)*.12;ripples.add(r);}
-for(const z of [-7.1,7.1]){const bank=new THREE.Mesh(new THREE.BoxGeometry(72,.55,4.4),bankMat);bank.position.set(0,-.24,z);bank.receiveShadow=true;bank.castShadow=true;scene.add(bank);const verge=new THREE.Mesh(new THREE.BoxGeometry(72,.12,1.3),grassMat);verge.position.set(0,.08,z+(z<0?-1.15:1.15));scene.add(verge);const path=new THREE.Mesh(new THREE.BoxGeometry(54,.16,1.45),stoneMat);path.position.set(0,.12,z+(z<0?1.25:-1.25));path.receiveShadow=true;scene.add(path);}
-for(const z of [-5.2,5.2]){const edge=new THREE.Mesh(new THREE.BoxGeometry(68,.35,.28),stoneMat);edge.position.set(0,-.04,z);edge.castShadow=true;edge.receiveShadow=true;scene.add(edge);}
-function addTree(x,z,s=1){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.11*s,.18*s,2.2*s,7),woodMat);trunk.position.set(x,1.05*s,z);trunk.castShadow=true;scene.add(trunk);for(let j=0;j<5;j++){const crown=new THREE.Mesh(new THREE.SphereGeometry((.72+Math.random()*.25)*s,9,7),mat(j%2?0x71836a:0x879174));crown.position.set(x+(Math.random()-.5)*.7*s,2.25*s+Math.random()*.45*s,z+(Math.random()-.5)*.7*s);crown.scale.y=.72;crown.castShadow=true;scene.add(crown);}}
-[[-17,-10],[-9,-10],[10,-10],[18,-10],[-18,10],[-12,10],[13,10],[19,10]].forEach((p,i)=>addTree(p[0],p[1],.85+(i%3)*.12));
-function addHouse(x,z,w=5,d=3,h=3){const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(0xb9a98b));body.position.set(x,h/2,z);body.castShadow=true;body.receiveShadow=true;scene.add(body);const roof=new THREE.Mesh(new THREE.ConeGeometry(w*.78,1.45,4),mat(0x686b5d));roof.position.set(x,h+.68,z);roof.rotation.y=Math.PI/4;roof.scale.z=d/w;roof.castShadow=true;scene.add(roof);const porch=new THREE.Mesh(new THREE.BoxGeometry(w*.62,.18,.9),woodMat);porch.position.set(x,.85,z+(z>0?-d/2-.4:d/2+.4));scene.add(porch);}
-// 以真实南宋建筑资产替换临时方盒建筑，沿两岸形成市井街面。
-const assetManager=new AssetManager({scene,status});
-window.__qingmingLoadedModels=assetManager.loaded;
-window.__qingmingAssetManager=assetManager;
-assetManager.loadManifest('./public/assets/manifest.json')
-  .then(({manifest})=>{window.__qingmingAssetManifest=manifest;})
-  .catch(error=>{console.error('Scene asset manifest error:',error);status.textContent='场景资产清单加载失败';});
-for(let i=0;i<4;i++){const step=new THREE.Mesh(new THREE.BoxGeometry(1.7,.13,.42),stoneMat);step.position.set(5.6,.08-i*.08,7.1+i*.38);step.receiveShadow=true;scene.add(step);}
-const keys=new Set();addEventListener('keydown',e=>{if('wasdqe'.includes(e.key.toLowerCase())){keys.add(e.key.toLowerCase());e.preventDefault();}});addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-function move(dt){const f=new THREE.Vector3();camera.getWorldDirection(f);f.y=0;f.normalize();const right=new THREE.Vector3().crossVectors(f,camera.up).normalize(),v=dt*8;if(keys.has('w'))camera.position.addScaledVector(f,v);if(keys.has('s'))camera.position.addScaledVector(f,-v);if(keys.has('a'))camera.position.addScaledVector(right,-v);if(keys.has('d'))camera.position.addScaledVector(right,v);if(keys.has('q'))camera.position.y-=v;if(keys.has('e'))camera.position.y+=v;if(keys.size)controls.target.copy(camera.position).add(f.multiplyScalar(7));}
-let last=performance.now();function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,.05);last=now;move(dt);controls.update();ripples.children.forEach((r,i)=>{r.position.x+=dt*(.25+(i%4)*.08);if(r.position.x>31)r.position.x=-31;});renderer.render(scene,camera);}requestAnimationFrame(animate);
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));});loading.classList.add('hide');setTimeout(()=>loading.remove(),450);
+import { createWorld } from './src/world.js';
+import { WORLD_LAYOUT } from './src/world-layout.js';
+
+const host = document.querySelector('#view');
+const status = document.querySelector('#status');
+const loading = document.querySelector('#loading');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xd8d0b7);
+scene.fog = new THREE.Fog(0xd8d0b7, 95, 205);
+
+const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, .1, 360);
+camera.position.set(34, 48, 68);
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
+host.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(8, 1.2, 9);
+controls.enableDamping = true;
+controls.dampingFactor = .055;
+controls.maxPolarAngle = Math.PI * .485;
+controls.minDistance = 5;
+controls.maxDistance = 170;
+
+scene.add(new THREE.HemisphereLight(0xe9eadb, 0x75664e, 1.65));
+const sun = new THREE.DirectionalLight(0xffe2b9, 2.25);
+sun.position.set(-34, 52, 28);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -105;
+sun.shadow.camera.right = 105;
+sun.shadow.camera.top = 75;
+sun.shadow.camera.bottom = -75;
+sun.shadow.bias = -.00015;
+scene.add(sun);
+
+const world = createWorld(THREE, scene);
+const assetManager = new AssetManager({ scene, status });
+window.__qingmingLoadedModels = assetManager.loaded;
+window.__qingmingAssetManager = assetManager;
+window.__qingmingCatalogModels = [];
+window.__qingmingWorldLayout = WORLD_LAYOUT;
+
+const movingBoats = [];
+const keys = new Set();
+addEventListener('keydown', event => {
+  const key = event.key.toLowerCase();
+  if ('wasdqe'.includes(key)) { keys.add(key); event.preventDefault(); }
+});
+addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
+
+function moveCamera(dt) {
+  if (!keys.size) return;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward);
+  forward.y = 0;
+  forward.normalize();
+  const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+  const velocity = dt * 13;
+  if (keys.has('w')) camera.position.addScaledVector(forward, velocity);
+  if (keys.has('s')) camera.position.addScaledVector(forward, -velocity);
+  if (keys.has('a')) camera.position.addScaledVector(right, -velocity);
+  if (keys.has('d')) camera.position.addScaledVector(right, velocity);
+  if (keys.has('q')) camera.position.y -= velocity;
+  if (keys.has('e')) camera.position.y += velocity;
+  controls.target.copy(camera.position).add(forward.multiplyScalar(9));
+}
+
+async function loadAllAssets() {
+  status.textContent = '正在载入桥梁、码头与沿河建筑…';
+  const first = await assetManager.loadManifest('./public/assets/manifest.json');
+  window.__qingmingAssetManifest = first.manifest;
+  if (first.failed.length) {
+    console.warn('Landmark asset failures:', first.failed);
+  }
+
+  const total = WORLD_LAYOUT.catalog.length;
+  let completed = 0;
+  for (const spec of WORLD_LAYOUT.catalog) {
+    try {
+      const item = await assetManager.loadCatalogModel(spec.id, spec.position);
+      item.model.userData.assetId = spec.id;
+      item.model.userData.assetPosition = [...spec.position];
+      window.__qingmingCatalogModels.push(item);
+      if (Number.isFinite(spec.speed)) movingBoats.push({ model: item.model, speed: spec.speed });
+    } catch (error) {
+      console.error('Catalog model failed:', spec.id, error);
+      status.textContent = '新增资产载入异常：' + spec.id + '（继续载入其余模型）';
+    }
+    completed++;
+    status.textContent = '场景资产 ' + completed + '/' + total + ' · ' +
+      window.__qingmingCatalogModels.length + ' 个新增模型已入场';
+  }
+
+  const ok = first.loaded.length + window.__qingmingCatalogModels.length;
+  status.textContent = '场景搭建完成 · ' + ok + '/22 个模型已载入';
+  document.querySelector('#loading-label').textContent = '场景已就绪';
+  setTimeout(() => loading.classList.add('hide'), 500);
+  setTimeout(() => loading.remove(), 1000);
+}
+
+loadAllAssets().catch(error => {
+  console.error('Qingming scene initialization failed:', error);
+  status.textContent = '场景初始化失败：' + error.message;
+  document.querySelector('#loading-label').textContent = '场景载入遇到问题';
+});
+
+let last = performance.now();
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((now - last) / 1000, .05);
+  last = now;
+  moveCamera(dt);
+  controls.update();
+  for (const boat of movingBoats) {
+    boat.model.position.x += boat.speed * dt;
+    if (boat.speed > 0 && boat.model.position.x > 91) boat.model.position.x = -91;
+    if (boat.speed < 0 && boat.model.position.x < -91) boat.model.position.x = 91;
+  }
+  world.ripples.children.forEach((ripple, i) => {
+    ripple.position.x += dt * (.22 + (i % 4) * .06);
+    if (ripple.position.x > 91) ripple.position.x = -91;
+  });
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+});

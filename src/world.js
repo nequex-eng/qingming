@@ -193,7 +193,8 @@ export function createWorld(THREE, scene) {
       new THREE.BoxGeometry(.55 + (i % 4) * .22, .012, .025),
       new THREE.MeshBasicMaterial({ color: 0xd2ded0, transparent: true, opacity: .16 })
     );
-    const rx = -88 + (i * 19 % 176);\n    ripple.position.set(rx, .045, riverCenterZ(rx) - 5.2 + (i * 13 % 11));
+    const rx = -88 + (i * 19 % 176);
+    ripple.position.set(rx, .045, riverCenterZ(rx) - 5.2 + (i * 13 % 11));
     ripple.rotation.y = (i % 7 - 3) * .035;
     ripples.add(ripple);
   }

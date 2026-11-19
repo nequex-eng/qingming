@@ -1,4 +1,4 @@
-import { WORLD_LAYOUT } from './world-layout.js';
+import { WORLD_LAYOUT, riverCenterZ, riverCenterSlope } from './world-layout.js';
 
 const material = (THREE, color, roughness = 1) =>
   new THREE.MeshStandardMaterial({ color, roughness });
@@ -76,6 +76,36 @@ function addMarketStall(THREE, scene, x, z, index, mats) {
   return g;
 }
 
+function addCurvedStrip(THREE, scene, name, halfWidth, y, mat, side = 0, segments = 180) {
+  const positions = [];
+  const indices = [];
+  for (let i = 0; i <= segments; i++) {
+    const x = -90 + (180 * i / segments);
+    const z = riverCenterZ(x);
+    const slope = riverCenterSlope(x);
+    const inv = 1 / Math.sqrt(1 + slope * slope);
+    const nx = -slope * inv;
+    const nz = inv;
+    const centerX = x + nx * side;
+    const centerZ = z + nz * side;
+    positions.push(centerX - nx * halfWidth, y, centerZ - nz * halfWidth);
+    positions.push(centerX + nx * halfWidth, y, centerZ + nz * halfWidth);
+    if (i < segments) {
+      const a = i * 2;
+      indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  const mesh = new THREE.Mesh(geometry, mat);
+  mesh.name = name;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  return mesh;
+}
+
 function addCityGate(THREE, scene, x, z, mats) {
   // A timber-and-tile gate marks the transition from the market street to the walled city.
   addBox(THREE, scene, 'city-wall-west', [1.1, 4.5, 8.0], [x, 2.25, z - 10.0], mats.plaster);
@@ -106,14 +136,13 @@ export function createWorld(THREE, scene) {
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(190, 100), mats.earth);
   ground.rotation.x = -Math.PI / 2; ground.position.y = -.12; ground.receiveShadow = true; scene.add(ground);
 
-  const waterMat = new THREE.MeshStandardMaterial({ color: 0x658a89, roughness: .27, metalness: .04 });
-  const river = new THREE.Mesh(new THREE.PlaneGeometry(180, 12, 120, 18), waterMat);
-  river.rotation.x = -Math.PI / 2; river.position.y = .015; river.receiveShadow = true; scene.add(river);
+  const waterMat = new THREE.MeshStandardMaterial({ color: 0x718e8a, roughness: .34, metalness: .015, side: THREE.DoubleSide });
+  const river = addCurvedStrip(THREE, scene, 'meandering-bian-river', 6, .015, waterMat, 0);
 
   for (const side of [-1, 1]) {
-    addBox(THREE, scene, 'riverbank', [184, .72, 5.2], [0, -.32, side * 8.8], mats.bank);
-    addBox(THREE, scene, 'stone-quay-edge', [184, .32, .32], [0, -.05, side * 6.05], mats.stone);
-    addBox(THREE, scene, 'riverside-path', [178, .16, 2.4], [0, .06, side * 12.6], mats.path);
+    addCurvedStrip(THREE, scene, 'curved-riverbank', 2.6, -.32, mats.bank, side * 8.8);
+    addCurvedStrip(THREE, scene, 'curved-quay-edge', .16, -.05, mats.stone, side * 6.05);
+    addCurvedStrip(THREE, scene, 'curved-riverside-path', 1.2, .06, mats.path, side * 12.6);
     if (side === 1) addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, 35.5], mats.path);
   }
 
@@ -164,11 +193,11 @@ export function createWorld(THREE, scene) {
       new THREE.BoxGeometry(.55 + (i % 4) * .22, .012, .025),
       new THREE.MeshBasicMaterial({ color: 0xd2ded0, transparent: true, opacity: .16 })
     );
-    ripple.position.set(-88 + (i * 19 % 176), .045, -8 + (i * 13 % 16));
+    const rx = -88 + (i * 19 % 176);\n    ripple.position.set(rx, .045, riverCenterZ(rx) - 5.2 + (i * 13 % 11));
     ripple.rotation.y = (i % 7 - 3) * .035;
     ripples.add(ripple);
   }
   scene.add(ripples);
 
-  return { ripples, materials: mats, layout: WORLD_LAYOUT, interactables };
+  return { ripples, river, materials: mats, layout: WORLD_LAYOUT, interactables };
 }

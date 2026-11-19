@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { AssetManager } from './src/asset-manager.js';
 import { createWorld } from './src/world.js';
 import { WORLD_LAYOUT, riverCenterZ, riverCenterSlope } from './src/world-layout.js';
+import { createGameplay } from './src/gameplay.js';
 
 const host = document.querySelector('#view');
 const status = document.querySelector('#status');
@@ -319,8 +320,7 @@ function animate(now) {
   lastRender = now;
   const dt = Math.min((now - last) / 1000, .05);
   last = now;
-  moveCamera(dt);
-  controls.update();
+  gameplay.update(dt);
   for (const boat of movingBoats) {
     boat.model.position.x += boat.speed * dt;
     boat.model.position.z = riverCenterZ(boat.model.position.x) + boat.riverOffset;

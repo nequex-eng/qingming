@@ -190,7 +190,8 @@ async function loadAllAssets() {
   // Reveal the playable environment after the six landmarks; stream the
   // remaining models in the background so a 70 MB asset set is not a blank
   // loading screen on mobile connections.
-  const loadingLabel = document.querySelector('#loading-label');\n  if (loadingLabel) loadingLabel.textContent = '河岸场景已就绪，正在补充船只与市井人物…';
+  const loadingLabel = document.querySelector('#loading-label');
+  if (loadingLabel) loadingLabel.textContent = '河岸场景已就绪，正在补充船只与市井人物…';
   loading.classList.add('hide');
   setTimeout(() => loading.remove(), 500);
 
@@ -198,7 +199,9 @@ async function loadAllAssets() {
   let completed = 0;
   for (const spec of WORLD_LAYOUT.catalog) {
     try {
-      const placement = [...spec.position];\n      if (Number.isFinite(spec.speed)) placement[2] += riverCenterZ(placement[0]);\n      const item = await assetManager.loadCatalogModel(spec.id, placement);
+      const placement = [...spec.position];
+      if (Number.isFinite(spec.speed)) placement[2] += riverCenterZ(placement[0]);
+      const item = await assetManager.loadCatalogModel(spec.id, placement);
       item.model.userData.assetId = spec.id;
       if (npcDialogues[spec.id]) {
         item.model.userData.interaction = { kind: 'npc', id: spec.id };
@@ -225,7 +228,8 @@ async function loadAllAssets() {
 loadAllAssets().catch(error => {
   console.error('Qingming scene initialization failed:', error);
   status.textContent = '场景初始化失败：' + error.message;
-  const label = document.querySelector('#loading-label');\n  if (label) label.textContent = '场景载入遇到问题';
+  const label = document.querySelector('#loading-label');
+  if (label) label.textContent = '场景载入遇到问题';
 });
 
 const raycaster = new THREE.Raycaster();
@@ -253,7 +257,8 @@ function animate(now) {
   moveCamera(dt);
   controls.update();
   for (const boat of movingBoats) {
-    boat.model.position.x += boat.speed * dt;\n    boat.model.position.z = riverCenterZ(boat.model.position.x) + boat.riverOffset;
+    boat.model.position.x += boat.speed * dt;
+    boat.model.position.z = riverCenterZ(boat.model.position.x) + boat.riverOffset;
     if (boat.speed > 0 && boat.model.position.x > 91) boat.model.position.x = -91;
     if (boat.speed < 0 && boat.model.position.x < -91) boat.model.position.x = 91;
   }

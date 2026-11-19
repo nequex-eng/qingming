@@ -99,6 +99,8 @@ jobs:
             const data=await manifest.json();
             if(!Array.isArray(data.assets)||data.assets.length!==6)throw new Error('Expected 6 manifest entries');
             await page.goto(base+'/',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(12000);
+            if(errors.length){console.log('EARLY_BROWSER_ERRORS '+JSON.stringify(errors));throw new Error('Browser startup error: '+errors.join(' | '));}
             await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('场景搭建完成'),null,{timeout:240000}).catch(async e=>{const st=await page.locator('#status').innerText().catch(()=>'<missing status>');console.log('LOAD_TIMEOUT_STATUS '+st);console.log('LOAD_TIMEOUT_CDN '+JSON.stringify(loaded));console.log('LOAD_TIMEOUT_ERRORS '+JSON.stringify(errors));await page.screenshot({path:'./qingming-live-smoke.png',fullPage:true}).catch(()=>{});throw e;});
             await page.waitForTimeout(2500);
             const visual=await page.evaluate(()=>window.__qingmingVisualSettings);

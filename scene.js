@@ -90,6 +90,34 @@ document.querySelectorAll('#nav [data-view]').forEach(button => {
 });
 
 const world = createWorld(THREE, scene);
+
+// Quiet riverside ambience starts after the first user gesture (autoplay policy).
+let ambienceStarted = false;
+function startRiversideAmbience() {
+  if (ambienceStarted) return;
+  ambienceStarted = true;
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const length = ctx.sampleRate * 4;
+    const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let drift = 0;
+    for (let n = 0; n < length; n++) {
+      drift = (drift + (Math.random() * 2 - 1) * .018) * .985;
+      data[n] = drift * .7;
+    }
+    const source = ctx.createBufferSource();
+    source.buffer = buffer; source.loop = true;
+    const low = ctx.createBiquadFilter(); low.type = 'lowpass'; low.frequency.value = 520;
+    const gain = ctx.createGain(); gain.gain.value = .075;
+    source.connect(low); low.connect(gain); gain.connect(ctx.destination);
+    source.start();
+    window.__qingmingAudio = { ctx, source, gain };
+  } catch (error) { console.warn('Ambient audio unavailable:', error); }
+}
+['pointerdown','keydown','touchstart'].forEach(type => window.addEventListener(type, startRiversideAmbience, { once: true, passive: true }));
 const tradePanel = document.querySelector('#trade-panel');
 const tradeTitle = document.querySelector('#trade-title');
 const tradeContent = document.querySelector('#trade-content');
@@ -241,6 +269,24 @@ async function loadAllAssets() {
   try {
     // The detailed river mesh follows the same 180m meandering corridor as the world layout.
     const groundAsset = await addBatch3('ground', [0, -0.12, 0], 1, 0);
+    // Align every imported person to the actual terrain surface using measured feet.
+    const terrainRay = new THREE.Raycaster();
+    const groundCharacters = () => {
+      const candidates = (window.__qingmingCatalogModels || [])
+        .filter(item => /scholar-literati|shopkeeper|vendor|boatman|porter|assistant|worker|craftsman/i.test(item.id))
+        .map(item => item.model);
+      if (gameplay?.player) candidates.push(gameplay.player);
+      for (const character of candidates) {
+        character.updateMatrixWorld(true);
+        const bounds = new THREE.Box3().setFromObject(character);
+        const center = bounds.getCenter(new THREE.Vector3());
+        terrainRay.set(new THREE.Vector3(center.x, 30, center.z), new THREE.Vector3(0, -1, 0));
+        const hit = terrainRay.intersectObject(groundAsset.model, true)[0];
+        character.position.y += (hit ? hit.point.y : 0) - bounds.min.y;
+        character.updateMatrixWorld(true);
+      }
+    };
+    groundCharacters();
     if (groundAsset.size.x > 150 && groundAsset.size.z > 70) {
       world.ground.visible = false;
       for (const road of world.roads || []) road.visible = false;

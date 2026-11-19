@@ -1,0 +1,71 @@
+name: Restore two batch2 scene models
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-batch2-two-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore the two models from batch2 release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://github.com/user-attachments/files/35061580/Archive.4.zip' -o /tmp/batch2-4.zip
+          mkdir -p /tmp/batch2-4
+          unzip -oq /tmp/batch2-4.zip -d /tmp/batch2-4
+          python - <<'PY'
+          from pathlib import Path
+          import struct, shutil
+          root=Path('/tmp/batch2-4')
+          mapping={
+            'timber-arch-bridge.glb':Path('public/assets/3d/bridges/timber-arch-bridge.glb'),
+            'wharf-dock.glb':Path('public/assets/3d/architecture/wharf-dock.glb'),
+          }
+          for name,dest in mapping.items():
+              candidates=[p for p in root.rglob(name) if '__MACOSX' not in p.parts and not p.name.startswith('._')]
+              if len(candidates)!=1: raise SystemExit(f'Expected one {name}, got {len(candidates)}')
+              data=candidates[0].read_bytes()
+              if data[:4]!=b'glTF' or len(data)<12: raise SystemExit(f'Invalid GLB: {name}')
+              version,length=struct.unpack_from('<II',data,4)
+              if version!=2 or length!=len(data): raise SystemExit(f'Invalid GLB length/version: {name}')
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(candidates[0],dest)
+              print('RESTORED',dest,len(data))
+          PY
+      - name: Verify all six CDN URLs
+        shell: bash
+        run: |
+          set -euo pipefail
+          while read -r name expected; do
+            url="https://qingming-assets.pages.dev/$name"
+            actual="$(curl -fsSI "$url" | awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub("\r","");print $2}' | tail -n1)"
+            echo "$name expected=$expected cdn_content_length=${actual:-unknown}"
+            test -n "$actual"
+            test "$actual" = "$expected"
+          done <<'EOF'
+          timber-arch-bridge.glb 2854480
+          stone-arch-bridge.glb 3027740
+          wharf-dock.glb 3674392
+          riverside-commercial-building.glb 4552788
+          restaurant-wine-house.glb.gz 4032182
+          teahouse.glb 3761016
+          EOF
+      - name: Commit restored models
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/3d/bridges/timber-arch-bridge.glb public/assets/3d/architecture/wharf-dock.glb
+          if git diff --cached --quiet; then echo 'No changes'; exit 0; fi
+          git commit -m 'Restore cleaned timber bridge and wharf GLB assets'
+          git push

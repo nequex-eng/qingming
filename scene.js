@@ -19,8 +19,11 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.08;
+// Blender reference previews use the Standard view transform, not an ACES filmic curve.
+// NoToneMapping keeps the GLTF albedo and lit midtones from being compressed/darkened.
+renderer.toneMapping = THREE.NoToneMapping;
+renderer.toneMappingExposure = 1.0;
+window.__qingmingVisualSettings = { toneMapping: renderer.toneMapping, exposure: renderer.toneMappingExposure, outputColorSpace: renderer.outputColorSpace };
 host.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);

@@ -33,6 +33,18 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .trade-section{font-size:11px;letter-spacing:.08em;color:#8a6e48;margin-top:12px}
 @media(max-width:600px){#wallet{right:10px;top:119px}#trade-panel{right:10px;bottom:58px;width:min(340px,calc(100vw - 20px));max-height:58vh}#nav{right:10px;top:76px;max-width:calc(100vw - 20px);gap:5px}#nav button{padding:7px 9px;font-size:11px}}
 @media(max-width:600px){#panel{left:10px;top:10px;padding:10px 12px}#panel h1{font-size:15px}#help{bottom:12px;font-size:11px;max-width:calc(100vw - 20px);white-space:normal;text-align:center}}
+
+#player-hud{position:fixed;left:18px;bottom:62px;width:min(350px,calc(100vw - 36px));padding:12px 15px;border-radius:10px;background:rgba(244,238,218,.92);border:1px solid rgba(91,77,54,.28);box-shadow:0 8px 24px #3d382a20;pointer-events:none}
+#player-hud .hud-kicker{font-size:10px;letter-spacing:.12em;color:#8a6b43;margin-bottom:4px}
+#player-hud strong{display:block;font-size:14px;margin-bottom:4px}
+#objective-text{font-size:12px;line-height:1.55;color:#5c6255}
+#player-hud[data-complete="true"]{border-color:#8a9a72}
+#interaction-prompt{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);padding:8px 13px;border-radius:999px;background:#29372fdf;color:#f5f0df;font-size:12px;pointer-events:none}
+#action-button{position:fixed;right:24px;bottom:82px;width:68px;height:68px;border:2px solid #f2e5c4;background:#71563b;color:#fff4dc;border-radius:50%;font-weight:700;font-size:13px;box-shadow:0 5px 20px #1e241e55;z-index:3}
+#joystick{position:fixed;left:22px;bottom:24px;width:116px;height:116px;border:1px solid #ffffff66;border-radius:50%;background:#29372f55;backdrop-filter:blur(3px);touch-action:none;z-index:3}
+#joystick-stick{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:#eee1c2dd;border:1px solid #65543c;box-shadow:0 2px 8px #0003;pointer-events:none}
+@media(min-width:701px){#joystick{display:none}#action-button{bottom:78px}#player-hud{bottom:62px}}
+@media(max-width:700px){#player-hud{left:10px;bottom:148px;width:min(290px,calc(100vw - 20px));padding:9px 11px}#player-hud strong{font-size:13px}#objective-text{font-size:11px}#joystick{left:16px;bottom:18px;width:108px;height:108px}#action-button{right:20px;bottom:38px;width:62px;height:62px}#interaction-prompt{bottom:116px;font-size:11px}#help{display:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/"}}</script>
 </head>
@@ -52,6 +64,14 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <div id="trade-head"><div id="trade-title">市井</div><button id="trade-close" aria-label="关闭">×</button></div>
 <div id="trade-content"></div>
 </section>
+
+<section id="player-hud" data-complete="false">
+  <div class="hud-kicker">汴河行旅 · 今日目标</div>
+  <strong id="objective-text">初到汴河 · 前往虹桥，看看汴河上最热闹的渡口</strong>
+</section>
+<div id="interaction-prompt" hidden></div>
+<div id="joystick" aria-label="移动摇杆"><div id="joystick-stick"></div></div>
+<button id="action-button" hidden>交互</button>
 <div id="help">点击摊位买卖 · 点击人物交谈 · 汴河沿东西延伸 · 虹桥横跨河面 · 船只缓慢往来 · 城门外形成连续市街</div>
 <div id="loading"><div id="loading-label">正在铺设河道与市街…</div></div>
 <script type="module" src="./scene.js"></script>

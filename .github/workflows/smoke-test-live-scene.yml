@@ -91,7 +91,7 @@ jobs:
             await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('场景搭建完成'),null,{timeout:240000}).catch(async e=>{const st=await page.locator('#status').innerText().catch(()=>'<missing status>');console.log('LOAD_TIMEOUT_STATUS '+st);console.log('LOAD_TIMEOUT_CDN '+JSON.stringify(loaded));console.log('LOAD_TIMEOUT_ERRORS '+JSON.stringify(errors));await page.screenshot({path:'./qingming-live-smoke.png',fullPage:true}).catch(()=>{});throw e;});
             await page.waitForTimeout(2500);
             const visual=await page.evaluate(()=>window.__qingmingVisualSettings);
-            if(!visual||visual.toneMapping!==0||visual.exposure!==1||visual.assetFillIntensity!==1.5||visual.assetAmbientIntensity!==.9)throw new Error('Expected Blender Standard-equivalent color pipeline, got '+JSON.stringify(visual));
+            if(!visual||visual.toneMapping!==0||visual.exposure!==1||visual.assetFillIntensity!==1.8||visual.assetAmbientIntensity!==1.1)throw new Error('Expected Blender Standard-equivalent color pipeline, got '+JSON.stringify(visual));
             const status=await page.locator('#status').innerText();
             const canvas=await page.locator('canvas').count();
             const geometry=await page.evaluate(()=>window.__qingmingLoadedModels.map(x=>({label:x.label,size:[x.size.x,x.size.y,x.size.z],minY:x.bounds.min.y,rotationY:x.rotationY,centerX:(x.bounds.min.x+x.bounds.max.x)/2,centerZ:(x.bounds.min.z+x.bounds.max.z)/2,expectedPosition:x.expectedPosition,appliedScale:x.appliedScale})));

@@ -29,7 +29,7 @@ controls.enableDamping = true;
 controls.dampingFactor = .055;
 controls.maxPolarAngle = Math.PI * .485;
 controls.minDistance = 5;
-controls.maxDistance = 170;
+controls.maxDistance = 230;
 
 scene.add(new THREE.HemisphereLight(0xe9eadb, 0x75664e, 1.65));
 const sun = new THREE.DirectionalLight(0xffe2b9, 2.25);
@@ -42,6 +42,22 @@ sun.shadow.camera.top = 75;
 sun.shadow.camera.bottom = -75;
 sun.shadow.bias = -.00015;
 scene.add(sun);
+
+const views = {
+  overview: { position: [0, 112, 164], target: [0, 0, 8] },
+  countryside: { position: [-58, 31, 48], target: [-66, 0, 22] },
+  bridge: { position: [10, 28, 43], target: [0, 1, 0] },
+  market: { position: [53, 34, 53], target: [49, 1, 25] }
+};
+document.querySelectorAll('#nav [data-view]').forEach(button => {
+  button.addEventListener('click', () => {
+    const view = views[button.dataset.view];
+    if (!view) return;
+    camera.position.set(...view.position);
+    controls.target.set(...view.target);
+    controls.update();
+  });
+});
 
 const world = createWorld(THREE, scene);
 const assetManager = new AssetManager({ scene, status });

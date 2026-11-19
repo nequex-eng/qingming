@@ -18,6 +18,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 #loading{position:fixed;inset:0;display:grid;place-items:center;background:#d8d0b7;color:#514936;font-size:15px;z-index:5;transition:opacity .45s}
 #loading.hide{opacity:0;pointer-events:none}
 #loading-label{padding:12px 18px;background:#f2ead7d9;border:1px solid #8c7b5b55;border-radius:9px}
+#nav{position:fixed;right:18px;top:18px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:48vw}
+#nav button{border:1px solid #6c624b55;background:#f3ecd9e8;color:#394237;border-radius:8px;padding:9px 12px;font-size:12px;box-shadow:0 4px 16px #2e342420;cursor:pointer;backdrop-filter:blur(8px)}
+#nav button:active{transform:translateY(1px);background:#d8c9a8}
+@media(max-width:600px){#nav{right:10px;top:76px;max-width:calc(100vw - 20px);gap:5px}#nav button{padding:7px 9px;font-size:11px}}
 @media(max-width:600px){#panel{left:10px;top:10px;padding:10px 12px}#panel h1{font-size:15px}#help{bottom:12px;font-size:11px;max-width:calc(100vw - 20px);white-space:normal;text-align:center}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/"}}</script>
@@ -30,6 +34,9 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <p>鼠标拖动旋转 · 滚轮缩放 · WASD移动 · Q/E升降</p>
 <div id="status">正在载入场景资产…</div>
 </section>
+<nav id="nav" aria-label="场景快速导航">
+<button data-view="overview">全景</button><button data-view="countryside">郊野</button><button data-view="bridge">虹桥</button><button data-view="market">街市</button>
+</nav>
 <div id="help">汴河沿东西延伸 · 虹桥横跨河面 · 船只缓慢往来 · 城门外形成连续市街</div>
 <div id="loading"><div id="loading-label">正在铺设河道与市街…</div></div>
 <script type="module" src="./scene.js"></script>

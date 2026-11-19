@@ -1,12 +1,37 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#c7d2c2">
-<title>清明南宋 · 河岸场景原型</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#d8d0b7">
+<title>清明南宋 · 汴河市井</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#b9c9c1;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:#24352f}#view{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}
-#panel{position:fixed;left:18px;top:18px;max-width:min(340px,calc(100vw - 36px));padding:14px 16px;background:rgba(245,241,225,.88);border:1px solid rgba(73,81,65,.25);border-radius:12px;box-shadow:0 8px 30px #263b3025;backdrop-filter:blur(10px);pointer-events:none}#panel h1{font-size:17px;letter-spacing:.08em;margin:0 0 7px;font-weight:650}#panel p{font-size:12px;line-height:1.65;margin:4px 0;color:#536257}#status{font-size:11px;color:#80633c;margin-top:8px}#help{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:9px 14px;border-radius:999px;background:#24352fc9;color:#f5f1e1;font-size:12px;white-space:nowrap;pointer-events:none}#loading{position:fixed;inset:0;display:grid;place-items:center;background:#c8d0c3;color:#31453a;font-size:14px;z-index:5;transition:opacity .35s}#loading.hide{opacity:0;pointer-events:none}@media(max-width:600px){#panel{left:10px;top:10px;padding:10px 12px}#panel h1{font-size:15px}#help{bottom:12px;font-size:11px;max-width:calc(100vw - 20px);white-space:normal;text-align:center}}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#d8d0b7;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:#2f382f}
+#view{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#panel{position:fixed;left:18px;top:18px;max-width:min(365px,calc(100vw - 36px));padding:14px 17px;background:rgba(244,238,218,.9);border:1px solid rgba(91,77,54,.24);border-radius:10px;box-shadow:0 8px 28px #3d382a20;backdrop-filter:blur(9px);pointer-events:none}
+#panel h1{font-size:17px;letter-spacing:.09em;margin:0 0 6px;font-weight:680}
+#panel p{font-size:12px;line-height:1.6;margin:4px 0;color:#5c6255}
+#status{font-size:11px;color:#80633c;margin-top:8px}
+#help{position:fixed;left:50%;bottom:17px;transform:translateX(-50%);padding:9px 15px;border-radius:999px;background:#29372fce;color:#f5f0df;font-size:12px;white-space:nowrap;pointer-events:none}
+#loading{position:fixed;inset:0;display:grid;place-items:center;background:#d8d0b7;color:#514936;font-size:15px;z-index:5;transition:opacity .45s}
+#loading.hide{opacity:0;pointer-events:none}
+#loading-label{padding:12px 18px;background:#f2ead7d9;border:1px solid #8c7b5b55;border-radius:9px}
+@media(max-width:600px){#panel{left:10px;top:10px;padding:10px 12px}#panel h1{font-size:15px}#help{bottom:12px;font-size:11px;max-width:calc(100vw - 20px);white-space:normal;text-align:center}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/"}}</script>
 </head>
-<body><div id="view"></div><section id="panel"><h1>清明南宋 · 河岸市井</h1><p>第一阶段场景：虹桥、河道、两岸与临水码头。先验证真实模型在同一世界中的比例、位置和加载。</p><p>鼠标拖动旋转 · 滚轮缩放 · WASD 平移 · Q/E 升降</p><div id="status">正在载入场景模型…</div></section><div id="help">河面与两岸为场景底座 · 当前仅接入虹桥和码头两个真实资产</div><div id="loading">正在搭建临河场景…</div><script type="module" src="./scene.js"></script></body></html>
+<body>
+<div id="view"></div>
+<section id="panel">
+<h1>清明南宋 · 汴河市井</h1>
+<p>郊野村舍 — 虹桥漕运 — 城门街市。沿着汴河进入繁华城中，桥头、码头与市集连成一片。</p>
+<p>鼠标拖动旋转 · 滚轮缩放 · WASD移动 · Q/E升降</p>
+<div id="status">正在载入场景资产…</div>
+</section>
+<div id="help">汴河沿东西延伸 · 虹桥横跨河面 · 船只缓慢往来 · 城门外形成连续市街</div>
+<div id="loading"><div id="loading-label">正在铺设河道与市街…</div></div>
+<script type="module" src="./scene.js"></script>
+</body>
+</html>

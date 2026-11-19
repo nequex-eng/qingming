@@ -66,6 +66,10 @@ export class AssetManager {
       const materials = Array.isArray(object.material) ? object.material : [object.material];
       for (const material of materials) {
         material.side = THREE.DoubleSide;
+        // The Blender references are matte, sunlit clay/wood/stone studies.
+        // Preserve authored albedo and textures; only remove plastic-like shine.
+        material.roughness = Math.max(Number.isFinite(material.roughness) ? material.roughness : 0.82, 0.82);
+        if ('metalness' in material) material.metalness = 0;
         if (material.map) material.map.colorSpace = THREE.SRGBColorSpace;
       }
     });

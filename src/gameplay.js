@@ -80,6 +80,9 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
     }
     player.clear();
     player.add(model);
+    model.updateMatrixWorld(true);
+    const avatarBounds = new THREE.Box3().setFromObject(model);
+    model.position.y -= avatarBounds.min.y;
     player.userData.characterAsset = 'scholar-literati';
     return true;
   }
@@ -148,11 +151,13 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
   // Drag on the open right-hand side to turn the camera; the left thumb remains the joystick.
   let lookPointer = null, lastLookX = 0;
   renderer.domElement.addEventListener('pointerdown', e => {
-    if (e.clientX > innerWidth * .42) { lookPointer = e.pointerId; lastLookX = e.clientX; }
+    if (e.button !== 0) return;
+    lookPointer = e.pointerId; lastLookX = e.clientX;
+    try { renderer.domElement.setPointerCapture(e.pointerId); } catch {}
   });
   renderer.domElement.addEventListener('pointermove', e => {
     if (e.pointerId !== lookPointer) return;
-    yaw -= (e.clientX - lastLookX) * .006;
+    yaw -= (e.clientX - lastLookX) * .009;
     lastLookX = e.clientX;
   });
   const endLook = e => { if (e.pointerId === lookPointer) lookPointer = null; };
@@ -179,8 +184,8 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
       const len = Math.hypot(xAxis, yAxis);
       const sx = xAxis / Math.max(1, len), sy = yAxis / Math.max(1, len);
       const sin = Math.sin(yaw), cos = Math.cos(yaw);
-      const dx = (sx * cos - sy * sin) * 5.2 * dt;
-      const dz = (sx * sin + sy * cos) * 5.2 * dt;
+      const dx = (sx * cos + sy * sin) * 5.2 * dt;
+      const dz = (-sx * sin + sy * cos) * 5.2 * dt;
       const nx = THREE.MathUtils.clamp(player.position.x + dx, -88, 88);
       const nz = THREE.MathUtils.clamp(player.position.z + dz, -45, 55);
       if (!blocked(nx, player.position.z)) player.position.x = nx;
@@ -211,18 +216,10 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
     }
     if (actionButton) actionButton.hidden = !nearby;
 
-    const step = missionSteps[missionIndex];
-    if (step && Math.hypot(player.position.x - step.target[0], player.position.z - step.target[2]) < 5.2) {
-      if (missionIndex !== lastStep) {
-        lastStep = missionIndex;
-        reward(step.reward);
-        missionIndex++;
-        updateHud();
-        if (status) status.textContent = '行旅任务完成 · 获得 ' + step.reward + ' 文';
-      }
-    }
+    // Free-roam mode: no forced route, objective tracking or completion popups.
   }
 
+  if (hud) hud.hidden = true;
   updateHud();
-  return { player, update, interact, setPlayerModel, getCoins: () => coins, getMissionIndex: () => missionIndex };
+  return { player, update, interact, setPlayerModel, getCoins: () => coins, getMissionIndex: () => missionIndex, setYaw: value => { yaw = value; } };
 }

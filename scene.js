@@ -14,16 +14,27 @@ scene.fog = new THREE.Fog(0xe7dfca, 105, 220);
 const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, .1, 360);
 camera.position.set(34, 48, 68);
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+const isMobileGPU = matchMedia('(max-width: 700px), (pointer: coarse)').matches;
+const maxPixelRatio = isMobileGPU ? 1.3 : 1.6;
+renderer.setPixelRatio(Math.min(devicePixelRatio, maxPixelRatio));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+sunShadowQuality();
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 // Blender reference previews use the Standard view transform, not an ACES filmic curve.
 // NoToneMapping keeps the GLTF albedo and lit midtones from being compressed/darkened.
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.toneMappingExposure = 1.0;
 host.appendChild(renderer.domElement);
+
+function sunShadowQuality() {
+  // Keep the scene's sunlight and soft-shadow look, but avoid a 2048² shadow
+  // map on phones where the fill rate and memory budget are much tighter.
+  const shadowSize = isMobileGPU ? 1024 : 1536;
+  sun.shadow.mapSize.set(shadowSize, shadowSize);
+  sun.shadow.camera.updateProjectionMatrix();
+}
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(8, 1.2, 9);
@@ -238,7 +249,10 @@ async function loadAllAssets() {
   // Keep the procedural terrain as a safety layer while the imported ground mesh is inspected.
   window.__qingmingBatch3Models = [];
   const addBatch3 = async (id, position, scale = 1, rotationY = 0) => {
-    const item = await assetManager.loadBatch3Model(id, position, scale, rotationY);
+    const smallProp = ['paper-lantern', 'barrels-set', 'ceramics-set'].includes(id);
+    const item = await assetManager.loadBatch3Model(id, position, scale, rotationY, {
+      castShadow: !smallProp, receiveShadow: !smallProp
+    });
     window.__qingmingBatch3Models.push(item);
     return item;
   };
@@ -251,6 +265,7 @@ async function loadAllAssets() {
     if (riverAsset.size.x > 150 && riverAsset.size.z > 10) world.river.visible = false;
 
     // Replace the flat procedural stall roofs/posts with the authored timber-and-cloth awnings.
+    const awningJobs = [];
     for (let i = 0; i < WORLD_LAYOUT.marketStalls.length; i++) {
       const x = WORLD_LAYOUT.marketStalls[i];
       const z = 27.2 + (i % 2 ? 2.8 : 0);
@@ -258,19 +273,25 @@ async function loadAllAssets() {
       if (stall) stall.traverse(node => {
         if (node.name === 'procedural-stall-post' || node.name === 'procedural-stall-canopy') node.visible = false;
       });
-      await addBatch3('shopfront-fabric-awning', [x, 0, z], 0.65, 0);
+      awningJobs.push(addBatch3('shopfront-fabric-awning', [x, 0, z], 0.65, 0));
     }
+
+    await Promise.all(awningJobs);
 
     // Lanterns hang above the shopfront fascia; duplicate instances share one downloaded GLB.
+    const lanternJobs = [];
     for (const [x, z] of [[15,27.2],[33,30],[42,27.2],[55,30],[65,27.2]]) {
-      await addBatch3('paper-lantern', [x, 2.35, z + 1.05], 1, 0);
+      lanternJobs.push(addBatch3('paper-lantern', [x, 2.35, z + 1.05], 1, 0));
     }
+    await Promise.all(lanternJobs);
 
     // Wharf cargo and shop ceramics add small-scale visual detail around existing trade points.
-    await addBatch3('barrels-set', [12.5, 0, 10.8], 1.7, 0);
-    await addBatch3('barrels-set', [17.0, 0, 10.8], 1.7, 0);
-    await addBatch3('ceramics-set', [28, 1.0, 19.2], 1.15, 0);
-    await addBatch3('ceramics-set', [44, 1.0, 25.2], 1.15, 0);
+    await Promise.all([
+      addBatch3('barrels-set', [12.5, 0, 10.8], 1.7, 0),
+      addBatch3('barrels-set', [17.0, 0, 10.8], 1.7, 0),
+      addBatch3('ceramics-set', [28, 1.0, 19.2], 1.15, 0),
+      addBatch3('ceramics-set', [44, 1.0, 25.2], 1.15, 0)
+    ]);
 
     // Ground GLB is retained in the scene asset library; the current procedural ground
     // remains visible until its Draco mesh bounds are confirmed in the browser.
@@ -312,8 +333,12 @@ renderer.domElement.addEventListener('pointerup', event => {
   if (target?.kind === 'npc') openNpc(target.id);
 });
 let last = performance.now();
+let lastRender = 0;
+const targetFrameMs = isMobileGPU ? 1000 / 40 : 1000 / 60;
 function animate(now) {
   requestAnimationFrame(animate);
+  if (now - lastRender < targetFrameMs) return;
+  lastRender = now;
   const dt = Math.min((now - last) / 1000, .05);
   last = now;
   moveCamera(dt);
@@ -336,5 +361,5 @@ addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, maxPixelRatio));
 });

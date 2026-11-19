@@ -107,6 +107,11 @@ jobs:
             const catalogResult=await page.evaluate(()=>({count:window.__qingmingCatalogModels.length,results:window.__qingmingCatalogModels.map(item=>({id:item.id,scale:item.appliedScale,rotationY:item.rotationY,minY:item.bounds.min.y,size:[item.size.x,item.size.y,item.size.z],position:item.position}))}));
             console.log('CATALOG_RESULT '+JSON.stringify(catalogResult));
             if(catalogResult.count!==16)throw new Error('Expected 16 measured catalog assets, got '+catalogResult.count);
+            const batch3=await page.evaluate(()=>window.__qingmingBatch3Models.map(item=>({id:item.id,size:[item.size.x,item.size.y,item.size.z],minY:item.bounds.min.y,position:item.position,scale:item.appliedScale})));
+            console.log('BATCH3_RESULT '+JSON.stringify(batch3));
+            if(batch3.length!==18)throw new Error('Expected 18 placed batch3 instances, got '+batch3.length);
+            for(const id of ['ground','river','shopfront-fabric-awning','paper-lantern','barrels-set','ceramics-set'])if(!batch3.some(x=>x.id===id))throw new Error('Missing batch3 model: '+id);
+            if(batch3.some(x=>!x.size.every(v=>Number.isFinite(v))))throw new Error('Non-finite batch3 bounds');
             const bend=await page.evaluate(()=>window.__qingmingWorldLayout && (3.8*Math.sin(Math.PI*24/48)+1.2*Math.sin(Math.PI*24/24))); if(!(bend>3.5))throw new Error('Bian River is still straight or its bend is too subtle');
             for(const x of catalogResult.results){if(!(x.scale>0&&Number.isFinite(x.scale)))throw new Error('Invalid catalog scale: '+x.id);if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid catalog dimensions: '+x.id);if(Math.abs(x.minY-x.position[1])>0.05)throw new Error('Catalog model not grounded: '+x.id);}
             await page.evaluate(()=>window.__qingmingGame.openShop(0));

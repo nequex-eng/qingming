@@ -21,7 +21,7 @@ const loader=new GLTFLoader();
 async function fetchGLTF(url){
   if(!url.endsWith('.gz')) return loader.loadAsync(url);
   const response=await fetch(url);
-  if(!response.ok) throw new Error('HTTP '+response.status+' loading '+file);
+  if(!response.ok) throw new Error('HTTP '+response.status+' loading '+url);
   if(!('DecompressionStream' in window)) throw new Error('当前浏览器不支持gzip解压');
   const compressed=await response.arrayBuffer();
   const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));

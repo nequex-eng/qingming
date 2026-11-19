@@ -1,10 +1,7 @@
 name: Prepare compressed large GLB for Pages
 
 on:
-  push:
-    paths:
-      - 'scene.js'
-      - '.github/workflows/prepare-pages-large-assets.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write

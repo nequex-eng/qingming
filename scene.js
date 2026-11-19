@@ -179,6 +179,7 @@ window.__qingmingWorldLayout = WORLD_LAYOUT;
 
 const movingBoats = [];
 const interactables = [...world.interactables];
+let gameplay = null;
 
 
 async function loadAllAssets() {
@@ -207,7 +208,10 @@ async function loadAllAssets() {
       if (Number.isFinite(spec.speed)) placement[2] += riverCenterZ(placement[0]);
       const item = await assetManager.loadCatalogModel(spec.id, placement);
       item.model.userData.assetId = spec.id;
-      if (npcDialogues[spec.id]) {
+      if (spec.id === 'scholar-literati') {
+        // Reuse the authored scholar as the player's avatar; keep only one visible copy.
+        if (gameplay?.setPlayerModel(item.model, item.position)) item.model.visible = false;
+      } else if (npcDialogues[spec.id]) {
         item.model.userData.interaction = { kind: 'npc', id: spec.id };
         interactables.push(item.model);
       }
@@ -294,7 +298,7 @@ loadAllAssets().catch(error => {
 });
 
 // Third-person journey mode: the player, not the camera, is the focus of play.
-const gameplay = createGameplay({
+gameplay = createGameplay({
   THREE, scene, camera, controls, renderer, world,
   getInteractables: () => interactables,
   onInteract: object => {

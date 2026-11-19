@@ -1,0 +1,68 @@
+name: Smoke test Qingming live 3D scene
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/smoke-test-live-scene.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Verify live game and all six GLB loads
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/smoke.cjs <<'JS'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({
+              headless: true,
+              args: ['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']
+            });
+            const page = await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
+            const errors=[];
+            const loaded=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text());});
+            page.on('requestfailed',r=>errors.push('requestfailed: '+r.url()+' '+r.failure()?.errorText));
+            page.on('response',r=>{if(r.url().includes('qingming-assets.pages.dev'))loaded.push({url:r.url(),status:r.status(),bytes:r.headers()['content-length']||''});});
+            const base='https://qingming-riverside-2wq.pages.dev';
+            const manifest=await page.request.get(base+'/public/assets/manifest.json');
+            if(!manifest.ok()) throw new Error('Manifest HTTP '+manifest.status());
+            const data=await manifest.json();
+            if(!Array.isArray(data.assets)||data.assets.length!==6)throw new Error('Expected 6 manifest entries');
+            await page.goto(base+'/',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('六种独立资产全部载入'),{timeout:120000});
+            await page.waitForTimeout(2500);
+            await page.screenshot({path:'/tmp/qingming-live-smoke.png',fullPage:true});
+            const status=await page.locator('#status').innerText();
+            const canvas=await page.locator('canvas').count();
+            const result={status,canvas,cdnResponses:loaded,errors};
+            console.log('SMOKE_RESULT '+JSON.stringify(result));
+            if(canvas!==1)throw new Error('Expected one WebGL canvas');
+            if(loaded.filter(x=>x.status===200).length<6)throw new Error('Not all six CDN GLBs returned HTTP 200');
+            if(errors.length)throw new Error('Browser errors detected: '+errors.join(' | '));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1);});
+          JS
+          node /tmp/smoke.cjs
+      - name: Upload live scene screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qingming-live-scene-smoke
+          path: /tmp/qingming-live-smoke.png
+          if-no-files-found: ignore
+          retention-days: 7

@@ -19,6 +19,7 @@ function addHouse(x,z,w=5,d=3,h=3){const body=new THREE.Mesh(new THREE.BoxGeomet
 // 以真实南宋建筑资产替换临时方盒建筑，沿两岸形成市井街面。
 const assetManager=new AssetManager({scene,status});
 window.__qingmingLoadedModels=assetManager.loaded;
+window.__qingmingAssetManager=assetManager;
 assetManager.loadManifest('./public/assets/manifest.json')
   .then(({manifest})=>{window.__qingmingAssetManifest=manifest;})
   .catch(error=>{console.error('Scene asset manifest error:',error);status.textContent='场景资产清单加载失败';});

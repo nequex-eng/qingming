@@ -1,0 +1,38 @@
+name: Inspect Qingming batch3 asset archive
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-batch3-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download and inspect batch3 archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/batch3/extracted
+          curl -fL --retry 4 --retry-delay 2 -A 'Mozilla/5.0' 'https://github.com/user-attachments/files/35072728/drive-download-20261119T074103Z-1-001.zip' -o /tmp/batch3/batch3.zip
+          unzip -t /tmp/batch3/batch3.zip
+          unzip -oq /tmp/batch3/batch3.zip -d /tmp/batch3/extracted
+          echo '===== FILE INVENTORY ====='
+          find /tmp/batch3/extracted -type f -printf '%P | %s bytes\n' | sort
+          echo '===== GLB VALIDATION ====='
+          python - <<'PY'
+          from pathlib import Path
+          import struct
+          root=Path('/tmp/batch3/extracted')
+          files=sorted(p for p in root.rglob('*.glb') if '__MACOSX' not in p.parts and not p.name.startswith('._'))
+          print('GLB_COUNT',len(files))
+          for p in files:
+              b=p.read_bytes()
+              if len(b)<12 or b[:4]!=b'glTF':
+                  print('INVALID',p,len(b)); continue
+              version,length=struct.unpack_from('<II',b,4)
+              print('GLB',p.relative_to(root),'bytes=',len(b),'version=',version,'declared=',length,'valid=',version==2 and length==len(b))
+          PY

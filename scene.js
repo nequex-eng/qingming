@@ -52,11 +52,11 @@ coolFill.position.set(42, 30, -36);
 scene.add(coolFill);
 // Reference renders use broad camera-side studio fill. Add a model-only fill so
 // imported GLB assets keep their authored colors without washing out the town ground.
-const assetFill = new THREE.DirectionalLight(0xfff8ef, 1.6);
+const assetFill = new THREE.DirectionalLight(0xfff0dc, 1.8);
 assetFill.position.set(34, 48, 68);
 assetFill.layers.set(1);
 scene.add(assetFill);
-const assetAmbient = new THREE.HemisphereLight(0xf3f0e8, 0xaaa496, 1.0);
+const assetAmbient = new THREE.HemisphereLight(0xf5ecd8, 0x9c8d73, 1.1);
 assetAmbient.layers.set(1);
 scene.add(assetAmbient);
 camera.layers.enable(1);

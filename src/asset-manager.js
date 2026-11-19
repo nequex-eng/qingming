@@ -92,7 +92,8 @@ export class AssetManager {
       size,
       bounds,
       expectedPosition: [...(asset.position || [0, 0, 0])],
-      appliedScale: asset.scale
+      appliedScale: asset.scale,
+      rotationY: asset.rotationY || 0
     };
     this.loaded.push(item);
     this.status.textContent = '已载入 ' + this.loaded.length + '/6：' + this.loaded.map(x => x.label).join('、');

@@ -13,7 +13,7 @@
         0,
         0
       ],
-      "rotationY": 0
+      "rotationY": -0.3854869547788706
     },
     {
       "id": "stone-arch-bridge",
@@ -26,7 +26,7 @@
         0,
         0
       ],
-      "rotationY": 1.5707963267948966
+      "rotationY": 1.185309372016026
     },
     {
       "id": "wharf-dock",

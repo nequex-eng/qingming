@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/smoke-test-live-scene.yml'
+      - 'scene.js'
+      - 'public/assets/manifest.json'
   workflow_dispatch:
 permissions:
   contents: read
@@ -39,6 +41,7 @@ jobs:
             page.on('requestfailed',r=>errors.push('requestfailed: '+r.url()+' '+r.failure()?.errorText));
             page.on('response',r=>{if(r.url().includes('qingming-assets.pages.dev'))loaded.push({url:r.url(),status:r.status(),bytes:r.headers()['content-length']||''});});
             const base='https://qingming-riverside-2wq.pages.dev';
+            let deployed=false; for(let i=0;i<36;i++){const r=await page.request.get(base+'/scene.js'); if(r.ok()&&(await r.text()).includes('DRACOLoader')){deployed=true;break;} await page.waitForTimeout(5000);} if(!deployed)throw new Error('Latest Draco-enabled scene.js is not deployed yet');
             const manifest=await page.request.get(base+'/public/assets/manifest.json');
             if(!manifest.ok()) throw new Error('Manifest HTTP '+manifest.status());
             const data=await manifest.json();

@@ -13,8 +13,7 @@
         0,
         0
       ],
-      "rotationY": 0,
-      "targetFootprint": 14
+      "rotationY": 0
     },
     {
       "id": "stone-arch-bridge",
@@ -23,12 +22,11 @@
       "size_bytes": 3027740,
       "scale": 1,
       "position": [
-        -19,
+        -48,
         0,
         0
       ],
-      "rotationY": 0,
-      "targetFootprint": 12.5
+      "rotationY": 0
     },
     {
       "id": "wharf-dock",
@@ -37,12 +35,11 @@
       "size_bytes": 3674392,
       "scale": 1,
       "position": [
-        7,
+        14,
         0,
-        5.25
+        7.2
       ],
-      "rotationY": 1.5707963267948966,
-      "targetFootprint": 7
+      "rotationY": 1.5707963267948966
     },
     {
       "id": "teahouse",
@@ -51,12 +48,11 @@
       "size_bytes": 3761016,
       "scale": 1,
       "position": [
-        -23,
+        28,
         0,
-        11
+        21
       ],
-      "rotationY": 0,
-      "targetFootprint": 7.5
+      "rotationY": 0
     },
     {
       "id": "restaurant-wine-house",
@@ -66,12 +62,11 @@
       "size_gzipped_bytes": 4032182,
       "scale": 1,
       "position": [
-        -8,
+        45,
         0,
-        11
+        21
       ],
-      "rotationY": 0,
-      "targetFootprint": 8
+      "rotationY": 0
     },
     {
       "id": "riverside-commercial-building",
@@ -80,12 +75,11 @@
       "size_bytes": 4552788,
       "scale": 1,
       "position": [
-        19,
+        62,
         0,
-        -11
+        -21
       ],
-      "rotationY": 3.141592653589793,
-      "targetFootprint": 9
+      "rotationY": 3.141592653589793
     }
   ]
 }

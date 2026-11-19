@@ -139,6 +139,7 @@ function openNpc(id) {
 }
 document.querySelector('#trade-close').addEventListener('click', () => { tradePanel.hidden = true; });
 saveMarket();
+window.__qingmingGame = { openShop, openNpc, getMarketState: () => JSON.parse(JSON.stringify(marketState)) };
 
 const assetManager = new AssetManager({ scene, status });
 window.__qingmingLoadedModels = assetManager.loaded;

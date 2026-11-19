@@ -19,6 +19,7 @@ jobs:
           curl -fL --retry 3 'https://github.com/user-attachments/files/35076486/6.zip' -o /tmp/batch4/river.zip
           curl -fL --retry 3 'https://github.com/user-attachments/files/35075982/Archive.2.zip' -o /tmp/batch4/ground.zip
           unzip -p /tmp/batch4/river.zip river.glb > public/assets/3d/environment/river.glb
+          unzip -p /tmp/batch4/river.zip scholar-literati.glb > public/assets/3d/characters/scholar-literati.glb
           unzip -p /tmp/batch4/ground.zip ground.glb > public/assets/3d/environment/ground.glb
           # Inspect the remaining batch4 archives so their exact model names can be mapped before integration.
           for spec in '35076487 3.zip' '35075985 Archive.zip' '35075988 Archive.5.zip' '35075992 Archive.4.zip'; do
@@ -55,7 +56,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/assets/3d/environment/river.glb public/assets/3d/environment/ground.glb public/assets/3d/asset-catalog-batch3.json
+          git add public/assets/3d/environment/river.glb public/assets/3d/environment/ground.glb public/assets/3d/characters/scholar-literati.glb public/assets/3d/asset-catalog-batch3.json
           if git diff --cached --quiet; then echo 'No material changes'; exit 0; fi
           git commit -m 'Import batch4 river and ground materials'
           git pull --rebase origin main

@@ -17,9 +17,19 @@ export class AssetManager {
     this.loaded = [];
     this.manifest = null;
     this.catalog = null;
+    // Cache the parsed GLTF promise by URL. Repeated props reuse one download,
+    // one Draco decode and shared GPU geometry/material resources.
+    this.gltfCache = new Map();
   }
 
   async fetchGLTF(url) {
+    if (this.gltfCache.has(url)) return this.gltfCache.get(url);
+    const pending = this._fetchGLTFUncached(url);
+    this.gltfCache.set(url, pending);
+    try { return await pending; } catch (error) { this.gltfCache.delete(url); throw error; }
+  }
+
+  async _fetchGLTFUncached(url) {
     if (!url.endsWith('.gz')) return this.loader.loadAsync(url);
     const response = await fetch(url);
     if (!response.ok) throw new Error('HTTP ' + response.status + ' loading ' + url);
@@ -57,12 +67,12 @@ export class AssetManager {
     return this.getBounds(model);
   }
 
-  configureMaterials(model) {
+  configureMaterials(model, { castShadow = true, receiveShadow = true } = {}) {
     model.traverse(object => {
       if (!object.isMesh) return;
       object.layers.enable(1);
-      object.castShadow = true;
-      object.receiveShadow = true;
+      object.castShadow = castShadow;
+      object.receiveShadow = receiveShadow;
       if (!object.material) return;
       const materials = Array.isArray(object.material) ? object.material : [object.material];
       for (const material of materials) {
@@ -80,7 +90,7 @@ export class AssetManager {
     // First batch scales are baked into the GLB geometry. Manifest scale=1
     // is an identity transform; do not footprint-fit or multiply it again.
     const gltf = await this.fetchGLTF(asset.url);
-    const model = gltf.scene;
+    const model = gltf.scene.clone(true);
     const bounds = this.applyPlacement(model, {
       position: asset.position || [0, 0, 0],
       rotationY: asset.rotationY || 0,
@@ -145,7 +155,7 @@ export class AssetManager {
       throw new Error('资产 ' + id + ' 尚未录入实测 scale；拒绝用类别默认值或猜测值加载');
     }
     const gltf = await this.fetchGLTF('./public/' + asset.file);
-    const model = gltf.scene;
+    const model = gltf.scene.clone(true);
     const appliedRotationY = Number.isFinite(rotationY)
       ? rotationY
       : (Number.isFinite(asset.recommended_rotationY) ? asset.recommended_rotationY : 0);
@@ -162,12 +172,12 @@ export class AssetManager {
     };
   }
 
-  async loadBatch3Model(id, position = [0, 0, 0], scale = 1, rotationY = 0) {
+  async loadBatch3Model(id, position = [0, 0, 0], scale = 1, rotationY = 0, options = {}) {
     if (!Number.isFinite(scale) || scale <= 0) throw new Error('batch3 资产缩放无效：' + id);
     const gltf = await this.fetchGLTF('./public/assets/3d/environment/' + id + '.glb');
-    const model = gltf.scene;
+    const model = gltf.scene.clone(true);
     const bounds = this.applyPlacement(model, { position, rotationY, scale });
-    this.configureMaterials(model);
+    this.configureMaterials(model, options);
     model.userData.assetId = 'batch3-' + id;
     this.scene.add(model);
     return { id, model, size: bounds.getSize(new THREE.Vector3()), bounds, appliedScale: scale, position: [...position], rotationY };

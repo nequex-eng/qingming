@@ -16,9 +16,9 @@
   {
     "id": "ground",
     "file": "assets/3d/environment/ground.glb",
-    "size_bytes": 172648,
-    "format": "GLB 2.0 Draco",
-    "batch": "batch3"
+    "size_bytes": 142720,
+    "format": "GLB 2.0 · batch4 replacement",
+    "batch": "batch4"
   },
   {
     "id": "paper-lantern",
@@ -30,9 +30,9 @@
   {
     "id": "river",
     "file": "assets/3d/environment/river.glb",
-    "size_bytes": 153976,
-    "format": "GLB 2.0 Draco",
-    "batch": "batch3"
+    "size_bytes": 50404,
+    "format": "GLB 2.0 · batch4 replacement",
+    "batch": "batch4"
   },
   {
     "id": "shopfront-fabric-awning",

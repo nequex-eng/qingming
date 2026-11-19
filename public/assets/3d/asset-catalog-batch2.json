@@ -3,132 +3,362 @@
     "file": "assets/3d/bridges/timber-arch-bridge.glb",
     "size_bytes": 2854480,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "scale": 1
   },
   {
     "file": "assets/3d/bridges/stone-arch-bridge.glb",
     "size_bytes": 3027740,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "scale": 1
   },
   {
     "file": "assets/3d/architecture/wharf-dock.glb",
     "size_bytes": 3674392,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "scale": 1
   },
   {
     "file": "assets/3d/architecture/riverside-commercial-building.glb",
     "size_bytes": 4552788,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "scale": 1
   },
   {
     "file": "assets/3d/architecture/restaurant-wine-house.glb",
     "size_bytes": 4043344,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "scale": 1
   },
   {
     "file": "assets/3d/architecture/teahouse.glb",
     "size_bytes": 3761016,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "scale": 1
   },
   {
     "file": "assets/3d/characters/artisan-craftsman.glb",
     "size_bytes": 2658528,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.678,
+      1.75,
+      0.412
+    ],
+    "scale": 1,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      0.678,
+      1.75,
+      0.412
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/characters/boatman.glb",
     "size_bytes": 2676288,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.847,
+      1.75,
+      0.413
+    ],
+    "scale": 1,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      0.847,
+      1.75,
+      0.413
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/characters/scholar-literati.glb",
     "size_bytes": 3355132,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.696,
+      1.8,
+      0.533
+    ],
+    "scale": 0.972222,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      0.677,
+      1.75,
+      0.518
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/characters/street-vendor.glb",
     "size_bytes": 3007272,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      1.061,
+      1.75,
+      0.425
+    ],
+    "scale": 1,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      1.061,
+      1.75,
+      0.425
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/characters/merchant-shopkeeper.glb",
     "size_bytes": 3351152,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      4.821,
+      7.51,
+      1.801
+    ],
+    "scale": 0.233023,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      1.123,
+      1.75,
+      0.42
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/characters/shop-assistant.glb",
     "size_bytes": 2956324,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.793,
+      1.75,
+      0.43
+    ],
+    "scale": 1,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      0.793,
+      1.75,
+      0.43
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/characters/teahouse-worker.glb",
     "size_bytes": 2704136,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      1.027,
+      1.75,
+      0.411
+    ],
+    "scale": 1,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      1.027,
+      1.75,
+      0.411
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/characters/porter-laborer.glb",
     "size_bytes": 3415052,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.98,
+      1.75,
+      0.373
+    ],
+    "scale": 1,
+    "target_size_basis": "1.75m height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      0.98,
+      1.75,
+      0.373
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/boats/cargo-boat.glb",
     "size_bytes": 3363916,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      1.2,
+      0.923,
+      0.452
+    ],
+    "scale": 5.833333,
+    "target_size_basis": "7.0m length (X axis)",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      7,
+      5.384,
+      2.637
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/boats/covered-boat.glb",
     "size_bytes": 2864472,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.45,
+      0.188,
+      0.17
+    ],
+    "scale": 11.111111,
+    "target_size_basis": "5.0m length (X axis)",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      5,
+      2.089,
+      1.889
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/boats/ferry-boat.glb",
     "size_bytes": 2930128,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.45,
+      0.23,
+      0.608
+    ],
+    "scale": 9.046053,
+    "target_size_basis": "5.5m length (Z axis)",
+    "recommended_rotationY": 1.570796,
+    "scaled_dimensions_m": [
+      4.071,
+      2.081,
+      5.5
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/boats/skiff.glb",
     "size_bytes": 3299100,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      4.5,
+      6.265,
+      9.675
+    ],
+    "scale": 0.465116,
+    "target_size_basis": "4.5m length (Z axis)",
+    "recommended_rotationY": 1.570796,
+    "scaled_dimensions_m": [
+      2.093,
+      2.914,
+      4.5
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/boats/passenger-boat.glb",
     "size_bytes": 3429632,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      0.6,
+      0.999,
+      1.458
+    ],
+    "scale": 4.115226,
+    "target_size_basis": "6.0m length (Z axis)",
+    "recommended_rotationY": 1.570796,
+    "scaled_dimensions_m": [
+      2.469,
+      4.111,
+      6
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/transport/cargo-cart.glb",
     "size_bytes": 3306116,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      2.799,
+      1.92,
+      1.558
+    ],
+    "scale": 1,
+    "target_size_basis": "2.799m length (X axis)",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      2.799,
+      1.92,
+      1.558
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/transport/handcart.glb",
     "size_bytes": 3895604,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      1.8,
+      1.747,
+      3.194
+    ],
+    "scale": 0.500939,
+    "target_size_basis": "1.6m length (Z axis)",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      0.902,
+      0.875,
+      1.6
+    ],
+    "scale_baked": 1
   },
   {
     "file": "assets/3d/transport/sedan-chair.glb",
     "size_bytes": 4263312,
     "format": "GLB 2.0",
-    "batch": "batch2"
+    "batch": "batch2",
+    "measured_dimensions_m": [
+      1.8,
+      2.844,
+      3.621
+    ],
+    "scale": 0.773558,
+    "target_size_basis": "2.2m overall height",
+    "recommended_rotationY": 0,
+    "scaled_dimensions_m": [
+      1.392,
+      2.2,
+      2.801
+    ],
+    "scale_baked": 1
   }
 ]

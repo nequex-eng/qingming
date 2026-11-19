@@ -22,6 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
+      - uses: actions/checkout@v4
+      - name: Check source JavaScript syntax
+        run: |
+          node --check scene.js
+          node --check src/gameplay.js
+          node --check src/asset-manager.js
+          node --check src/world.js
+          node --check src/world-layout.js
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -77,7 +85,7 @@ jobs:
             const page = await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
             const errors=[];
             const loaded=[];
-            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message+' '+e.stack));
             page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text());});
             page.on('requestfailed',r=>errors.push('requestfailed: '+r.url()+' '+r.failure()?.errorText));
             page.on('response',r=>{if(r.url().includes('qingming-assets.pages.dev'))loaded.push({url:r.url(),status:r.status(),bytes:r.headers()['content-length']||''});});

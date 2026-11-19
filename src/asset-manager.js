@@ -3,8 +3,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 /**
- * Owns GLB loading, Draco/gzip decoding, placement and loaded-asset metadata.
- * The world renderer should not know where model files are stored.
+ * One GLTFLoader + one DRACOLoader for every GLB entry point.
+ * Never infer a scale from category or apply a shared footprint fit.
  */
 export class AssetManager {
   constructor({ scene, status }) {
@@ -16,6 +16,7 @@ export class AssetManager {
     this.loader.setDRACOLoader(this.draco);
     this.loaded = [];
     this.manifest = null;
+    this.catalog = null;
   }
 
   async fetchGLTF(url) {
@@ -26,33 +27,37 @@ export class AssetManager {
     const compressed = await response.arrayBuffer();
     const stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
     const data = await new Response(stream).arrayBuffer();
-    return this.loader.parseAsync(data, '');
+    // parseAsync uses the same GLTFLoader instance with DRACOLoader already attached.
+    return this.loader.parseAsync(data, new URL('.', url).href);
   }
 
-  async loadAsset(asset) {
-    const gltf = await this.fetchGLTF(asset.url);
-    const model = gltf.scene;
-    model.rotation.y = asset.rotationY || 0;
+  getBounds(model) {
     model.updateMatrixWorld(true);
+    return new THREE.Box3().setFromObject(model);
+  }
 
-    const initialBounds = new THREE.Box3().setFromObject(model);
-    const initialSize = initialBounds.getSize(new THREE.Vector3());
-    const horizontal = Math.max(initialSize.x, initialSize.z);
-    const fitScale = horizontal > 0
-      ? Math.min(asset.targetFootprint / horizontal, 1.8)
-      : 1;
-    const appliedScale = fitScale * (asset.scale || 1);
+  applyPlacement(model, { position = [0, 0, 0], rotationY = 0, scale }) {
+    if (!Number.isFinite(scale) || scale <= 0) {
+      throw new Error('资产缺少有效的逐模型 scale，拒绝猜测或统一缩放');
+    }
 
-    model.scale.setScalar(appliedScale);
+    model.rotation.y = rotationY;
+    // The model origin may be at its geometric center. Apply the authored
+    // per-asset scale, then ground its actual bounding-box minimum at Y=0.
+    model.scale.setScalar(scale);
     model.updateMatrixWorld(true);
-
-    const bounds = new THREE.Box3().setFromObject(model);
+    const bounds = this.getBounds(model);
     const center = bounds.getCenter(new THREE.Vector3());
-    const position = asset.position || [0, 0, 0];
+
     model.position.x += position[0] - center.x;
     model.position.z += position[2] - center.z;
-    model.position.y += -bounds.min.y + (position[1] || 0);
+    model.position.y += (position[1] || 0) - bounds.min.y;
+    model.updateMatrixWorld(true);
 
+    return this.getBounds(model);
+  }
+
+  configureMaterials(model) {
     model.traverse(object => {
       if (!object.isMesh) return;
       object.castShadow = true;
@@ -64,18 +69,30 @@ export class AssetManager {
         if (material.map) material.map.colorSpace = THREE.SRGBColorSpace;
       }
     });
+  }
 
+  async loadAsset(asset) {
+    // First batch scales are baked into the GLB geometry. Manifest scale=1
+    // is an identity transform; do not footprint-fit or multiply it again.
+    const gltf = await this.fetchGLTF(asset.url);
+    const model = gltf.scene;
+    const bounds = this.applyPlacement(model, {
+      position: asset.position || [0, 0, 0],
+      rotationY: asset.rotationY || 0,
+      scale: asset.scale
+    });
+    this.configureMaterials(model);
     this.scene.add(model);
-    const finalBounds = new THREE.Box3().setFromObject(model);
-    const finalSize = finalBounds.getSize(new THREE.Vector3());
+
+    const size = bounds.getSize(new THREE.Vector3());
     const item = {
       id: asset.id,
       label: asset.label,
       model,
-      size: finalSize,
-      bounds: finalBounds,
-      expectedPosition: [...position],
-      appliedScale
+      size,
+      bounds,
+      expectedPosition: [...(asset.position || [0, 0, 0])],
+      appliedScale: asset.scale
     };
     this.loaded.push(item);
     this.status.textContent = '已载入 ' + this.loaded.length + '/6：' + this.loaded.map(x => x.label).join('、');
@@ -86,19 +103,18 @@ export class AssetManager {
     const response = await fetch(url, { cache: 'no-cache' });
     if (!response.ok) throw new Error('资产清单加载失败：HTTP ' + response.status);
     this.manifest = await response.json();
-    const results = await Promise.allSettled((this.manifest.assets || []).map(asset => this.loadAsset(asset)));
+    const assets = this.manifest.assets || [];
+    if (assets.length !== 6) throw new Error('首屏 manifest 应为 6 个资产，实际为 ' + assets.length);
+    const results = await Promise.allSettled(assets.map(asset => this.loadAsset(asset)));
     const failed = results
       .map((result, index) => result.status === 'rejected'
-        ? { index, id: this.manifest.assets[index]?.id, error: result.reason }
+        ? { index, id: assets[index]?.id, error: result.reason }
         : null)
       .filter(Boolean);
 
     if (failed.length) {
       console.error('Asset load failures:', failed.map(({ index, id, error }) => ({
-        index,
-        id,
-        message: error?.message || String(error),
-        stack: error?.stack || ''
+        index, id, message: error?.message || String(error), stack: error?.stack || ''
       })));
       this.status.textContent = '已加载 ' + this.loaded.length + '/6；失败 ' + failed.length + ' 个（详见控制台）';
     } else {
@@ -115,11 +131,20 @@ export class AssetManager {
     return this.catalog;
   }
 
-  async loadCatalogModel(id) {
+  async loadCatalogModel(id, position = [0, 0, 0], rotationY = 0) {
     const catalog = await this.loadCatalog();
     const asset = catalog.find(item => item.file.split('/').pop().replace(/\.glb$/i, '') === id);
     if (!asset) throw new Error('资产库存中不存在：' + id);
-    return this.fetchGLTF('./public/' + asset.file);
+    if (!Number.isFinite(asset.scale) || asset.scale <= 0) {
+      throw new Error('资产 ' + id + ' 尚未录入实测 scale；拒绝用类别默认值或猜测值加载');
+    }
+    const gltf = await this.fetchGLTF('./public/' + asset.file);
+    const model = gltf.scene;
+    const bounds = this.applyPlacement(model, { position, rotationY, scale: asset.scale });
+    this.configureMaterials(model);
+    this.scene.add(model);
+    const size = bounds.getSize(new THREE.Vector3());
+    return { id, model, size, bounds, appliedScale: asset.scale, position: [...position] };
   }
 
   dispose() {

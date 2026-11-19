@@ -181,6 +181,13 @@ function moveCamera(dt) {
 
 async function loadAllAssets() {
   status.textContent = '正在载入桥梁、码头与沿河建筑…';
+  // Never block the playable base scene on remote GLB downloads. Reveal the
+  // procedural river, streets, stalls and trees immediately; stream GLBs later.
+  const loadingLabel = document.querySelector('#loading-label');
+  if (loadingLabel) loadingLabel.textContent = '市井场景已就绪，正在载入建筑与人物…';
+  loading.classList.add('hide');
+  setTimeout(() => loading.remove(), 500);
+
   const first = await assetManager.loadManifest('./public/assets/manifest.json');
   window.__qingmingAssetManifest = first.manifest;
   if (first.failed.length) {
@@ -190,11 +197,6 @@ async function loadAllAssets() {
   // Reveal the playable environment after the six landmarks; stream the
   // remaining models in the background so a 70 MB asset set is not a blank
   // loading screen on mobile connections.
-  const loadingLabel = document.querySelector('#loading-label');
-  if (loadingLabel) loadingLabel.textContent = '河岸场景已就绪，正在补充船只与市井人物…';
-  loading.classList.add('hide');
-  setTimeout(() => loading.remove(), 500);
-
   const total = WORLD_LAYOUT.catalog.length;
   let completed = 0;
   for (const spec of WORLD_LAYOUT.catalog) {

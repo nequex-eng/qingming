@@ -218,7 +218,8 @@ async function loadAllAssets() {
 
   const ok = first.loaded.length + window.__qingmingCatalogModels.length;
   status.textContent = '场景搭建完成 · ' + ok + '/22 个模型已载入';
-  document.querySelector('#loading-label').textContent = '场景已就绪';
+  const loadingLabel = document.querySelector('#loading-label');
+  if (loadingLabel) loadingLabel.textContent = '场景已就绪';
 }
 
 loadAllAssets().catch(error => {

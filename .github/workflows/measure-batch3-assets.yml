@@ -1,0 +1,34 @@
+name: Measure Qingming batch3 models
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/measure-batch3-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download and measure
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/b3
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://github.com/user-attachments/files/35072728/drive-download-20261119T074103Z-1-001.zip' -o /tmp/b3/a.zip
+          unzip -oq /tmp/b3/a.zip -d /tmp/b3/models
+          python -m pip install --quiet trimesh
+          python - <<'PY'
+          from pathlib import Path
+          import trimesh, struct, json
+          for p in sorted(Path('/tmp/b3/models').glob('*.glb')):
+              b=p.read_bytes()
+              n=struct.unpack_from('<I',b,8)[0]
+              j=json.loads(b[20:20+struct.unpack_from('<I',b,12)[0]].decode('utf-8').rstrip('\x00 ')) if b[16:20]==b'JSON' else {}
+              scene=trimesh.load(p,force='scene')
+              bounds=scene.bounds
+              dims=(bounds[1]-bounds[0]).tolist()
+              print('MODEL',p.name,'bytes',len(b),'dimensions_xyz',dims,'bounds',bounds.tolist(),'extensions',j.get('extensionsUsed',[]),'nodes',len(j.get('nodes',[])),'meshes',len(j.get('meshes',[])))
+          PY

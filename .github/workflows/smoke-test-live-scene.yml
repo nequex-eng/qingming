@@ -71,7 +71,8 @@ jobs:
             const stone=geometry.find(x=>x.label==='石拱桥'); const expectedStoneYaw=Math.PI/2-Math.atan((3.8*Math.PI/48)+(1.2*Math.PI/24)); if(!stone||Math.abs(stone.rotationY-expectedStoneYaw)>.01||stone.size[2]<12)throw new Error('Stone bridge is not oriented across the curved river');
             const catalogResult=await page.evaluate(()=>({count:window.__qingmingCatalogModels.length,results:window.__qingmingCatalogModels.map(item=>({id:item.id,scale:item.appliedScale,rotationY:item.rotationY,minY:item.bounds.min.y,size:[item.size.x,item.size.y,item.size.z],position:item.position}))}));
             console.log('CATALOG_RESULT '+JSON.stringify(catalogResult));
-            if(catalogResult.count!==16)throw new Error('Expected 16 measured catalog assets, got '+catalogResult.count);\n            const bend=await page.evaluate(()=>window.__qingmingWorldLayout && (3.8*Math.sin(Math.PI*24/48)+1.2*Math.sin(Math.PI*24/24))); if(!(bend>3.5))throw new Error('Bian River is still straight or its bend is too subtle');
+            if(catalogResult.count!==16)throw new Error('Expected 16 measured catalog assets, got '+catalogResult.count);
+            const bend=await page.evaluate(()=>window.__qingmingWorldLayout && (3.8*Math.sin(Math.PI*24/48)+1.2*Math.sin(Math.PI*24/24))); if(!(bend>3.5))throw new Error('Bian River is still straight or its bend is too subtle');
             for(const x of catalogResult.results){if(!(x.scale>0&&Number.isFinite(x.scale)))throw new Error('Invalid catalog scale: '+x.id);if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid catalog dimensions: '+x.id);if(Math.abs(x.minY-x.position[1])>0.05)throw new Error('Catalog model not grounded: '+x.id);}
             await page.evaluate(()=>window.__qingmingGame.openShop(0));
             if(await page.locator('#trade-panel').isHidden())throw new Error('Market stall did not open');

@@ -103,7 +103,7 @@ export function createWorld(THREE, scene) {
     addBox(THREE, scene, 'riverbank', [184, .72, 5.2], [0, -.32, side * 11.6], mats.bank);
     addBox(THREE, scene, 'stone-quay-edge', [184, .32, .32], [0, -.05, side * 9.05], mats.stone);
     addBox(THREE, scene, 'riverside-path', [178, .16, 2.4], [0, .06, side * 15.3], mats.path);
-    addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, side * 27.2], mats.path);
+    if (side === 1) addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, 27.2], mats.path);
   }
 
   // Rural approach: open fields, low hedges and scattered farmsteads.

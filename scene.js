@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { AssetManager } from './src/asset-manager.js';
 const host=document.querySelector('#view'),status=document.querySelector('#status'),loading=document.querySelector('#loading');
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xc8d3c7);scene.fog=new THREE.Fog(0xc8d3c7,42,105);
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,240);camera.position.set(17,13,19);
@@ -18,60 +17,11 @@ function addTree(x,z,s=1){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(
 [[-17,-10],[-9,-10],[10,-10],[18,-10],[-18,10],[-12,10],[13,10],[19,10]].forEach((p,i)=>addTree(p[0],p[1],.85+(i%3)*.12));
 function addHouse(x,z,w=5,d=3,h=3){const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(0xb9a98b));body.position.set(x,h/2,z);body.castShadow=true;body.receiveShadow=true;scene.add(body);const roof=new THREE.Mesh(new THREE.ConeGeometry(w*.78,1.45,4),mat(0x686b5d));roof.position.set(x,h+.68,z);roof.rotation.y=Math.PI/4;roof.scale.z=d/w;roof.castShadow=true;scene.add(roof);const porch=new THREE.Mesh(new THREE.BoxGeometry(w*.62,.18,.9),woodMat);porch.position.set(x,.85,z+(z>0?-d/2-.4:d/2+.4));scene.add(porch);}
 // 以真实南宋建筑资产替换临时方盒建筑，沿两岸形成市井街面。
-const loader=new GLTFLoader();
-const dracoLoader=new DRACOLoader();
-dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/libs/draco/');
-loader.setDRACOLoader(dracoLoader);
-async function fetchGLTF(url){
-  if(!url.endsWith('.gz')) return loader.loadAsync(url);
-  const response=await fetch(url);
-  if(!response.ok) throw new Error('HTTP '+response.status+' loading '+url);
-  if(!('DecompressionStream' in window)) throw new Error('当前浏览器不支持gzip解压');
-  const compressed=await response.arrayBuffer();
-  const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
-  const data=await new Response(stream).arrayBuffer();
-  return loader.parseAsync(data,'');
-}
-const loaded=[];
-window.__qingmingLoadedModels=loaded;
-async function loadModel(url,label,position,targetFootprint,rotationY=0,assetScale=1){
-  const gltf=await fetchGLTF(url),model=gltf.scene;
-  model.rotation.y=rotationY;
-  model.updateMatrixWorld(true);
-  let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());
-  const horizontal=Math.max(size.x,size.z);
-  const scale=horizontal>0?Math.min(targetFootprint/horizontal,1.8):1;
-  model.scale.setScalar(scale*assetScale);
-  model.updateMatrixWorld(true);
-  bounds.setFromObject(model);
-  const center=bounds.getCenter(new THREE.Vector3());
-  model.position.x+=position[0]-center.x;
-  model.position.z+=position[2]-center.z;
-  model.position.y+=-bounds.min.y+(position[1]||0);
-  model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){m.side=THREE.DoubleSide;if(m.map)m.map.colorSpace=THREE.SRGBColorSpace;}}}});
-  scene.add(model);
-  const finalBounds=new THREE.Box3().setFromObject(model),finalSize=finalBounds.getSize(new THREE.Vector3());
-  const item={label,model,size:finalSize,bounds:finalBounds,expectedPosition:[...position],appliedScale:scale*assetScale};
-  loaded.push(item);
-  status.textContent='已载入 '+loaded.length+'/6：'+loaded.map(x=>x.label).join('、');
-  return item;
-}
-async function assembleAssets(){
-  const manifestResponse=await fetch('./public/assets/manifest.json',{cache:'no-cache'});
-  if(!manifestResponse.ok) throw new Error('资产清单加载失败：HTTP '+manifestResponse.status);
-  const manifest=await manifestResponse.json();
-  window.__qingmingAssetManifest=manifest;
-  const jobs=(manifest.assets||[]).map(asset=>()=>loadModel(asset.url,asset.label,asset.position,asset.targetFootprint,asset.rotationY,asset.scale||1));
-  const results=await Promise.allSettled(jobs.map(fn=>fn()));
-  const failed=results.map((r,i)=>r.status==='rejected'?({i,error:r.reason}):null).filter(Boolean);
-  if(failed.length){
-    console.error('Asset load failures:',failed.map(({i,error})=>({index:i,message:error?.message||String(error),stack:error?.stack||''})));
-    status.textContent='已加载 '+loaded.length+'/6；失败 '+failed.length+' 个（详见控制台）';
-  }else{
-    status.textContent='六种独立资产全部载入 · 虹桥只保留一份';
-  }
-}
-assembleAssets().catch(error=>{console.error('Scene asset manifest error:',error);status.textContent='场景资产清单加载失败';});
+const assetManager=new AssetManager({scene,status});
+window.__qingmingLoadedModels=assetManager.loaded;
+assetManager.loadManifest('./public/assets/manifest.json')
+  .then(({manifest})=>{window.__qingmingAssetManifest=manifest;})
+  .catch(error=>{console.error('Scene asset manifest error:',error);status.textContent='场景资产清单加载失败';});
 for(let i=0;i<4;i++){const step=new THREE.Mesh(new THREE.BoxGeometry(1.7,.13,.42),stoneMat);step.position.set(5.6,.08-i*.08,7.1+i*.38);step.receiveShadow=true;scene.add(step);}
 const keys=new Set();addEventListener('keydown',e=>{if('wasdqe'.includes(e.key.toLowerCase())){keys.add(e.key.toLowerCase());e.preventDefault();}});addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 function move(dt){const f=new THREE.Vector3();camera.getWorldDirection(f);f.y=0;f.normalize();const right=new THREE.Vector3().crossVectors(f,camera.up).normalize(),v=dt*8;if(keys.has('w'))camera.position.addScaledVector(f,v);if(keys.has('s'))camera.position.addScaledVector(f,-v);if(keys.has('a'))camera.position.addScaledVector(right,-v);if(keys.has('d'))camera.position.addScaledVector(right,v);if(keys.has('q'))camera.position.y-=v;if(keys.has('e'))camera.position.y+=v;if(keys.size)controls.target.copy(camera.position).add(f.multiplyScalar(7));}

@@ -234,8 +234,52 @@ async function loadAllAssets() {
       window.__qingmingCatalogModels.length + ' 个新增模型已入场';
   }
 
+  // Batch 3: imported Draco-compressed market environment assets.
+  // Keep the procedural terrain as a safety layer while the imported ground mesh is inspected.
+  window.__qingmingBatch3Models = [];
+  const addBatch3 = async (id, position, scale = 1, rotationY = 0) => {
+    const item = await assetManager.loadBatch3Model(id, position, scale, rotationY);
+    window.__qingmingBatch3Models.push(item);
+    return item;
+  };
+  try {
+    // The detailed river mesh follows the same 180m meandering corridor as the world layout.
+    const riverAsset = await addBatch3('river', [0, 0.035, 0], 1, 0);
+    if (riverAsset.size.x > 150 && riverAsset.size.z > 10) world.river.visible = false;
+
+    // Replace the flat procedural stall roofs/posts with the authored timber-and-cloth awnings.
+    for (let i = 0; i < WORLD_LAYOUT.marketStalls.length; i++) {
+      const x = WORLD_LAYOUT.marketStalls[i];
+      const z = 27.2 + (i % 2 ? 2.8 : 0);
+      const stall = world.interactables[i];
+      if (stall) stall.traverse(node => {
+        if (node.name === 'procedural-stall-post' || node.name === 'procedural-stall-canopy') node.visible = false;
+      });
+      await addBatch3('shopfront-fabric-awning', [x, 0, z], 0.65, 0);
+    }
+
+    // Lanterns hang above the shopfront fascia; duplicate instances share one downloaded GLB.
+    for (const [x, z] of [[15,27.2],[33,30],[42,27.2],[55,30],[65,27.2]]) {
+      await addBatch3('paper-lantern', [x, 2.35, z + 1.05], 1, 0);
+    }
+
+    // Wharf cargo and shop ceramics add small-scale visual detail around existing trade points.
+    await addBatch3('barrels-set', [12.5, 0, 10.8], 1.7, 0);
+    await addBatch3('barrels-set', [17.0, 0, 10.8], 1.7, 0);
+    await addBatch3('ceramics-set', [28, 1.0, 19.2], 1.15, 0);
+    await addBatch3('ceramics-set', [44, 1.0, 25.2], 1.15, 0);
+
+    // Ground GLB is retained in the scene asset library; the current procedural ground
+    // remains visible until its Draco mesh bounds are confirmed in the browser.
+    status.textContent = '第三批市井道具已入场 · ' + window.__qingmingBatch3Models.length + ' 个实例';
+  } catch (error) {
+    console.error('Batch3 environment asset failed:', error);
+    status.textContent = '第三批素材载入异常：' + error.message;
+  }
+
   const ok = first.loaded.length + window.__qingmingCatalogModels.length;
-  status.textContent = '场景搭建完成 · ' + ok + '/22 个模型已载入';
+  status.textContent = '场景搭建完成 · ' + ok + '/22 个主体模型 · ' +
+    window.__qingmingBatch3Models.length + ' 个第三批场景实例';
   const finalLoadingLabel = document.querySelector('#loading-label');
   if (finalLoadingLabel) finalLoadingLabel.textContent = '场景已就绪';
 }

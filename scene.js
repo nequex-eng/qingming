@@ -52,12 +52,15 @@ coolFill.position.set(42, 30, -36);
 scene.add(coolFill);
 // Reference renders use broad camera-side studio fill. Add a model-only fill so
 // imported GLB assets keep their authored colors without washing out the town ground.
-const assetFill = new THREE.DirectionalLight(0xfff0dc, 1.0);
+const assetFill = new THREE.DirectionalLight(0xfff0dc, 1.5);
 assetFill.position.set(34, 48, 68);
 assetFill.layers.set(1);
 scene.add(assetFill);
+const assetAmbient = new THREE.HemisphereLight(0xf5ecd8, 0x9c8d73, .9);
+assetAmbient.layers.set(1);
+scene.add(assetAmbient);
 camera.layers.enable(1);
-window.__qingmingVisualSettings = { toneMapping: renderer.toneMapping, exposure: renderer.toneMappingExposure, outputColorSpace: renderer.outputColorSpace, assetFillIntensity: assetFill.intensity };
+window.__qingmingVisualSettings = { toneMapping: renderer.toneMapping, exposure: renderer.toneMappingExposure, outputColorSpace: renderer.outputColorSpace, assetFillIntensity: assetFill.intensity, assetAmbientIntensity: assetAmbient.intensity };
 
 const views = {
   overview: { position: [0, 112, 164], target: [0, 0, 8] },

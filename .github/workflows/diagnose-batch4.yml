@@ -1,0 +1,39 @@
+name: Diagnose Qingming modules and inspect batch4
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check every JavaScript module
+        run: |
+          set -e
+          find . -path './node_modules' -prune -o -name '*.js' -type f -print0 | while IFS= read -r -d '' f; do
+            echo "CHECK $f"
+            node --check "$f"
+          done
+      - name: Download batch4 archives and inventory
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/batch4
+          urls=(
+            "https://github.com/user-attachments/files/35076486/6.zip"
+            "https://github.com/user-attachments/files/35076487/3.zip"
+            "https://github.com/user-attachments/files/35075982/Archive.2.zip"
+            "https://github.com/user-attachments/files/35075985/Archive.zip"
+            "https://github.com/user-attachments/files/35075988/Archive.5.zip"
+            "https://github.com/user-attachments/files/35075992/Archive.4.zip"
+          )
+          for i in "${!urls[@]}"; do
+            curl -fL --retry 3 "${urls[$i]}" -o "/tmp/batch4/archive-$((i+1)).zip"
+            echo "ARCHIVE $((i+1))"
+            unzip -l "/tmp/batch4/archive-$((i+1)).zip" | tail -n +4 | head -n -2
+          done

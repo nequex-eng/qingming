@@ -45,13 +45,13 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
   let moving = false;
   const keys = new Set();
   const touch = { x: 0, y: 0, active: false, id: null };
-  let lastStep = 0;
+  let lastStep = -1;
   let walkingTime = 0;
   const forward = new THREE.Vector3();
   const right = new THREE.Vector3();
   const desired = new THREE.Vector3();
   const cameraOffset = new THREE.Vector3();
-  const ray = new THREE.Raycaster();
+  controls.enabled = false;
 
   function updateHud() {
     const step = missionSteps[missionIndex];
@@ -169,8 +169,7 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
     cameraOffset.set(Math.sin(yaw) * 10, 6.2, Math.cos(yaw) * 10);
     desired.copy(player.position).add(cameraOffset);
     camera.position.lerp(desired, 1 - Math.pow(.001, dt));
-    controls.target.lerp(new THREE.Vector3(player.position.x, 1.1, player.position.z), 1 - Math.pow(.001, dt));
-    controls.update();
+    camera.lookAt(player.position.x, 1.1, player.position.z);
 
     nearby = findNearby();
     if (prompt) {

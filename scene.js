@@ -293,7 +293,8 @@ loadAllAssets().catch(error => {
   if (label) label.textContent = '场景载入遇到问题';
 });
 
-// Third-person journey mode: the player, not the camera, is the focus of play.\nconst gameplay = createGameplay({
+// Third-person journey mode: the player, not the camera, is the focus of play.
+const gameplay = createGameplay({
   THREE, scene, camera, controls, renderer, world,
   getInteractables: () => interactables,
   onInteract: object => {

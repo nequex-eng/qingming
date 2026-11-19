@@ -92,7 +92,7 @@ function addCurvedStrip(THREE, scene, name, halfWidth, y, mat, side = 0, segment
     positions.push(centerX + nx * halfWidth, y, centerZ + nz * halfWidth);
     if (i < segments) {
       const a = i * 2;
-      indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
     }
   }
   const geometry = new THREE.BufferGeometry();

@@ -178,29 +178,7 @@ window.__qingmingWorldLayout = WORLD_LAYOUT;
 
 const movingBoats = [];
 const interactables = [...world.interactables];
-const keys = new Set();
-addEventListener('keydown', event => {
-  const key = event.key.toLowerCase();
-  if ('wasdqe'.includes(key)) { keys.add(key); event.preventDefault(); }
-});
-addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
 
-function moveCamera(dt) {
-  if (!keys.size) return;
-  const forward = new THREE.Vector3();
-  camera.getWorldDirection(forward);
-  forward.y = 0;
-  forward.normalize();
-  const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
-  const velocity = dt * 13;
-  if (keys.has('w')) camera.position.addScaledVector(forward, velocity);
-  if (keys.has('s')) camera.position.addScaledVector(forward, -velocity);
-  if (keys.has('a')) camera.position.addScaledVector(right, -velocity);
-  if (keys.has('d')) camera.position.addScaledVector(right, velocity);
-  if (keys.has('q')) camera.position.y -= velocity;
-  if (keys.has('e')) camera.position.y += velocity;
-  controls.target.copy(camera.position).add(forward.multiplyScalar(9));
-}
 
 async function loadAllAssets() {
   status.textContent = '正在载入桥梁、码头与沿河建筑…';
@@ -314,23 +292,24 @@ loadAllAssets().catch(error => {
   if (label) label.textContent = '场景载入遇到问题';
 });
 
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-let pointerStart = null;
-renderer.domElement.addEventListener('pointerdown', event => { pointerStart = [event.clientX, event.clientY]; });
-renderer.domElement.addEventListener('pointerup', event => {
-  if (!pointerStart || Math.hypot(event.clientX - pointerStart[0], event.clientY - pointerStart[1]) > 7) return;
-  const rect = renderer.domElement.getBoundingClientRect();
-  pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
-  raycaster.setFromCamera(pointer, camera);
-  const hit = raycaster.intersectObjects(interactables, true)[0];
-  if (!hit) return;
-  let node = hit.object;
-  while (node && !node.userData.interaction) node = node.parent;
-  const target = node?.userData.interaction;
-  if (target?.kind === 'stall') openShop(target.index);
-  if (target?.kind === 'npc') openNpc(target.id);
+const gameplay = createGameplay({
+  THREE, scene, camera, controls, renderer, world,
+  getInteractables: () => interactables,
+  onInteract: object => {
+    let node = object;
+    while (node && !node.userData.interaction) node = node.parent;
+    const target = node?.userData.interaction;
+    if (target?.kind === 'stall') openShop(target.index);
+    if (target?.kind === 'npc') openNpc(target.id);
+  },
+  onReward: amount => {
+    marketState.coins += amount;
+    saveMarket();
+  },
+  status
 });
+window.__qingmingGameplay = gameplay;
+
 let last = performance.now();
 let lastRender = 0;
 const targetFrameMs = isMobileGPU ? 1000 / 40 : 1000 / 60;

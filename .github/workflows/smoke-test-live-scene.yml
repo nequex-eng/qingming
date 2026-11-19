@@ -69,6 +69,14 @@ jobs:
             console.log('CATALOG_RESULT '+JSON.stringify(catalogResult));
             if(catalogResult.count!==16)throw new Error('Expected 16 measured catalog assets, got '+catalogResult.count);
             for(const x of catalogResult.results){if(!(x.scale>0&&Number.isFinite(x.scale)))throw new Error('Invalid catalog scale: '+x.id);if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid catalog dimensions: '+x.id);if(Math.abs(x.minY-x.position[1])>0.05)throw new Error('Catalog model not grounded: '+x.id);}
+            await page.evaluate(()=>window.__qingmingGame.openShop(0));
+            if(await page.locator('#trade-panel').isHidden())throw new Error('Market stall did not open');
+            const beforeTrade=await page.evaluate(()=>window.__qingmingGame.getMarketState().coins);
+            await page.locator('#trade-content button').first().click();
+            const afterTrade=await page.evaluate(()=>window.__qingmingGame.getMarketState().coins);
+            if(afterTrade!==beforeTrade-2)throw new Error('Buying tea did not deduct the correct amount');
+            await page.evaluate(()=>window.__qingmingGame.openNpc('boatman'));
+            if(!(await page.locator('#trade-content').innerText()).includes('船夫'))throw new Error('NPC conversation did not open');
             if(errors.length)throw new Error('Browser errors detected: '+errors.join(' | '));
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1);});

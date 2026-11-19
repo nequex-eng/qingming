@@ -1,0 +1,48 @@
+name: Collect batch2 JPG references
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/collect-batch2-jpg.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download JPG reference archive from the existing batch2 release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming extracted package
+          curl -fL --retry 4 --retry-delay 2 -A 'Mozilla/5.0' \
+            'https://github.com/user-attachments/files/35066749/jpg.zip' \
+            -o incoming/jpg.zip
+          file incoming/jpg.zip
+          unzip -t incoming/jpg.zip
+          unzip -oq incoming/jpg.zip -d extracted
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          root=Path('extracted')
+          files=sorted(p for p in root.rglob('*') if p.is_file() and '__MACOSX' not in p.parts and not p.name.startswith('._'))
+          images=[p for p in files if p.suffix.lower() in {'.jpg','.jpeg','.png','.webp'}]
+          if not images:
+              raise SystemExit('No JPG/JPEG/PNG/WebP reference images found in jpg.zip')
+          rows=[{'path':str(p.relative_to(root)),'size_bytes':p.stat().st_size,'format':p.suffix.lower()} for p in images]
+          Path('package/image-manifest.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\\n')
+          print('IMAGE_COUNT',len(images))
+          for row in rows: print(row['path'],row['size_bytes'])
+          PY
+          cp incoming/jpg.zip package/jpg.zip
+          cp -a extracted/. package/
+      - name: Upload original archive and extracted reference images
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch2-jpg-reference
+          path: package/
+          if-no-files-found: error
+          retention-days: 7

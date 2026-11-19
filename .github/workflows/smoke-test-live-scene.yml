@@ -56,14 +56,15 @@ jobs:
             await page.waitForTimeout(2500);
             const status=await page.locator('#status').innerText();
             const canvas=await page.locator('canvas').count();
-            const geometry=await page.evaluate(()=>window.__qingmingLoadedModels.map(x=>({label:x.label,size:[x.size.x,x.size.y,x.size.z],minY:x.bounds.min.y,centerX:(x.bounds.min.x+x.bounds.max.x)/2,centerZ:(x.bounds.min.z+x.bounds.max.z)/2,expectedPosition:x.expectedPosition,appliedScale:x.appliedScale})));
+            const geometry=await page.evaluate(()=>window.__qingmingLoadedModels.map(x=>({label:x.label,size:[x.size.x,x.size.y,x.size.z],minY:x.bounds.min.y,rotationY:x.rotationY,centerX:(x.bounds.min.x+x.bounds.max.x)/2,centerZ:(x.bounds.min.z+x.bounds.max.z)/2,expectedPosition:x.expectedPosition,appliedScale:x.appliedScale})));
             const result={status,canvas,geometry,cdnResponses:loaded,errors};
             console.log('SMOKE_RESULT '+JSON.stringify(result));
-            await page.screenshot({path:'./qingming-live-smoke.png',fullPage:true,timeout:8000,animations:'disabled'}).catch(e=>console.log('SCREENSHOT_SKIPPED '+e.message));
+            await page.screenshot({path:'./qingming-live-smoke.png',fullPage:false,timeout:30000,animations:'disabled'}).catch(e=>console.log('SCREENSHOT_SKIPPED '+e.message));
             if(canvas!==1)throw new Error('Expected one WebGL canvas');
             if(geometry.length!==6)throw new Error('Expected six parsed GLB models, got '+geometry.length);
             for(const x of geometry){if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid model dimensions: '+x.label);if(Math.abs(x.minY-x.expectedPosition[1])>0.05)throw new Error('Ground contact changed: '+x.label);if(Math.abs(x.centerX-x.expectedPosition[0])>0.05||Math.abs(x.centerZ-x.expectedPosition[2])>0.05)throw new Error('Model placement changed: '+x.label);if(!(x.appliedScale>0&&Number.isFinite(x.appliedScale)))throw new Error('Invalid applied scale: '+x.label);}
             if(loaded.filter(x=>x.status===200).length<6)throw new Error('Not all six CDN GLBs returned HTTP 200');
+            const stone=geometry.find(x=>x.label==='石拱桥'); if(!stone||Math.abs(stone.rotationY-Math.PI/2)>.01)throw new Error('Stone bridge is not rotated across the river');
             const catalogResult=await page.evaluate(()=>({count:window.__qingmingCatalogModels.length,results:window.__qingmingCatalogModels.map(item=>({id:item.id,scale:item.appliedScale,rotationY:item.rotationY,minY:item.bounds.min.y,size:[item.size.x,item.size.y,item.size.z],position:item.position}))}));
             console.log('CATALOG_RESULT '+JSON.stringify(catalogResult));
             if(catalogResult.count!==16)throw new Error('Expected 16 measured catalog assets, got '+catalogResult.count);

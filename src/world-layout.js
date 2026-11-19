@@ -2,7 +2,7 @@
 // countryside -> Bian River / Rainbow Bridge -> dense city streets and city gate.
 // World axes: river runs along X; the bridges cross it along Z.
 export const WORLD_LAYOUT = {
-  bounds: { length: 180, depth: 94, riverWidth: 18, bankOffset: 11.5 },
+  bounds: { length: 180, depth: 94, riverWidth: 12, bankOffset: 8.8 },
   landmarks: {
     rainbowBridge: [0, 0, 0],
     stoneBridge: [-48, 0, 0],

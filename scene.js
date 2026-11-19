@@ -20,7 +20,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.02;
+renderer.toneMappingExposure = 1.08;
 host.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -34,8 +34,8 @@ controls.maxDistance = 230;
 // Match the Blender reference: pale silk ambient world, warm sun and cool fill.
 const silkWorld = new THREE.Color().setRGB(.93, .88, .74);
 const earthBounce = new THREE.Color().setRGB(.62, .58, .48);
-scene.add(new THREE.HemisphereLight(silkWorld, earthBounce, 1.0));
-const sun = new THREE.DirectionalLight(0xffead4, 1.8);
+scene.add(new THREE.HemisphereLight(silkWorld, earthBounce, 1.1));
+const sun = new THREE.DirectionalLight(0xffead4, 2.2);
 sun.position.set(-34, 52, 28);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -45,7 +45,7 @@ sun.shadow.camera.top = 75;
 sun.shadow.camera.bottom = -75;
 sun.shadow.bias = -.00015;
 scene.add(sun);
-const coolFill = new THREE.DirectionalLight(0xd5d8d0, .42);
+const coolFill = new THREE.DirectionalLight(0xd5d8d0, .7);
 coolFill.position.set(42, 30, -36);
 scene.add(coolFill);
 

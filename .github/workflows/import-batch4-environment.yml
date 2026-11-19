@@ -20,6 +20,13 @@ jobs:
           curl -fL --retry 3 'https://github.com/user-attachments/files/35075982/Archive.2.zip' -o /tmp/batch4/ground.zip
           unzip -p /tmp/batch4/river.zip river.glb > public/assets/3d/environment/river.glb
           unzip -p /tmp/batch4/ground.zip ground.glb > public/assets/3d/environment/ground.glb
+          # Inspect the remaining batch4 archives so their exact model names can be mapped before integration.
+          for spec in '35076487 3.zip' '35075985 Archive.zip' '35075988 Archive.5.zip' '35075992 Archive.4.zip'; do
+            set -- $spec
+            curl -fL --retry 3 "https://github.com/user-attachments/files/$1/$2" -o "/tmp/batch4/$2"
+            echo "=== $2 ==="
+            unzip -Z1 "/tmp/batch4/$2" | head -80
+          done
       - name: Inspect and update environment asset catalog
         run: |
           python3 - <<'PY'

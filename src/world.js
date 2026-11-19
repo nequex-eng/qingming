@@ -47,10 +47,11 @@ function addMarketStall(THREE, scene, x, z, index, mats) {
   g.position.set(x, 0, z);
   const post = (px, pz) => {
     const p = new THREE.Mesh(new THREE.BoxGeometry(.13, 2.55, .13), mats.wood);
-    p.position.set(px, 1.28, pz); p.castShadow = true; g.add(p);
+    p.name = 'procedural-stall-post'; p.position.set(px, 1.28, pz); p.castShadow = true; g.add(p);
   };
   post(-1.25, -.72); post(1.25, -.72); post(-1.25, .72); post(1.25, .72);
   const canopy = new THREE.Mesh(new THREE.BoxGeometry(2.9, .14, 1.9), index % 2 ? mats.canvasRed : mats.canvasCream);
+  canopy.name = 'procedural-stall-canopy';
   canopy.position.y = 2.55; canopy.castShadow = true; g.add(canopy);
   const fascia = new THREE.Mesh(new THREE.BoxGeometry(2.65, .38, .12), mats.wood);
   fascia.position.set(0, 2.22, -.79); g.add(fascia);

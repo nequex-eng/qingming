@@ -49,11 +49,11 @@ jobs:
             await page.goto(base+'/',{waitUntil:'domcontentloaded',timeout:60000});
             await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('六种独立资产全部载入'),null,{timeout:120000}).catch(async e=>{const st=await page.locator('#status').innerText().catch(()=>'<missing status>');console.log('LOAD_TIMEOUT_STATUS '+st);console.log('LOAD_TIMEOUT_CDN '+JSON.stringify(loaded));console.log('LOAD_TIMEOUT_ERRORS '+JSON.stringify(errors));await page.screenshot({path:'./qingming-live-smoke.png',fullPage:true}).catch(()=>{});throw e;});
             await page.waitForTimeout(2500);
-            await page.screenshot({path:'./qingming-live-smoke.png',fullPage:true});
             const status=await page.locator('#status').innerText();
             const canvas=await page.locator('canvas').count();
             const result={status,canvas,cdnResponses:loaded,errors};
             console.log('SMOKE_RESULT '+JSON.stringify(result));
+            await page.screenshot({path:'./qingming-live-smoke.png',fullPage:true,timeout:8000,animations:'disabled'}).catch(e=>console.log('SCREENSHOT_SKIPPED '+e.message));
             if(canvas!==1)throw new Error('Expected one WebGL canvas');
             if(loaded.filter(x=>x.status===200).length<6)throw new Error('Not all six CDN GLBs returned HTTP 200');
             if(errors.length)throw new Error('Browser errors detected: '+errors.join(' | '));

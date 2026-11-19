@@ -58,7 +58,7 @@ async function assembleAssets(){
     ()=>loadModel('bridges/stone-arch-bridge.glb','石拱桥',[-19,0,0],12.5,0),
     ()=>loadModel('architecture/wharf-dock.glb','临河码头',[7,0,5.25],7,Math.PI/2),
     ()=>loadModel('architecture/teahouse.glb','茶馆',[-23,0,11],7.5,0),
-    ()=>loadModel('architecture/restaurant-wine-house.glb.gz','酒楼',[-8,0,11],8,0),
+    ()=>loadModel('architecture/restaurant-wine-house.glb','酒楼',[-8,0,11],8,0),
     ()=>loadModel('architecture/riverside-commercial-building.glb','江边大商楼',[19,0,-11],9,Math.PI)
   ];
   const results=await Promise.allSettled(jobs.map(fn=>fn()));

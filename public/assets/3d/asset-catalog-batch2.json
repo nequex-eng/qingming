@@ -1,0 +1,134 @@
+[
+  {
+    "file": "assets/3d/bridges/timber-arch-bridge.glb",
+    "size_bytes": 2854480,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/bridges/stone-arch-bridge.glb",
+    "size_bytes": 3027740,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/architecture/wharf-dock.glb",
+    "size_bytes": 3674392,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/architecture/riverside-commercial-building.glb",
+    "size_bytes": 4552788,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/architecture/restaurant-wine-house.glb",
+    "size_bytes": 4043344,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/architecture/teahouse.glb",
+    "size_bytes": 3761016,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/artisan-craftsman.glb",
+    "size_bytes": 2658528,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/boatman.glb",
+    "size_bytes": 2676288,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/scholar-literati.glb",
+    "size_bytes": 3355132,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/street-vendor.glb",
+    "size_bytes": 3007272,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/merchant-shopkeeper.glb",
+    "size_bytes": 3351152,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/shop-assistant.glb",
+    "size_bytes": 2956324,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/teahouse-worker.glb",
+    "size_bytes": 2704136,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/characters/porter-laborer.glb",
+    "size_bytes": 3415052,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/boats/cargo-boat.glb",
+    "size_bytes": 3363916,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/boats/covered-boat.glb",
+    "size_bytes": 2864472,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/boats/ferry-boat.glb",
+    "size_bytes": 2930128,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/boats/skiff.glb",
+    "size_bytes": 3299100,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/boats/passenger-boat.glb",
+    "size_bytes": 3429632,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/transport/cargo-cart.glb",
+    "size_bytes": 3306116,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/transport/handcart.glb",
+    "size_bytes": 3895604,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  },
+  {
+    "file": "assets/3d/transport/sedan-chair.glb",
+    "size_bytes": 4263312,
+    "format": "GLB 2.0",
+    "batch": "batch2"
+  }
+]

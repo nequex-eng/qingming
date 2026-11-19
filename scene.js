@@ -33,6 +33,7 @@ async function fetchGLTF(url){
   return loader.parseAsync(data,'');
 }
 const loaded=[];
+window.__qingmingLoadedModels=loaded;
 async function loadModel(url,label,position,targetFootprint,rotationY=0,assetScale=1){
   const gltf=await fetchGLTF(url),model=gltf.scene;
   model.rotation.y=rotationY;
@@ -50,7 +51,7 @@ async function loadModel(url,label,position,targetFootprint,rotationY=0,assetSca
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){m.side=THREE.DoubleSide;if(m.map)m.map.colorSpace=THREE.SRGBColorSpace;}}}});
   scene.add(model);
   const finalBounds=new THREE.Box3().setFromObject(model),finalSize=finalBounds.getSize(new THREE.Vector3());
-  const item={label,model,size:finalSize};
+  const item={label,model,size:finalSize,bounds:finalBounds,expectedPosition:[...position]};
   loaded.push(item);
   status.textContent='已载入 '+loaded.length+'/6：'+loaded.map(x=>x.label).join('、');
   return item;
@@ -59,6 +60,7 @@ async function assembleAssets(){
   const manifestResponse=await fetch('./public/assets/manifest.json',{cache:'no-cache'});
   if(!manifestResponse.ok) throw new Error('资产清单加载失败：HTTP '+manifestResponse.status);
   const manifest=await manifestResponse.json();
+  window.__qingmingAssetManifest=manifest;
   const jobs=(manifest.assets||[]).map(asset=>()=>loadModel(asset.url,asset.label,asset.position,asset.targetFootprint,asset.rotationY,asset.scale||1));
   const results=await Promise.allSettled(jobs.map(fn=>fn()));
   const failed=results.map((r,i)=>r.status==='rejected'?({i,error:r.reason}):null).filter(Boolean);

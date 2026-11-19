@@ -60,6 +60,7 @@ export class AssetManager {
   configureMaterials(model) {
     model.traverse(object => {
       if (!object.isMesh) return;
+      object.layers.enable(1);
       object.castShadow = true;
       object.receiveShadow = true;
       if (!object.material) return;

@@ -67,7 +67,7 @@ jobs:
               const measured=catalog.filter(a=>Array.isArray(a.measured_dimensions_m));
               const results=[];
               for(let i=0;i<measured.length;i++){
-                const a=measured[i], id=a.file.split('/').pop().replace(/\\.glb$/i,'');
+                const a=measured[i], id=a.file.split('/').pop().replace(/\.glb$/i,'');
                 const item=await manager.loadCatalogModel(id,[i*5,0,25]);
                 results.push({id,scale:item.appliedScale,rotationY:item.rotationY,minY:item.bounds.min.y,size:[item.size.x,item.size.y,item.size.z],measured:a.measured_dimensions_m});
                 manager.scene.remove(item.model);

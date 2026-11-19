@@ -23,7 +23,6 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 // NoToneMapping keeps the GLTF albedo and lit midtones from being compressed/darkened.
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.toneMappingExposure = 1.0;
-window.__qingmingVisualSettings = { toneMapping: renderer.toneMapping, exposure: renderer.toneMappingExposure, outputColorSpace: renderer.outputColorSpace, assetFillIntensity: assetFill.intensity };
 host.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -58,6 +57,7 @@ assetFill.position.set(34, 48, 68);
 assetFill.layers.set(1);
 scene.add(assetFill);
 camera.layers.enable(1);
+window.__qingmingVisualSettings = { toneMapping: renderer.toneMapping, exposure: renderer.toneMappingExposure, outputColorSpace: renderer.outputColorSpace, assetFillIntensity: assetFill.intensity };
 
 const views = {
   overview: { position: [0, 112, 164], target: [0, 0, 8] },

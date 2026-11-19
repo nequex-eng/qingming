@@ -51,7 +51,7 @@ async function loadModel(url,label,position,targetFootprint,rotationY=0,assetSca
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){m.side=THREE.DoubleSide;if(m.map)m.map.colorSpace=THREE.SRGBColorSpace;}}}});
   scene.add(model);
   const finalBounds=new THREE.Box3().setFromObject(model),finalSize=finalBounds.getSize(new THREE.Vector3());
-  const item={label,model,size:finalSize,bounds:finalBounds,expectedPosition:[...position]};
+  const item={label,model,size:finalSize,bounds:finalBounds,expectedPosition:[...position],appliedScale:scale*assetScale};
   loaded.push(item);
   status.textContent='已载入 '+loaded.length+'/6：'+loaded.map(x=>x.label).join('、');
   return item;

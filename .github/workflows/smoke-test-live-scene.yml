@@ -40,7 +40,7 @@ jobs:
         run: |
           npm init -y
           npm install --no-save playwright
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: Download the 22 Lux3D JPG color references
         shell: bash
         run: |

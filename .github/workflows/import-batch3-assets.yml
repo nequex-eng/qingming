@@ -1,0 +1,56 @@
+name: Import Qingming batch3 market props
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-batch3-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download and install six verified GLBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/batch3 public/assets/3d/environment
+          curl -fL --retry 4 --retry-delay 2 -A 'Mozilla/5.0' 'https://github.com/user-attachments/files/35072728/drive-download-20261119T074103Z-1-001.zip' -o /tmp/batch3/batch3.zip
+          unzip -oq /tmp/batch3/batch3.zip -d /tmp/batch3
+          python - <<'PY'
+          from pathlib import Path
+          import shutil, struct, json
+          root=Path('/tmp/batch3')
+          out=Path('public/assets/3d/environment')
+          names=['barrels-set','ceramics-set','ground','paper-lantern','river','shopfront-fabric-awning']
+          catalog=[]
+          for name in names:
+              src=root/(name+'.glb')
+              if not src.exists(): raise SystemExit('Missing '+src.name)
+              data=src.read_bytes()
+              if len(data)<12 or data[:4]!=b'glTF': raise SystemExit('Invalid GLB header: '+src.name)
+              version,length=struct.unpack_from('<II',data,4)
+              if version!=2 or length!=len(data): raise SystemExit(f'Invalid GLB: {src.name}, version={version}, declared={length}, actual={len(data)}')
+              chunk_len=struct.unpack_from('<I',data,12)[0]
+              gltf=json.loads(data[20:20+chunk_len].decode('utf-8').rstrip('\x00 '))
+              if 'KHR_draco_mesh_compression' not in gltf.get('extensionsUsed',[]): raise SystemExit('Expected Draco-compressed asset: '+src.name)
+              dest=out/(name+'.glb')
+              shutil.copy2(src,dest)
+              catalog.append({'id':name,'file':'assets/3d/environment/'+name+'.glb','size_bytes':len(data),'format':'GLB 2.0 Draco','batch':'batch3'})
+              print(f'INSTALLED {dest} {len(data)} bytes')
+          Path('public/assets/3d/asset-catalog-batch3.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - name: Commit batch3 props
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/3d/environment public/assets/3d/asset-catalog-batch3.json
+          git commit -m 'Import six batch3 market environment GLBs'
+          git push

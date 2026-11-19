@@ -47,7 +47,7 @@ const views = {
   overview: { position: [0, 112, 164], target: [0, 0, 8] },
   countryside: { position: [-58, 31, 48], target: [-66, 0, 22] },
   bridge: { position: [10, 28, 43], target: [0, 1, 0] },
-  market: { position: [53, 34, 53], target: [49, 1, 25] }
+  market: { position: [53, 34, 62], target: [49, 1, 35] }
 };
 document.querySelectorAll('#nav [data-view]').forEach(button => {
   button.addEventListener('click', () => {

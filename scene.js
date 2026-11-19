@@ -241,10 +241,17 @@ async function loadAllAssets() {
   try {
     // The detailed river mesh follows the same 180m meandering corridor as the world layout.
     const groundAsset = await addBatch3('ground', [0, -0.12, 0], 1, 0);
-    if (groundAsset.size.x > 150 && groundAsset.size.z > 70) world.ground.visible = false;
+    if (groundAsset.size.x > 150 && groundAsset.size.z > 70) {
+      world.ground.visible = false;
+      for (const road of world.roads || []) road.visible = false;
+    }
 
     const riverAsset = await addBatch3('river', [0, 0.035, 0], 1, 0);
-    if (riverAsset.size.x > 150 && riverAsset.size.z > 10) world.river.visible = false;
+    if (riverAsset.size.x > 150 && riverAsset.size.z > 10) {
+      world.river.visible = false;
+      for (const bank of world.riverbanks || []) bank.visible = false;
+      for (const edge of world.quayEdges || []) edge.visible = false;
+    }
 
     // Replace the flat procedural stall roofs/posts with the authored timber-and-cloth awnings.
     const awningJobs = [];

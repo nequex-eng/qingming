@@ -45,7 +45,9 @@
 - 资产加载：`src/asset-manager.js`。
 - 所有GLB使用同一个配置了DRACOLoader的GLTFLoader。
 - 首批6个从资产CDN载入；新增16个从Pages项目中的 `public/assets/3d/` 载入。
-- 5艘船沿汴河缓慢往返；当前人物与车轿为静态布置，后续再接交互、寻路和动画。
+- 5艘船沿汴河缓慢往返；人物模型没有骨骼，当前作为静态NPC，可点击交谈。
+- 街市摊位可点击买卖，钱袋和行囊暂存在当前设备的 localStorage；这是单机交易原型，还不是多人共享经济。
+- HUD提供郊野、虹桥、街市、全景四个快速视角；鼠标/触屏拖动旋转，WASD平移。
 - Pages项目：`qingming-riverside`，GitHub main自动部署。
 
 ## 5. 验收

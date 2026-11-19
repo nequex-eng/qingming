@@ -83,6 +83,13 @@ async function loadAllAssets() {
     console.warn('Landmark asset failures:', first.failed);
   }
 
+  // Reveal the playable environment after the six landmarks; stream the
+  // remaining models in the background so a 70 MB asset set is not a blank
+  // loading screen on mobile connections.
+  document.querySelector('#loading-label').textContent = '河岸场景已就绪，正在补充船只与市井人物…';
+  loading.classList.add('hide');
+  setTimeout(() => loading.remove(), 500);
+
   const total = WORLD_LAYOUT.catalog.length;
   let completed = 0;
   for (const spec of WORLD_LAYOUT.catalog) {
@@ -97,15 +104,13 @@ async function loadAllAssets() {
       status.textContent = '新增资产载入异常：' + spec.id + '（继续载入其余模型）';
     }
     completed++;
-    status.textContent = '场景资产 ' + completed + '/' + total + ' · ' +
+    status.textContent = '市井资产 ' + completed + '/' + total + ' · ' +
       window.__qingmingCatalogModels.length + ' 个新增模型已入场';
   }
 
   const ok = first.loaded.length + window.__qingmingCatalogModels.length;
   status.textContent = '场景搭建完成 · ' + ok + '/22 个模型已载入';
   document.querySelector('#loading-label').textContent = '场景已就绪';
-  setTimeout(() => loading.classList.add('hide'), 500);
-  setTimeout(() => loading.remove(), 1000);
 }
 
 loadAllAssets().catch(error => {

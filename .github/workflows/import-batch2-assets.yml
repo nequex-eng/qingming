@@ -1,0 +1,119 @@
+name: Import Qingming batch2 150K assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-batch2-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download, validate and install batch2 GLBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/batch2/zips /tmp/batch2/extracted
+          urls=(
+            'https://github.com/user-attachments/files/35061557/Archive.zip'
+            'https://github.com/user-attachments/files/35061571/Archive.2.zip'
+            'https://github.com/user-attachments/files/35061576/Archive.3.zip'
+            'https://github.com/user-attachments/files/35061580/Archive.4.zip'
+          )
+          i=1
+          for url in "${urls[@]}"; do
+            curl -fL --retry 3 --retry-delay 2 -A 'Mozilla/5.0' "$url" -o "/tmp/batch2/zips/archive-$i.zip"
+            unzip -oq "/tmp/batch2/zips/archive-$i.zip" -d "/tmp/batch2/extracted"
+            i=$((i+1))
+          done
+          python - <<'PY'
+          from pathlib import Path
+          import shutil, struct, json
+          root=Path('/tmp/batch2/extracted')
+          out=Path('public/assets/3d')
+          mapping={
+            'timber-arch-bridge.glb':'bridges',
+            'stone-arch-bridge.glb':'bridges',
+            'wharf-dock.glb':'architecture',
+            'riverside-commercial-building.glb':'architecture',
+            'restaurant-wine-house.glb':'architecture',
+            'teahouse.glb':'architecture',
+            'artisan-craftsman.glb':'characters',
+            'boatman.glb':'characters',
+            'scholar-literati.glb':'characters',
+            'street-vendor.glb':'characters',
+            'merchant-shopkeeper.glb':'characters',
+            'shop-assistant.glb':'characters',
+            'teahouse-worker.glb':'characters',
+            'porter-laborer.glb':'characters',
+            'cargo-boat.glb':'boats',
+            'covered-boat.glb':'boats',
+            'ferry-boat.glb':'boats',
+            'skiff.glb':'boats',
+            'passenger-boat.glb':'boats',
+            'cargo-cart.glb':'transport',
+            'handcart.glb':'transport',
+            'sedan-chair.glb':'transport',
+          }
+          found={}
+          for p in root.rglob('*.glb'):
+              if '__MACOSX' in p.parts or p.name.startswith('._'):
+                  continue
+              if p.name in mapping:
+                  if p.name in found:
+                      raise SystemExit(f'Duplicate model filename: {p.name}')
+                  b=p.read_bytes()
+                  if len(b)<12 or b[:4]!=b'glTF':
+                      raise SystemExit(f'Invalid GLB header: {p}')
+                  version,length=struct.unpack_from('<II',b,4)
+                  if version!=2 or length!=len(b):
+                      raise SystemExit(f'Invalid GLB v2/length: {p} version={version} declared={length} actual={len(b)}')
+                  found[p.name]=(p,len(b))
+          missing=sorted(set(mapping)-set(found))
+          if missing:
+              raise SystemExit('Missing expected GLBs: '+', '.join(missing))
+          catalog=[]
+          for name,folder in mapping.items():
+              src,size=found[name]
+              dest=out/folder/name
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(src,dest)
+              catalog.append({'file':f'assets/3d/{folder}/{name}','size_bytes':size,'format':'GLB 2.0','batch':'batch2'})
+              print(f'INSTALLED {dest} {size} bytes')
+          Path('public/assets/3d/asset-catalog-batch2.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n')
+          PY
+          # The new wine-house model is only 4 MB; use the raw GLB instead of the old gzip payload.
+          rm -f public/assets/3d/architecture/restaurant-wine-house.glb.gz
+      - name: Update scene to load the new raw wine-house GLB
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scene.js')
+          s=p.read_text()
+          old="()=>loadModel('architecture/restaurant-wine-house.glb.gz','酒楼',[-8,0,11],8,0),"
+          new="()=>loadModel('architecture/restaurant-wine-house.glb','酒楼',[-8,0,11],8,0),"
+          if old not in s:
+              raise SystemExit('Expected wine-house loader line not found; refusing an unsafe edit.')
+          p.write_text(s.replace(old,new,1))
+          PY
+      - name: Commit imported 150K assets and catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/3d scene.js
+          if git diff --cached --quiet; then
+            echo 'No asset changes to commit'
+            exit 0
+          fi
+          git commit -m 'Import batch2 150K GLB assets and update scene loader'
+          git push

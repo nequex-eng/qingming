@@ -131,7 +131,7 @@ export class AssetManager {
     return this.catalog;
   }
 
-  async loadCatalogModel(id, position = [0, 0, 0], rotationY = 0) {
+  async loadCatalogModel(id, position = [0, 0, 0], rotationY = null) {
     const catalog = await this.loadCatalog();
     const asset = catalog.find(item => item.file.split('/').pop().replace(/\.glb$/i, '') === id);
     if (!asset) throw new Error('资产库存中不存在：' + id);
@@ -140,11 +140,20 @@ export class AssetManager {
     }
     const gltf = await this.fetchGLTF('./public/' + asset.file);
     const model = gltf.scene;
-    const bounds = this.applyPlacement(model, { position, rotationY, scale: asset.scale });
+    const appliedRotationY = Number.isFinite(rotationY)
+      ? rotationY
+      : (Number.isFinite(asset.recommended_rotationY) ? asset.recommended_rotationY : 0);
+    const bounds = this.applyPlacement(model, { position, rotationY: appliedRotationY, scale: asset.scale });
     this.configureMaterials(model);
     this.scene.add(model);
     const size = bounds.getSize(new THREE.Vector3());
-    return { id, model, size, bounds, appliedScale: asset.scale, position: [...position] };
+    return {
+      id, model, size, bounds, appliedScale: asset.scale,
+      measuredDimensions: asset.measured_dimensions_m || null,
+      expectedScaledDimensions: asset.scaled_dimensions_m || null,
+      rotationY: appliedRotationY,
+      position: [...position]
+    };
   }
 
   dispose() {

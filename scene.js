@@ -60,6 +60,86 @@ document.querySelectorAll('#nav [data-view]').forEach(button => {
 });
 
 const world = createWorld(THREE, scene);
+const tradePanel = document.querySelector('#trade-panel');
+const tradeTitle = document.querySelector('#trade-title');
+const tradeContent = document.querySelector('#trade-content');
+const coinCount = document.querySelector('#coin-count');
+const shopStock = [
+  { name: '茶汤摊', desc: '桥头歇脚，热茶与胡饼最受脚夫欢迎。', goods: [['热茶', 2], ['胡饼', 3]] },
+  { name: '酒肆', desc: '沿河酒旗招展，供过路客商小酌。', goods: [['米酒', 5], ['熟肉', 6]] },
+  { name: '绸缎铺', desc: '各色绢帛布匹，适合进城采买。', goods: [['素绢', 12], ['布匹', 8]] },
+  { name: '食肆', desc: '现做汤饼与蒸食，往来行人皆可用餐。', goods: [['汤饼', 4], ['蒸饼', 3]] },
+  { name: '药铺', desc: '常用草药与香囊，行旅备上一份。', goods: [['草药包', 8], ['安神香囊', 10]] },
+  { name: '杂货铺', desc: '灯油、针线和日用小物一应俱全。', goods: [['灯油', 6], ['针线', 4]] },
+  { name: '香料摊', desc: '南北香料汇集，气味浓郁。', goods: [['香料', 7], ['香木', 9]] }
+];
+let marketState = { coins: 30, inventory: {} };
+try {
+  const saved = JSON.parse(localStorage.getItem('qingming-market-v1') || 'null');
+  if (saved && Number.isFinite(saved.coins) && saved.inventory && typeof saved.inventory === 'object') marketState = saved;
+} catch {}
+function saveMarket() {
+  try { localStorage.setItem('qingming-market-v1', JSON.stringify(marketState)); } catch {}
+  coinCount.textContent = String(marketState.coins);
+}
+function makeTradeRow(label, actionText, onAction, disabled = false) {
+  const row = document.createElement('div'); row.className = 'trade-row';
+  const text = document.createElement('span'); text.textContent = label;
+  const button = document.createElement('button'); button.textContent = actionText; button.disabled = disabled;
+  button.addEventListener('click', onAction);
+  row.append(text, button); tradeContent.appendChild(row);
+}
+function openShop(index) {
+  const shop = shopStock[index];
+  if (!shop) return;
+  tradeTitle.textContent = shop.name;
+  tradeContent.replaceChildren();
+  const desc = document.createElement('p'); desc.className = 'trade-desc'; desc.textContent = shop.desc; tradeContent.appendChild(desc);
+  const buyHead = document.createElement('div'); buyHead.className = 'trade-section'; buyHead.textContent = '买入'; tradeContent.appendChild(buyHead);
+  for (const [name, price] of shop.goods) {
+    makeTradeRow(name + ' · ' + price + '文', '买入', () => {
+      if (marketState.coins < price) return;
+      marketState.coins -= price;
+      marketState.inventory[name] = (marketState.inventory[name] || 0) + 1;
+      saveMarket(); openShop(index);
+    }, marketState.coins < price);
+  }
+  const sellHead = document.createElement('div'); sellHead.className = 'trade-section'; sellHead.textContent = '行囊 · 卖出可得半价'; tradeContent.appendChild(sellHead);
+  const items = Object.entries(marketState.inventory).filter(([, count]) => count > 0);
+  if (!items.length) {
+    const empty = document.createElement('p'); empty.className = 'trade-desc'; empty.textContent = '行囊空空，可以先买些货物。'; tradeContent.appendChild(empty);
+  } else {
+    for (const [name, count] of items) {
+      const base = shopStock.flatMap(s => s.goods).find(g => g[0] === name)?.[1] || 2;
+      const value = Math.max(1, Math.floor(base / 2));
+      makeTradeRow(name + ' × ' + count, '卖出 +' + value + '文', () => {
+        marketState.inventory[name]--;
+        marketState.coins += value;
+        saveMarket(); openShop(index);
+      });
+    }
+  }
+  tradePanel.hidden = false;
+}
+const npcDialogues = {
+  'merchant-shopkeeper': ['商人掌柜', '客官，南北货物都在此处集散。若要大宗采买，可先去前街看看行情。'],
+  'street-vendor': ['街头摊贩', '刚出炉的胡饼，热乎着呢！赶路的客官带两个吧。'],
+  'boatman': ['汴河船夫', '顺流可到东边码头，逆流便是城里。今日河面船多，过桥时要慢些。'],
+  'porter-laborer': ['码头脚夫', '这批货刚卸下船，等会儿还要送到城里的仓栈。'],
+  'shop-assistant': ['店铺伙计', '掌柜正在后堂清点货物，客官先看看柜上的东西。'],
+  'teahouse-worker': ['茶馆伙计', '楼上临窗的位置还能看见虹桥，客官要不要进来歇歇？'],
+  'artisan-craftsman': ['手艺匠人', '手上这件活儿还差最后一道工序，城里做买卖讲究的就是个手艺。'],
+  'scholar-literati': ['过路文人', '汴河两岸人烟稠密，市声不绝。此地风物，值得慢慢观赏。']
+};
+function openNpc(id) {
+  const entry = npcDialogues[id] || ['市井百姓', '汴河两岸人来人往，处处都有新鲜事。'];
+  tradeTitle.textContent = entry[0]; tradeContent.replaceChildren();
+  const p = document.createElement('p'); p.className = 'trade-desc'; p.textContent = entry[1]; tradeContent.appendChild(p);
+  tradePanel.hidden = false;
+}
+document.querySelector('#trade-close').addEventListener('click', () => { tradePanel.hidden = true; });
+saveMarket();
+
 const assetManager = new AssetManager({ scene, status });
 window.__qingmingLoadedModels = assetManager.loaded;
 window.__qingmingAssetManager = assetManager;
@@ -67,6 +147,7 @@ window.__qingmingCatalogModels = [];
 window.__qingmingWorldLayout = WORLD_LAYOUT;
 
 const movingBoats = [];
+const interactables = [...world.interactables];
 const keys = new Set();
 addEventListener('keydown', event => {
   const key = event.key.toLowerCase();
@@ -112,6 +193,10 @@ async function loadAllAssets() {
     try {
       const item = await assetManager.loadCatalogModel(spec.id, spec.position);
       item.model.userData.assetId = spec.id;
+      if (npcDialogues[spec.id]) {
+        item.model.userData.interaction = { kind: 'npc', id: spec.id };
+        interactables.push(item.model);
+      }
       item.model.userData.assetPosition = [...spec.position];
       window.__qingmingCatalogModels.push(item);
       if (Number.isFinite(spec.speed)) movingBoats.push({ model: item.model, speed: spec.speed });
@@ -135,6 +220,23 @@ loadAllAssets().catch(error => {
   document.querySelector('#loading-label').textContent = '场景载入遇到问题';
 });
 
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let pointerStart = null;
+renderer.domElement.addEventListener('pointerdown', event => { pointerStart = [event.clientX, event.clientY]; });
+renderer.domElement.addEventListener('pointerup', event => {
+  if (!pointerStart || Math.hypot(event.clientX - pointerStart[0], event.clientY - pointerStart[1]) > 7) return;
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, camera);
+  const hit = raycaster.intersectObjects(interactables, true)[0];
+  if (!hit) return;
+  let node = hit.object;
+  while (node && !node.userData.interaction) node = node.parent;
+  const target = node?.userData.interaction;
+  if (target?.kind === 'stall') openShop(target.index);
+  if (target?.kind === 'npc') openNpc(target.id);
+});
 let last = performance.now();
 function animate(now) {
   requestAnimationFrame(animate);

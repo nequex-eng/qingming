@@ -20,7 +20,6 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, maxPixelRatio));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-sunShadowQuality();
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 // Blender reference previews use the Standard view transform, not an ACES filmic curve.
 // NoToneMapping keeps the GLTF albedo and lit midtones from being compressed/darkened.
@@ -51,7 +50,7 @@ scene.add(new THREE.HemisphereLight(silkWorld, earthBounce, 1.1));
 const sun = new THREE.DirectionalLight(0xffead4, 2.2);
 sun.position.set(-34, 52, 28);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sunShadowQuality();
 sun.shadow.camera.left = -105;
 sun.shadow.camera.right = 105;
 sun.shadow.camera.top = 75;

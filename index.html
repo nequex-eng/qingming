@@ -9,12 +9,12 @@
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e7dfca;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:#2f382f}
 #view{position:fixed;inset:0}
-canvas{display:block;width:100%;height:100%;touch-action:none}
-#panel{position:fixed;left:18px;top:18px;max-width:min(365px,calc(100vw - 36px));padding:14px 17px;background:rgba(244,238,218,.9);border:1px solid rgba(91,77,54,.24);border-radius:10px;box-shadow:0 8px 28px #3d382a20;backdrop-filter:blur(9px);pointer-events:none}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab} canvas:active{cursor:grabbing}
+#panel{position:fixed;left:14px;top:12px;max-width:min(250px,calc(100vw - 28px));padding:8px 11px;background:rgba(244,238,218,.9);border:1px solid rgba(91,77,54,.24);border-radius:10px;box-shadow:0 8px 28px #3d382a20;backdrop-filter:blur(9px);pointer-events:none}
 #panel h1{font-size:17px;letter-spacing:.09em;margin:0 0 6px;font-weight:680}
-#panel p{font-size:12px;line-height:1.6;margin:4px 0;color:#5c6255}
-#status{font-size:11px;color:#80633c;margin-top:8px}
-#help{position:fixed;left:50%;bottom:17px;transform:translateX(-50%);padding:9px 15px;border-radius:999px;background:#29372fce;color:#f5f0df;font-size:12px;white-space:nowrap;pointer-events:none}
+#panel p{display:none}
+#status{display:none}
+#help{display:none}
 #loading{position:fixed;inset:0;display:grid;place-items:center;background:#e7dfca;color:#514936;font-size:15px;z-index:5;transition:opacity .45s}
 #loading.hide{opacity:0;pointer-events:none}
 #loading-label{padding:12px 18px;background:#f2ead7d9;border:1px solid #8c7b5b55;border-radius:9px}
@@ -52,11 +52,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <div id="view"></div>
 <section id="panel">
 <h1>清明宋 · 汴河市井</h1>
-<p>郊野村舍 — 虹桥漕运 — 城门街市。沿着汴河进入繁华城中，桥头、码头与市集连成一片。</p>
-<p>WASD移动 · 拖动右侧转向 · E键交互</p>
+
 <div id="status">正在载入场景资产…</div>
 </section>
-<nav id="nav" aria-label="场景快速导航">
+<nav id="nav" aria-label="场景快速导航" style="display:none">
 <button data-view="overview">全景</button><button data-view="countryside">郊野</button><button data-view="bridge">虹桥</button><button data-view="market">街市</button>
 </nav>
 <div id="wallet">钱袋：<strong id="coin-count">30</strong> 文</div>
@@ -65,14 +64,14 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <div id="trade-content"></div>
 </section>
 
-<section id="player-hud" data-complete="false">
+<section id="player-hud" data-complete="false" hidden>
   <div class="hud-kicker">汴河行旅 · 今日目标</div>
   <strong id="objective-text">初到汴河 · 前往虹桥，看看汴河上最热闹的渡口</strong>
 </section>
 <div id="interaction-prompt" hidden></div>
 <div id="joystick" aria-label="移动摇杆"><div id="joystick-stick"></div></div>
 <button id="action-button" hidden>交互</button>
-<div id="help">走近摊位或人物后按 E 交互 · 完成沿河行旅任务赚取铜钱</div>
+
 <div id="loading"><div id="loading-label">正在铺设河道与市街…</div></div>
 <script type="module" src="./scene.js"></script>
 </body>

@@ -78,12 +78,12 @@ function addMarketStall(THREE, scene, x, z, index, mats) {
 
 function addCityGate(THREE, scene, x, z, mats) {
   // A timber-and-tile gate marks the transition from the market street to the walled city.
-  addBox(THREE, scene, 'city-wall-west', [1.1, 4.5, 9.5], [x, 2.25, z - 7.0], mats.plaster);
-  addBox(THREE, scene, 'city-wall-east', [1.1, 4.5, 9.5], [x, 2.25, z + 7.0], mats.plaster);
-  for (const dz of [-7, 7]) {
+  addBox(THREE, scene, 'city-wall-west', [1.1, 4.5, 8.0], [x, 2.25, z - 10.0], mats.plaster);
+  addBox(THREE, scene, 'city-wall-east', [1.1, 4.5, 8.0], [x, 2.25, z + 10.0], mats.plaster);
+  for (const dz of [-6.5, 6.5]) {
     addBox(THREE, scene, 'gate-pillar', [1.7, 5.4, 1.7], [x, 2.7, z + dz], mats.wood);
   }
-  addBox(THREE, scene, 'gate-lintel', [1.8, .6, 15.8], [x, 5.15, z], mats.wood);
+  addBox(THREE, scene, 'gate-lintel', [1.8, .6, 13.5], [x, 5.15, z], mats.wood);
   const roof = new THREE.Mesh(new THREE.ConeGeometry(10.5, 2.5, 4), mats.roof);
   roof.position.set(x, 6.45, z); roof.rotation.y = Math.PI / 4; roof.scale.z = .52; roof.castShadow = true; scene.add(roof);
   const sign = addBox(THREE, scene, 'gate-signboard', [3.2, .72, .18], [x - .98, 4.55, z], mats.woodLight, false);
@@ -114,7 +114,7 @@ export function createWorld(THREE, scene) {
     addBox(THREE, scene, 'riverbank', [184, .72, 5.2], [0, -.32, side * 8.8], mats.bank);
     addBox(THREE, scene, 'stone-quay-edge', [184, .32, .32], [0, -.05, side * 6.05], mats.stone);
     addBox(THREE, scene, 'riverside-path', [178, .16, 2.4], [0, .06, side * 12.6], mats.path);
-    if (side === 1) addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, 27.2], mats.path);
+    if (side === 1) addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, 35.5], mats.path);
   }
 
   // Rural approach: open fields, low hedges and scattered farmsteads.
@@ -143,9 +143,9 @@ export function createWorld(THREE, scene) {
   addCityGate(THREE, scene, WORLD_LAYOUT.landmarks.cityGate[0], WORLD_LAYOUT.landmarks.cityGate[2], mats);
 
   // A small walled courtyard and back lanes create depth behind the shopfronts.
-  addBox(THREE, scene, 'courtyard-wall', [22, 1.8, .35], [50, .9, 38], mats.plaster);
-  addBox(THREE, scene, 'courtyard-side-wall', [.35, 1.8, 12], [39, .9, 32], mats.plaster);
-  addBox(THREE, scene, 'back-lane', [55, .12, 3.4], [52, .04, 40.5], mats.path, false);
+  addBox(THREE, scene, 'courtyard-wall', [22, 1.8, .35], [50, .9, 46], mats.plaster);
+  addBox(THREE, scene, 'courtyard-side-wall', [.35, 1.8, 12], [39, .9, 40], mats.plaster);
+  addBox(THREE, scene, 'back-lane', [55, .12, 3.4], [52, .04, 49], mats.path, false);
 
   // Main bridge approaches connect both banks to the north-bank market street.
   for (const x of [0, -48]) {

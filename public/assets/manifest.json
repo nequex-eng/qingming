@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "source": "https://qingming-assets.pages.dev",
+  "assets": [
+    {
+      "id": "timber-arch-bridge",
+      "label": "虹桥",
+      "url": "https://qingming-assets.pages.dev/timber-arch-bridge.glb",
+      "size_bytes": 2854480,
+      "scale": 1,
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotationY": 0,
+      "targetFootprint": 14
+    },
+    {
+      "id": "stone-arch-bridge",
+      "label": "石拱桥",
+      "url": "https://qingming-assets.pages.dev/stone-arch-bridge.glb",
+      "size_bytes": 3027740,
+      "scale": 1,
+      "position": [
+        -19,
+        0,
+        0
+      ],
+      "rotationY": 0,
+      "targetFootprint": 12.5
+    },
+    {
+      "id": "wharf-dock",
+      "label": "临河码头",
+      "url": "https://qingming-assets.pages.dev/wharf-dock.glb",
+      "size_bytes": 3674392,
+      "scale": 1,
+      "position": [
+        7,
+        0,
+        5.25
+      ],
+      "rotationY": 1.5707963267948966,
+      "targetFootprint": 7
+    },
+    {
+      "id": "teahouse",
+      "label": "茶馆",
+      "url": "https://qingming-assets.pages.dev/teahouse.glb",
+      "size_bytes": 3761016,
+      "scale": 1,
+      "position": [
+        -23,
+        0,
+        11
+      ],
+      "rotationY": 0,
+      "targetFootprint": 7.5
+    },
+    {
+      "id": "restaurant-wine-house",
+      "label": "酒楼",
+      "url": "https://qingming-assets.pages.dev/restaurant-wine-house.glb.gz",
+      "size_bytes": 4043344,
+      "size_gzipped_bytes": 4032182,
+      "scale": 1,
+      "position": [
+        -8,
+        0,
+        11
+      ],
+      "rotationY": 0,
+      "targetFootprint": 8
+    },
+    {
+      "id": "riverside-commercial-building",
+      "label": "江边大商楼",
+      "url": "https://qingming-assets.pages.dev/riverside-commercial-building.glb",
+      "size_bytes": 4552788,
+      "scale": 1,
+      "position": [
+        19,
+        0,
+        -11
+      ],
+      "rotationY": 3.141592653589793,
+      "targetFootprint": 9
+    }
+  ]
+}

@@ -162,6 +162,17 @@ export class AssetManager {
     };
   }
 
+  async loadBatch3Model(id, position = [0, 0, 0], scale = 1, rotationY = 0) {
+    if (!Number.isFinite(scale) || scale <= 0) throw new Error('batch3 资产缩放无效：' + id);
+    const gltf = await this.fetchGLTF('./public/assets/3d/environment/' + id + '.glb');
+    const model = gltf.scene;
+    const bounds = this.applyPlacement(model, { position, rotationY, scale });
+    this.configureMaterials(model);
+    model.userData.assetId = 'batch3-' + id;
+    this.scene.add(model);
+    return { id, model, size: bounds.getSize(new THREE.Vector3()), bounds, appliedScale: scale, position: [...position], rotationY };
+  }
+
   dispose() {
     this.draco.dispose();
   }

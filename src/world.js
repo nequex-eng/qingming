@@ -140,11 +140,12 @@ export function createWorld(THREE, scene) {
   const waterMat = new THREE.MeshStandardMaterial({ color: 0x718e8a, roughness: .34, metalness: .015, side: THREE.DoubleSide });
   const river = addCurvedStrip(THREE, scene, 'meandering-bian-river', 6, .015, waterMat, 0);
 
+  const riverbanks = [], quayEdges = [], roads = [];
   for (const side of [-1, 1]) {
-    addCurvedStrip(THREE, scene, 'curved-riverbank', 2.6, -.32, mats.bank, side * 8.8);
-    addCurvedStrip(THREE, scene, 'curved-quay-edge', .16, -.05, mats.stone, side * 6.05);
-    addCurvedStrip(THREE, scene, 'curved-riverside-path', 1.2, .06, mats.path, side * 12.6);
-    if (side === 1) addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, 35.5], mats.path);
+    riverbanks.push(addCurvedStrip(THREE, scene, 'curved-riverbank', 2.6, -.32, mats.bank, side * 8.8));
+    quayEdges.push(addCurvedStrip(THREE, scene, 'curved-quay-edge', .16, -.05, mats.stone, side * 6.05));
+    roads.push(addCurvedStrip(THREE, scene, 'curved-riverside-path', 1.2, .06, mats.path, side * 12.6));
+    if (side === 1) roads.push(addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, 35.5], mats.path));
   }
 
   // Rural approach: open fields, low hedges and scattered farmsteads.
@@ -201,5 +202,5 @@ export function createWorld(THREE, scene) {
   }
   scene.add(ripples);
 
-  return { ground, ripples, river, materials: mats, layout: WORLD_LAYOUT, interactables };
+  return { ground, ripples, river, riverbanks, quayEdges, roads, materials: mats, layout: WORLD_LAYOUT, interactables };
 }

@@ -10,7 +10,7 @@ export const WORLD_LAYOUT = {
     teahouse: [28, 0, 21],
     restaurant: [45, 0, 21],
     riversideBuilding: [62, 0, -21],
-    cityGate: [82, 0, 29]
+    cityGate: [82, 0, 35.5]
   },
   catalog: [
     { id: 'cargo-boat', position: [-31, 0.08, -2.4], speed: 0.34 },
@@ -19,16 +19,16 @@ export const WORLD_LAYOUT = {
     { id: 'skiff', position: [38, 0.08, 2.7], speed: -0.3 },
     { id: 'ferry-boat', position: [60, 0.08, -2.2], speed: 0.22 },
     { id: 'merchant-shopkeeper', position: [43, 0, 17.0] },
-    { id: 'street-vendor', position: [32, 0, 27.0] },
+    { id: 'street-vendor', position: [32, 0, 32.0] },
     { id: 'boatman', position: [13, 0, 9.4] },
     { id: 'porter-laborer', position: [17, 0, 15.2] },
     { id: 'shop-assistant', position: [47, 0, 17.2] },
     { id: 'teahouse-worker', position: [27, 0, 17.2] },
-    { id: 'artisan-craftsman', position: [59, 0, 27.2] },
-    { id: 'scholar-literati', position: [69, 0, 25.0] },
-    { id: 'cargo-cart', position: [39, 0, 30.0] },
-    { id: 'handcart', position: [25, 0, 30.4] },
-    { id: 'sedan-chair', position: [67, 0, 31.2] }
+    { id: 'artisan-craftsman', position: [59, 0, 32.0] },
+    { id: 'scholar-literati', position: [69, 0, 32.0] },
+    { id: 'cargo-cart', position: [39, 0, 35.0] },
+    { id: 'handcart', position: [25, 0, 35.0] },
+    { id: 'sedan-chair', position: [67, 0, 35.0] }
   ],
   marketStalls: [15, 24, 33, 42, 55, 65, 74],
   willowTrees: [

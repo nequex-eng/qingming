@@ -1,6 +1,17 @@
 // Layout inspired by the three-part composition of Zhang Zeduan's handscroll:
 // countryside -> Bian River / Rainbow Bridge -> dense city streets and city gate.
 // World axes: river runs along X; the bridges cross it along Z.
+
+// A gentle alternating bend recreates the handscroll's meandering Bian River.
+// The two bridge crossings remain at the near-zero points of the curve.
+export function riverCenterZ(x) {
+  return 3.8 * Math.sin(Math.PI * x / 48) + 1.2 * Math.sin(Math.PI * x / 24);
+}
+export function riverCenterSlope(x) {
+  return (3.8 * Math.PI / 48) * Math.cos(Math.PI * x / 48)
+    + (1.2 * Math.PI / 24) * Math.cos(Math.PI * x / 24);
+}
+
 export const WORLD_LAYOUT = {
   bounds: { length: 180, depth: 94, riverWidth: 12, bankOffset: 8.8 },
   landmarks: {

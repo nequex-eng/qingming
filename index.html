@@ -21,7 +21,17 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 #nav{position:fixed;right:18px;top:18px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:48vw}
 #nav button{border:1px solid #6c624b55;background:#f3ecd9e8;color:#394237;border-radius:8px;padding:9px 12px;font-size:12px;box-shadow:0 4px 16px #2e342420;cursor:pointer;backdrop-filter:blur(8px)}
 #nav button:active{transform:translateY(1px);background:#d8c9a8}
-@media(max-width:600px){#nav{right:10px;top:76px;max-width:calc(100vw - 20px);gap:5px}#nav button{padding:7px 9px;font-size:11px}}
+#wallet{position:fixed;right:18px;top:72px;padding:8px 12px;border-radius:8px;background:#f3ecd9e8;border:1px solid #6c624b55;color:#394237;font-size:12px;pointer-events:none}
+#trade-panel{position:fixed;right:18px;bottom:64px;width:min(340px,calc(100vw - 36px));max-height:62vh;overflow:auto;padding:15px;background:#f3ecdff2;border:1px solid #6c624b66;border-radius:12px;box-shadow:0 12px 38px #25291f44;backdrop-filter:blur(12px);color:#343c31}
+#trade-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+#trade-title{font-size:16px;font-weight:700}
+#trade-close{border:0;background:transparent;color:#5b5c4c;font-size:23px;cursor:pointer}
+.trade-desc{font-size:12px;line-height:1.6;color:#676756;margin:4px 0 10px}
+.trade-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #88785a33;font-size:13px}
+.trade-row button{border:1px solid #77644866;background:#e2d3b3;color:#3e382c;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
+.trade-row button:disabled{opacity:.45;cursor:not-allowed}
+.trade-section{font-size:11px;letter-spacing:.08em;color:#8a6e48;margin-top:12px}
+@media(max-width:600px){#wallet{right:10px;top:119px}#trade-panel{right:10px;bottom:58px;width:min(340px,calc(100vw - 20px));max-height:58vh}#nav{right:10px;top:76px;max-width:calc(100vw - 20px);gap:5px}#nav button{padding:7px 9px;font-size:11px}}
 @media(max-width:600px){#panel{left:10px;top:10px;padding:10px 12px}#panel h1{font-size:15px}#help{bottom:12px;font-size:11px;max-width:calc(100vw - 20px);white-space:normal;text-align:center}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/"}}</script>
@@ -37,7 +47,12 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <nav id="nav" aria-label="场景快速导航">
 <button data-view="overview">全景</button><button data-view="countryside">郊野</button><button data-view="bridge">虹桥</button><button data-view="market">街市</button>
 </nav>
-<div id="help">汴河沿东西延伸 · 虹桥横跨河面 · 船只缓慢往来 · 城门外形成连续市街</div>
+<div id="wallet">钱袋：<strong id="coin-count">30</strong> 文</div>
+<section id="trade-panel" hidden>
+<div id="trade-head"><div id="trade-title">市井</div><button id="trade-close" aria-label="关闭">×</button></div>
+<div id="trade-content"></div>
+</section>
+<div id="help">点击摊位买卖 · 点击人物交谈 · 汴河沿东西延伸 · 虹桥横跨河面 · 船只缓慢往来 · 城门外形成连续市街</div>
 <div id="loading"><div id="loading-label">正在铺设河道与市街…</div></div>
 <script type="module" src="./scene.js"></script>
 </body>

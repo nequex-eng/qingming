@@ -9,6 +9,9 @@ on:
       - 'src/asset-manager.js'
       - 'src/world.js'
       - 'src/world-layout.js'
+      - 'src/gameplay.js'
+      - 'public/assets/3d/environment/ground.glb'
+      - 'public/assets/3d/environment/river.glb'
       - 'public/assets/manifest.json'
       - 'public/assets/3d/asset-catalog-batch2.json'
   workflow_dispatch:
@@ -100,6 +103,11 @@ jobs:
             await page.waitForTimeout(2500);
             const visual=await page.evaluate(()=>window.__qingmingVisualSettings);
             if(!visual||visual.toneMapping!==0||visual.exposure!==1||visual.assetFillIntensity!==1.8||visual.assetAmbientIntensity!==1.1)throw new Error('Expected Blender Standard-equivalent color pipeline, got '+JSON.stringify(visual));
+            const avatar=await page.evaluate(()=>({asset:window.__qingmingGameplay?.player?.userData?.characterAsset,children:window.__qingmingGameplay?.player?.children?.length}));
+            if(avatar.asset!=='scholar-literati'||!avatar.children)throw new Error('Playable protagonist is not using the scholar-literati GLB: '+JSON.stringify(avatar));
+            const surfaceMaterials=await page.evaluate(()=>{const names={ground:[],river:[]};for(const [id,key] of [['ground','ground'],['river','river']]){const item=window.__qingmingBatch3Models.find(x=>x.id===id);item?.model.traverse(n=>{if(!n.isMesh)return;for(const m of (Array.isArray(n.material)?n.material:[n.material]))if(m?.name)names[key].push(m.name);});}return names;});
+            if(!surfaceMaterials.ground.some(n=>n.includes('dirt_road_mat'))||!surfaceMaterials.ground.some(n=>n.includes('road_stone_mat')))throw new Error('Batch4 ground is missing its road materials: '+JSON.stringify(surfaceMaterials));
+            if(!surfaceMaterials.river.some(n=>n.includes('water_mat'))||!surfaceMaterials.river.some(n=>n.includes('embankment_mat')))throw new Error('Batch4 river is missing its water/bank materials: '+JSON.stringify(surfaceMaterials));
             const status=await page.locator('#status').innerText();
             const canvas=await page.locator('canvas').count();
             const geometry=await page.evaluate(()=>window.__qingmingLoadedModels.map(x=>({label:x.label,size:[x.size.x,x.size.y,x.size.z],minY:x.bounds.min.y,rotationY:x.rotationY,centerX:(x.bounds.min.x+x.bounds.max.x)/2,centerZ:(x.bounds.min.z+x.bounds.max.z)/2,expectedPosition:x.expectedPosition,appliedScale:x.appliedScale})));

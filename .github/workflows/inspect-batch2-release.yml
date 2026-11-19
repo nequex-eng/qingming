@@ -1,0 +1,49 @@
+name: Inspect Qingming batch2 GLB archives
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-batch2-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and inspect the four batch2 archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/batch2/zips /tmp/batch2/extracted
+          urls=(
+            'https://github.com/user-attachments/files/35061557/Archive.zip'
+            'https://github.com/user-attachments/files/35061571/Archive.2.zip'
+            'https://github.com/user-attachments/files/35061576/Archive.3.zip'
+            'https://github.com/user-attachments/files/35061580/Archive.4.zip'
+          )
+          i=1
+          for url in "${urls[@]}"; do
+            echo "===== ARCHIVE $i ====="
+            curl -fL --retry 3 --retry-delay 2 -A 'Mozilla/5.0' "$url" -o "/tmp/batch2/zips/archive-$i.zip"
+            unzip -t "/tmp/batch2/zips/archive-$i.zip"
+            mkdir -p "/tmp/batch2/extracted/$i"
+            unzip -oq "/tmp/batch2/zips/archive-$i.zip" -d "/tmp/batch2/extracted/$i"
+            find "/tmp/batch2/extracted/$i" -type f -printf '%P | %s bytes\n' | sort
+            i=$((i+1))
+          done
+          echo '===== GLB VALIDATION ====='
+          python - <<'PY'
+          from pathlib import Path
+          import struct
+          root=Path('/tmp/batch2/extracted')
+          files=sorted(p for p in root.rglob('*.glb') if '__MACOSX' not in p.parts and not p.name.startswith('._'))
+          print('GLB_COUNT',len(files))
+          for p in files:
+              b=p.read_bytes()
+              if len(b)<12 or b[:4]!=b'glTF':
+                  print('INVALID',p,len(b)); continue
+              version,length=struct.unpack_from('<II',b,4)
+              print('GLB',p.relative_to(root),'bytes=',len(b),'version=',version,'declared=',length,'valid=',version==2 and length==len(b))
+          PY

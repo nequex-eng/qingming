@@ -201,5 +201,5 @@ export function createWorld(THREE, scene) {
   }
   scene.add(ripples);
 
-  return { ripples, river, materials: mats, layout: WORLD_LAYOUT, interactables };
+  return { ground, ripples, river, materials: mats, layout: WORLD_LAYOUT, interactables };
 }

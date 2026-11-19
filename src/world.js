@@ -54,6 +54,17 @@ function addMarketStall(THREE, scene, x, z, index, mats) {
   canopy.position.y = 2.55; canopy.castShadow = true; g.add(canopy);
   const fascia = new THREE.Mesh(new THREE.BoxGeometry(2.65, .38, .12), mats.wood);
   fascia.position.set(0, 2.22, -.79); g.add(fascia);
+  const signCanvas = document.createElement('canvas');
+  signCanvas.width = 512; signCanvas.height = 128;
+  const ctx = signCanvas.getContext('2d');
+  ctx.fillStyle = '#e6d6b2'; ctx.fillRect(0, 0, 512, 128);
+  ctx.strokeStyle = '#6b4930'; ctx.lineWidth = 10; ctx.strokeRect(7, 7, 498, 114);
+  ctx.fillStyle = '#533a29'; ctx.font = 'bold 68px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(['茶汤','酒肆','绸缎','食肆','药铺','杂货','香料','书画'][index], 256, 65);
+  const signTexture = new THREE.CanvasTexture(signCanvas);
+  signTexture.colorSpace = THREE.SRGBColorSpace;
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.75, .42), new THREE.MeshStandardMaterial({ map: signTexture, roughness: .9 }));
+  sign.position.set(0, 2.22, -.87); sign.rotation.y = Math.PI; g.add(sign);
   const counter = new THREE.Mesh(new THREE.BoxGeometry(2.5, .82, .85), mats.woodLight);
   counter.position.set(0, .55, .05); counter.castShadow = true; g.add(counter);
   for (let j = 0; j < 4; j++) {
@@ -130,6 +141,12 @@ export function createWorld(THREE, scene) {
   addBox(THREE, scene, 'courtyard-wall', [22, 1.8, .35], [50, .9, 38], mats.plaster);
   addBox(THREE, scene, 'courtyard-side-wall', [.35, 1.8, 12], [39, .9, 32], mats.plaster);
   addBox(THREE, scene, 'back-lane', [55, .12, 3.4], [52, .04, 40.5], mats.path, false);
+
+  // Main bridge approaches connect both banks to the north-bank market street.
+  for (const x of [0, -48]) {
+    addBox(THREE, scene, 'bridge-approach-north', [4.2, .14, 23], [x, .06, 18], mats.path, false);
+    addBox(THREE, scene, 'bridge-approach-south', [4.2, .14, 20], [x, .06, -16], mats.path, false);
+  }
 
   // Small stone steps connect the north-bank quay to the market street.
   for (let i = 0; i < 5; i++) {

@@ -107,13 +107,13 @@ export function createWorld(THREE, scene) {
   ground.rotation.x = -Math.PI / 2; ground.position.y = -.12; ground.receiveShadow = true; scene.add(ground);
 
   const waterMat = new THREE.MeshStandardMaterial({ color: 0x658a89, roughness: .27, metalness: .04 });
-  const river = new THREE.Mesh(new THREE.PlaneGeometry(180, 18, 120, 18), waterMat);
+  const river = new THREE.Mesh(new THREE.PlaneGeometry(180, 12, 120, 18), waterMat);
   river.rotation.x = -Math.PI / 2; river.position.y = .015; river.receiveShadow = true; scene.add(river);
 
   for (const side of [-1, 1]) {
-    addBox(THREE, scene, 'riverbank', [184, .72, 5.2], [0, -.32, side * 11.6], mats.bank);
-    addBox(THREE, scene, 'stone-quay-edge', [184, .32, .32], [0, -.05, side * 9.05], mats.stone);
-    addBox(THREE, scene, 'riverside-path', [178, .16, 2.4], [0, .06, side * 15.3], mats.path);
+    addBox(THREE, scene, 'riverbank', [184, .72, 5.2], [0, -.32, side * 8.8], mats.bank);
+    addBox(THREE, scene, 'stone-quay-edge', [184, .32, .32], [0, -.05, side * 6.05], mats.stone);
+    addBox(THREE, scene, 'riverside-path', [178, .16, 2.4], [0, .06, side * 12.6], mats.path);
     if (side === 1) addBox(THREE, scene, 'market-road', [150, .16, 5.8], [8, .08, 27.2], mats.path);
   }
 

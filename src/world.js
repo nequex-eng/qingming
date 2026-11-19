@@ -134,7 +134,12 @@ export function createWorld(THREE, scene) {
   WORLD_LAYOUT.willowTrees.forEach(([x, z, s]) => addWillow(THREE, scene, x, z, s, mats));
 
   // Dense street market on the city side of the river, not a uniform row of isolated boxes.
-  WORLD_LAYOUT.marketStalls.forEach((x, i) => addMarketStall(THREE, scene, x, 27.2 + (i % 2 ? 2.8 : 0), i, mats));
+  const interactables = [];
+  WORLD_LAYOUT.marketStalls.forEach((x, i) => {
+    const stall = addMarketStall(THREE, scene, x, 27.2 + (i % 2 ? 2.8 : 0), i, mats);
+    stall.userData.interaction = { kind: 'stall', index: i };
+    interactables.push(stall);
+  });
   addCityGate(THREE, scene, WORLD_LAYOUT.landmarks.cityGate[0], WORLD_LAYOUT.landmarks.cityGate[2], mats);
 
   // A small walled courtyard and back lanes create depth behind the shopfronts.
@@ -165,5 +170,5 @@ export function createWorld(THREE, scene) {
   }
   scene.add(ripples);
 
-  return { ripples, materials: mats, layout: WORLD_LAYOUT };
+  return { ripples, materials: mats, layout: WORLD_LAYOUT, interactables };
 }

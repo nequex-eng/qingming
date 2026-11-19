@@ -30,7 +30,7 @@ export const WORLD_LAYOUT = {
     { id: 'handcart', position: [25, 0, 30.4] },
     { id: 'sedan-chair', position: [67, 0, 31.2] }
   ],
-  marketStalls: [-2, 7, 16, 25, 34, 53, 63, 72],
+  marketStalls: [15, 24, 33, 42, 55, 65, 74],
   willowTrees: [
     [-82, -15, 1.25], [-69, -18, 1.1], [-56, 18, 1.15], [-39, 17, 1.0],
     [-26, -18, 1.0], [-16, 18, 1.05], [8, -18, 1.1], [19, 18, 1.0],

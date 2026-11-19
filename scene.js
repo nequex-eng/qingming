@@ -23,7 +23,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 // NoToneMapping keeps the GLTF albedo and lit midtones from being compressed/darkened.
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.toneMappingExposure = 1.0;
-window.__qingmingVisualSettings = { toneMapping: renderer.toneMapping, exposure: renderer.toneMappingExposure, outputColorSpace: renderer.outputColorSpace };
+window.__qingmingVisualSettings = { toneMapping: renderer.toneMapping, exposure: renderer.toneMappingExposure, outputColorSpace: renderer.outputColorSpace, assetFillIntensity: assetFill.intensity };
 host.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -51,6 +51,13 @@ scene.add(sun);
 const coolFill = new THREE.DirectionalLight(0xd5d8d0, .7);
 coolFill.position.set(42, 30, -36);
 scene.add(coolFill);
+// Reference renders use broad camera-side studio fill. Add a model-only fill so
+// imported GLB assets keep their authored colors without washing out the town ground.
+const assetFill = new THREE.DirectionalLight(0xfff0dc, 1.0);
+assetFill.position.set(34, 48, 68);
+assetFill.layers.set(1);
+scene.add(assetFill);
+camera.layers.enable(1);
 
 const views = {
   overview: { position: [0, 112, 164], target: [0, 0, 8] },

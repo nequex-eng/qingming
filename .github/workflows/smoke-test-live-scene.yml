@@ -30,6 +30,39 @@ jobs:
           npm init -y
           npm install --no-save playwright
           npx playwright install --with-deps chromium
+      - name: Download the 22 Lux3D JPG color references
+        shell: bash
+        run: |
+          mkdir -p reference-jpgs
+          while read -r name asset; do
+            [ -n "$name" ] || continue
+            curl -L --retry 2 --connect-timeout 15 --max-time 60 -sS "https://github.com/user-attachments/assets/$asset" -o "reference-jpgs/$name.jpg" || rm -f "reference-jpgs/$name.jpg"
+          done <<'REFS'
+          restaurant-wine-house-v2 f9cb007a-9cf4-49db-ba91-4bff5e7edc11
+          wharf-dock 1267c13b-bb34-4650-9291-263e3bfb0d82
+          artisan-craftsman e15b9117-296c-4d8f-a101-47b3103953aa
+          boatman 07a471a5-cc92-427e-b347-e1042caae4c6
+          cargo-boat dc7914c0-4425-4d99-9886-f42456488791
+          cargo-cart d05c6949-e102-493b-9fd0-5e760d31877f
+          covered-boat d4f981d1-794b-48ca-b586-f2c8090b5f84
+          ferry-boat 90413aa6-dbae-4e29-b403-dc31eca09979
+          handcart 4e7dc7e1-8b7a-4fc0-94e0-f5dbc77aeeed
+          merchant-shopkeeper 7ccbba17-acd5-4635-8da8-57776740564d
+          passenger-boat 579e1e85-33da-4c1e-a2c9-0c9ac508febd
+          porter-laborer 9ca1100d-03fc-4e00-9c12-a406f0d17486
+          riverside-commercial-building 13059a67-a490-4b38-9e36-ccfe3f43c7b7
+          scholar-literati d0d2a20c-74d7-4839-a20f-287e5680b666
+          sedan-chair 64ac3a5c-0e40-4317-afaf-e0280b44b820
+          shop-assistant 507806c0-5a0b-4fc3-9ccb-87f962e23dc1
+          skiff 3af53a76-484a-486b-b937-0545a105d45a
+          stone-arch-bridge 4100bd95-ba74-4666-b9ed-114a7f8536f7
+          street-vendor dbe1d1de-06a9-4ec3-9362-8b725d19397d
+          teahouse-worker eaa4e223-0707-4bb8-80ed-90f0db11c358
+          teahouse 05f5d7a7-c413-41f1-90ef-b02a7edc06a2
+          timber-arch-bridge c702b713-5d28-40bd-9a6f-212932b7dd2e
+          REFS
+          echo "Downloaded JPG references:"
+          ls -lh reference-jpgs || true
       - name: Verify live game and all 22 GLB assets
         shell: bash
         run: |
@@ -94,6 +127,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qingming-live-scene-smoke
-          path: qingming-live-smoke.png
+          path: |
+            qingming-live-smoke.png
+            reference-jpgs/
           if-no-files-found: ignore
           retention-days: 7

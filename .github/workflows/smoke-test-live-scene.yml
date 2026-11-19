@@ -12,6 +12,9 @@ on:
       - 'public/assets/manifest.json'
       - 'public/assets/3d/asset-catalog-batch2.json'
   workflow_dispatch:
+concurrency:
+  group: qingming-live-browser-smoke
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

@@ -53,6 +53,37 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
   const cameraOffset = new THREE.Vector3();
   controls.enabled = false;
 
+  function setPlayerModel(sourceModel, sourcePosition = [0, 0, 0]) {
+    if (!sourceModel) return false;
+    const model = sourceModel.clone(true);
+    model.position.set(
+      sourceModel.position.x - sourcePosition[0],
+      sourceModel.position.y - sourcePosition[1],
+      sourceModel.position.z - sourcePosition[2]
+    );
+    model.rotation.copy(sourceModel.rotation);
+    model.scale.copy(sourceModel.scale);
+    model.traverse(node => {
+      if (node.isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+      }
+    });
+    for (const child of [...player.children]) {
+      child.traverse(node => {
+        if (node.geometry) node.geometry.dispose();
+        if (node.material) {
+          const materials = Array.isArray(node.material) ? node.material : [node.material];
+          materials.forEach(material => material.dispose());
+        }
+      });
+    }
+    player.clear();
+    player.add(model);
+    player.userData.characterAsset = 'scholar-literati';
+    return true;
+  }
+
   function updateHud() {
     const step = missionSteps[missionIndex];
     if (objectiveText) objectiveText.textContent = step ? step.title + ' · ' + step.detail : '今日行旅已完成，继续自由探索汴河两岸';
@@ -193,5 +224,5 @@ export function createGameplay({ THREE, scene, camera, controls, renderer, world
   }
 
   updateHud();
-  return { player, update, interact, getCoins: () => coins, getMissionIndex: () => missionIndex };
+  return { player, update, interact, setPlayerModel, getCoins: () => coins, getMissionIndex: () => missionIndex };
 }

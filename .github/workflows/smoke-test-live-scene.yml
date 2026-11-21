@@ -1,157 +1,65 @@
-name: Smoke test Qingming live 3D scene
+name: Smoke test Qingming pixel game
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/smoke-test-live-scene.yml'
-      - 'scene.js'
       - 'index.html'
-      - 'src/asset-manager.js'
-      - 'src/world.js'
-      - 'src/world-layout.js'
-      - 'src/gameplay.js'
-      - 'public/assets/3d/environment/ground.glb'
-      - 'public/assets/3d/environment/river.glb'
-      - 'public/assets/manifest.json'
-      - 'public/assets/3d/asset-catalog-batch2.json'
   workflow_dispatch:
-concurrency:
-  group: qingming-live-browser-smoke-v2
-  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   browser-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Check source JavaScript syntax
-        run: |
-          node --check scene.js
-          node --check src/gameplay.js
-          node --check src/asset-manager.js
-          node --check src/world.js
-          node --check src/world-layout.js
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install Playwright Chromium
+      - name: Install Playwright
         run: |
           npm init -y
           npm install --no-save playwright
           npx playwright install chromium
-      - name: Download the 22 Lux3D JPG color references
-        shell: bash
+      - name: Test desktop and mobile gameplay
         run: |
-          mkdir -p reference-jpgs
-          while read -r name asset; do
-            [ -n "$name" ] || continue
-            curl -L --retry 2 --connect-timeout 15 --max-time 60 -sS "https://github.com/user-attachments/assets/$asset" -o "reference-jpgs/$name.jpg" || rm -f "reference-jpgs/$name.jpg"
-          done <<'REFS'
-          restaurant-wine-house-v2 f9cb007a-9cf4-49db-ba91-4bff5e7edc11
-          wharf-dock 1267c13b-bb34-4650-9291-263e3bfb0d82
-          artisan-craftsman e15b9117-296c-4d8f-a101-47b3103953aa
-          boatman 07a471a5-cc92-427e-b347-e1042caae4c6
-          cargo-boat dc7914c0-4425-4d99-9886-f42456488791
-          cargo-cart d05c6949-e102-493b-9fd0-5e760d31877f
-          covered-boat d4f981d1-794b-48ca-b586-f2c8090b5f84
-          ferry-boat 90413aa6-dbae-4e29-b403-dc31eca09979
-          handcart 4e7dc7e1-8b7a-4fc0-94e0-f5dbc77aeeed
-          merchant-shopkeeper 7ccbba17-acd5-4635-8da8-57776740564d
-          passenger-boat 579e1e85-33da-4c1e-a2c9-0c9ac508febd
-          porter-laborer 9ca1100d-03fc-4e00-9c12-a406f0d17486
-          riverside-commercial-building 13059a67-a490-4b38-9e36-ccfe3f43c7b7
-          scholar-literati d0d2a20c-74d7-4839-a20f-287e5680b666
-          sedan-chair 64ac3a5c-0e40-4317-afaf-e0280b44b820
-          shop-assistant 507806c0-5a0b-4fc3-9ccb-87f962e23dc1
-          skiff 3af53a76-484a-486b-b937-0545a105d45a
-          stone-arch-bridge 4100bd95-ba74-4666-b9ed-114a7f8536f7
-          street-vendor dbe1d1de-06a9-4ec3-9362-8b725d19397d
-          teahouse-worker eaa4e223-0707-4bb8-80ed-90f0db11c358
-          teahouse 05f5d7a7-c413-41f1-90ef-b02a7edc06a2
-          timber-arch-bridge c702b713-5d28-40bd-9a6f-212932b7dd2e
-          REFS
-          echo "Downloaded JPG references:"
-          ls -lh reference-jpgs || true
-      - name: Verify live game and all 22 GLB assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat > ./smoke.cjs <<'JS'
-          const { chromium } = require('playwright');
-          (async () => {
-            const browser = await chromium.launch({
-              headless: true,
-              args: ['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']
-            });
-            const page = await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
+          cat > smoke.cjs <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
             const errors=[];
-            const loaded=[];
-            page.on('pageerror',e=>errors.push('pageerror: '+e.message+' '+e.stack));
-            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text());});
-            page.on('requestfailed',r=>errors.push('requestfailed: '+r.url()+' '+r.failure()?.errorText));
-            page.on('response',r=>{if(r.url().includes('qingming-assets.pages.dev'))loaded.push({url:r.url(),status:r.status(),bytes:r.headers()['content-length']||''});});
-            const base='https://qingming-riverside-2wq.pages.dev';
-            let deployed=false; for(let i=0;i<48;i++){const r=await page.request.get(base+'/scene.js'); const m=await page.request.get(base+'/src/asset-manager.js'); const w=await page.request.get(base+'/src/world.js'); const l=await page.request.get(base+'/src/world-layout.js'); if(r.ok()&&m.ok()&&w.ok()&&l.ok()&&(await r.text()).includes('NoToneMapping')&&(await r.text()).includes('WORLD_LAYOUT')&&(await r.text()).includes('__qingmingCatalogModels')&&(await m.text()).includes('model.scale.setScalar(scale)')&&!(await m.text()).includes('targetFootprint')&&(await w.text()).includes('createWorld')){deployed=true;break;} await page.waitForTimeout(5000);} if(!deployed)throw new Error('Latest Qingming world modules are not deployed yet');
-            const manifest=await page.request.get(base+'/public/assets/manifest.json');
-            if(!manifest.ok()) throw new Error('Manifest HTTP '+manifest.status());
-            const data=await manifest.json();
-            if(!Array.isArray(data.assets)||data.assets.length!==6)throw new Error('Expected 6 manifest entries');
-            await page.goto(base+'/',{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForTimeout(12000);
-            if(errors.length){console.log('EARLY_BROWSER_ERRORS '+JSON.stringify(errors));throw new Error('Browser startup error: '+errors.join(' | '));}
-            await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('场景搭建完成'),null,{timeout:240000}).catch(async e=>{const st=await page.locator('#status').innerText().catch(()=>'<missing status>');console.log('LOAD_TIMEOUT_STATUS '+st);console.log('LOAD_TIMEOUT_CDN '+JSON.stringify(loaded));console.log('LOAD_TIMEOUT_ERRORS '+JSON.stringify(errors));await page.screenshot({path:'./qingming-live-smoke.png',fullPage:true}).catch(()=>{});throw e;});
-            await page.waitForTimeout(2500);
-            const visual=await page.evaluate(()=>window.__qingmingVisualSettings);
-            if(!visual||visual.toneMapping!==0||visual.exposure!==1||visual.assetFillIntensity!==1.8||visual.assetAmbientIntensity!==1.1)throw new Error('Expected Blender Standard-equivalent color pipeline, got '+JSON.stringify(visual));
-            const avatar=await page.evaluate(()=>({asset:window.__qingmingGameplay?.player?.userData?.characterAsset,children:window.__qingmingGameplay?.player?.children?.length}));
-            if(avatar.asset!=='scholar-literati'||!avatar.children)throw new Error('Playable protagonist is not using the scholar-literati GLB: '+JSON.stringify(avatar));
-            const surfaceMaterials=await page.evaluate(()=>{const names={ground:[],river:[]};for(const [id,key] of [['ground','ground'],['river','river']]){const item=window.__qingmingBatch3Models.find(x=>x.id===id);item?.model.traverse(n=>{if(!n.isMesh)return;for(const m of (Array.isArray(n.material)?n.material:[n.material]))if(m?.name)names[key].push(m.name);});}return names;});
-            if(!surfaceMaterials.ground.some(n=>n.includes('dirt_road_mat'))||!surfaceMaterials.ground.some(n=>n.includes('road_stone_mat')))throw new Error('Batch4 ground is missing its road materials: '+JSON.stringify(surfaceMaterials));
-            if(!surfaceMaterials.river.some(n=>n.includes('water_mat'))||!surfaceMaterials.river.some(n=>n.includes('embankment_mat')))throw new Error('Batch4 river is missing its water/bank materials: '+JSON.stringify(surfaceMaterials));
-            const status=await page.locator('#status').innerText();
-            const canvas=await page.locator('canvas').count();
-            const geometry=await page.evaluate(()=>window.__qingmingLoadedModels.map(x=>({label:x.label,size:[x.size.x,x.size.y,x.size.z],minY:x.bounds.min.y,rotationY:x.rotationY,centerX:(x.bounds.min.x+x.bounds.max.x)/2,centerZ:(x.bounds.min.z+x.bounds.max.z)/2,expectedPosition:x.expectedPosition,appliedScale:x.appliedScale})));
-            const result={status,canvas,geometry,cdnResponses:loaded,errors};
-            console.log('SMOKE_RESULT '+JSON.stringify(result));
-            await page.screenshot({path:'./qingming-live-smoke.png',fullPage:false,timeout:60000,animations:'disabled'});
-            if(canvas!==1)throw new Error('Expected one WebGL canvas');
-            if(geometry.length!==6)throw new Error('Expected six parsed GLB models, got '+geometry.length);
-            for(const x of geometry){if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid model dimensions: '+x.label);if(Math.abs(x.minY-x.expectedPosition[1])>0.05)throw new Error('Ground contact changed: '+x.label);if(Math.abs(x.centerX-x.expectedPosition[0])>0.05||Math.abs(x.centerZ-x.expectedPosition[2])>0.05)throw new Error('Model placement changed: '+x.label);if(!(x.appliedScale>0&&Number.isFinite(x.appliedScale)))throw new Error('Invalid applied scale: '+x.label);}
-            if(loaded.filter(x=>x.status===200).length<6)throw new Error('Not all six CDN GLBs returned HTTP 200');
-            const rainbow=geometry.find(x=>x.label==='虹桥'); if(!rainbow||rainbow.size[2]<12)throw new Error('Rainbow bridge does not span the river');
-            const stone=geometry.find(x=>x.label==='石拱桥'); const expectedStoneYaw=Math.PI/2-Math.atan((3.8*Math.PI/48)+(1.2*Math.PI/24)); if(!stone||Math.abs(stone.rotationY-expectedStoneYaw)>.01||stone.size[2]<12)throw new Error('Stone bridge is not oriented across the curved river');
-            const catalogResult=await page.evaluate(()=>({count:window.__qingmingCatalogModels.length,results:window.__qingmingCatalogModels.map(item=>({id:item.id,scale:item.appliedScale,rotationY:item.rotationY,minY:item.bounds.min.y,size:[item.size.x,item.size.y,item.size.z],position:item.position}))}));
-            console.log('CATALOG_RESULT '+JSON.stringify(catalogResult));
-            if(catalogResult.count!==16)throw new Error('Expected 16 measured catalog assets, got '+catalogResult.count);
-            const batch3=await page.evaluate(()=>window.__qingmingBatch3Models.map(item=>({id:item.id,size:[item.size.x,item.size.y,item.size.z],minY:item.bounds.min.y,position:item.position,scale:item.appliedScale})));
-            console.log('BATCH3_RESULT '+JSON.stringify(batch3));
-            if(batch3.length!==18)throw new Error('Expected 18 placed batch3 instances, got '+batch3.length);
-            for(const id of ['ground','river','shopfront-fabric-awning','paper-lantern','barrels-set','ceramics-set'])if(!batch3.some(x=>x.id===id))throw new Error('Missing batch3 model: '+id);
-            if(batch3.some(x=>!x.size.every(v=>Number.isFinite(v))))throw new Error('Non-finite batch3 bounds');
-            const bend=await page.evaluate(()=>window.__qingmingWorldLayout && (3.8*Math.sin(Math.PI*24/48)+1.2*Math.sin(Math.PI*24/24))); if(!(bend>3.5))throw new Error('Bian River is still straight or its bend is too subtle');
-            for(const x of catalogResult.results){if(!(x.scale>0&&Number.isFinite(x.scale)))throw new Error('Invalid catalog scale: '+x.id);if(!x.size.every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid catalog dimensions: '+x.id);if(Math.abs(x.minY-x.position[1])>0.05)throw new Error('Catalog model not grounded: '+x.id);}
-            await page.evaluate(()=>window.__qingmingGame.openShop(0));
-            if(await page.locator('#trade-panel').isHidden())throw new Error('Market stall did not open');
-            const beforeTrade=await page.evaluate(()=>window.__qingmingGame.getMarketState().coins);
-            await page.locator('#trade-content button').first().click();
-            const afterTrade=await page.evaluate(()=>window.__qingmingGame.getMarketState().coins);
-            if(afterTrade!==beforeTrade-2)throw new Error('Buying tea did not deduct the correct amount');
-            await page.evaluate(()=>window.__qingmingGame.openNpc('boatman'));
-            if(!(await page.locator('#trade-title').innerText()).includes('船夫'))throw new Error('NPC conversation did not open');
-            if(errors.length)throw new Error('Browser errors detected: '+errors.join(' | '));
+            const page=await browser.newPage({viewport:{width:1280,height:800}});
+            page.on('pageerror',e=>errors.push(e.message));
+            await page.goto('https://qingming-riverside-2wq.pages.dev/',{waitUntil:'networkidle'});
+            await page.waitForTimeout(700);
+            if(!(await page.title()).includes('像素市井'))throw new Error('Pixel game title missing');
+            if(await page.locator('canvas').count()!==1)throw new Error('Canvas missing');
+            const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('bianhe-pixel-save')).x);
+            await page.keyboard.down('d');await page.waitForTimeout(700);await page.keyboard.up('d');
+            const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('bianhe-pixel-save')).x);
+            if(!(after>before))throw new Error('Keyboard movement failed');
+            await page.locator('#bag').click();
+            if(await page.locator('#panel').isHidden())throw new Error('Inventory panel did not open');
+            await page.locator('#close').click();
+            await page.locator('#orders').click();
+            if(await page.locator('#panel').isHidden())throw new Error('Orders panel did not open');
+            await page.locator('#close').click();
+            await page.screenshot({path:'pixel-game-desktop.png'});
+            const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+            await mobile.goto('https://qingming-riverside-2wq.pages.dev/',{waitUntil:'networkidle'});
+            if(await mobile.locator('#mobile').isHidden())throw new Error('Mobile joystick is hidden');
+            await mobile.screenshot({path:'pixel-game-mobile.png'});
+            if(errors.length)throw new Error(errors.join(' | '));
+            console.log('PIXEL_GAME_SMOKE_OK '+JSON.stringify({title:await page.title(),desktopCanvas:await page.locator('canvas').count(),mobileJoystick:await mobile.locator('#mobile').isVisible(),movement:{before,after},errors}));
             await browser.close();
-          })().catch(e=>{console.error(e);process.exit(1);});
+          })().catch(e=>{console.error(e);process.exit(1)});
           JS
-          node ./smoke.cjs
-      - name: Upload live scene screenshot
+          node smoke.cjs
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: qingming-live-scene-smoke
-          path: |
-            qingming-live-smoke.png
-            reference-jpgs/
+          name: qingming-pixel-game-smoke
+          path: pixel-game-*.png
           if-no-files-found: ignore
           retention-days: 7

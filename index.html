@@ -34,7 +34,7 @@ const world={buildings:[],obstacles:[],decor:[],npcs:[],customers:[],boats:[],fi
 const state={x:39,y:39,coins:120,rep:0,energy:100,day:1,minute:480,inventory:{},stock:{},price:1,stallOpen:false,stallSales:0,level:1,quests:[],done:[],daily:null,weather:'晴',seed:14,fishCaught:0,upgrade:0,story:0,unlocked:1,step:0};
 try{const old=JSON.parse(localStorage.getItem('bianhe-life-save'));if(old&&old.inventory)Object.assign(state,old)}catch{}
 function save(){try{localStorage.setItem('bianhe-life-save',JSON.stringify(state))}catch{};sync()}
-function sync(){ui.coin.textContent=state.coins;ui.rep.textContent=state.rep;ui.energy.textContent=Math.floor(state.energy);state.level=1+Math.floor(state.rep/60);ui.lv.textContent=state.level;ui.date.textContent='春 · 初'+['一','二','三','四','五','六','七','八','九','十'][Math.min(9,(state.day-1)%10)]+' '+clock();ui.weather.textContent=state.weather+' · '+(state.stallOpen?'摊位营业中':'市集正热闹')}
+window.__bianheState=state;\nfunction sync(){ui.coin.textContent=state.coins;ui.rep.textContent=state.rep;ui.energy.textContent=Math.floor(state.energy);state.level=1+Math.floor(state.rep/60);ui.lv.textContent=state.level;ui.date.textContent='春 · 初'+['一','二','三','四','五','六','七','八','九','十'][Math.min(9,(state.day-1)%10)]+' '+clock();ui.weather.textContent=state.weather+' · '+(state.stallOpen?'摊位营业中':'市集正热闹')}
 function clock(){return String(Math.floor(state.minute/60)%24).padStart(2,'0')+':'+String(Math.floor(state.minute)%60).padStart(2,'0')}
 function rand(){state.seed=(state.seed*1664525+1013904223)>>>0;return state.seed/4294967296}
 function toast(s){ui.toast.textContent=s;ui.toast.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>ui.toast.style.opacity=0,1800)}
@@ -75,7 +75,7 @@ function buildCity(){
 buildCity();
 const player={x:state.x,y:state.y,dir:0,walk:0,frame:0};
 const camera={x:0,y:0};
-function collides(x,y){const r={x:x-.25,y:y-.2,w:.5,h:.35};return world.obstacles.some(o=>r.x<o.x+o.w&&r.x+r.w>o.x&&r.y<o.y+o.h&&r.y+r.h>o.y)}
+function collides(x,y){const r={x:x-.25,y:y-.2,w:.5,h:.35};const blocked=world.obstacles.some(o=>r.x<o.x+o.w&&r.x+r.w>o.x&&r.y<o.y+o.h&&r.y+r.h>o.y);const riverY=24+Math.sin(x*.12)*1.1;const inWater=y>riverY+.25&&y<riverY+4.75;const onBridge=world.bridges.some(b=>x>b.x-.1&&x<b.x+b.w+.1&&y>b.y-.1&&y<b.y+b.h+.1);return blocked||(inWater&&!onBridge)}
 function move(dx,dy,dt){const speed=(keys.shift?4.4:2.65)*(state.energy<12?.78:1);if(keys.shift&&state.energy>0)state.energy=Math.max(0,state.energy-dt*8);else state.energy=Math.min(100,state.energy+dt*2.1);const nx=player.x+dx*speed*dt,ny=player.y+dy*speed*dt;if(!collides(nx,player.y))player.x=nx;if(!collides(player.x,ny))player.y=ny;player.x=Math.max(1,Math.min(MW-2,player.x));player.y=Math.max(1,Math.min(MH-2,player.y));if(Math.abs(dx)+Math.abs(dy)>.01){player.walk+=dt*9;player.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0)}state.x=player.x;state.y=player.y}
 function tile(x,y,c){rect(x*T,y*T,T,T,c)}
 function drawGround(){
@@ -158,7 +158,7 @@ function updateCustomers(dt){for(let i=world.customers.length-1;i>=0;i--){const 
 function newDay(){state.day++;state.minute=420;state.energy=100;state.weather=['晴','薄雾','小雨','晴','微风'][Math.floor(rand()*5)];state.daily={prices:{},demand:{}};items.forEach(i=>{state.daily.prices[i.id]=.78+rand()*.55;state.daily.demand[i.id]=.8+rand()*.7});generateOrders();if(state.day%3===0)state.coins+=25;state.stallOpen=false;save();toast('新的一天！行会送来新的商约。')}
 function update(dt){state.step++;state.minute+=dt*1.45; // one game day ~ 11 real minutes
  if(state.minute>=1110){newDay()}if(state.minute%4<dt*1.45){state.energy=Math.min(100,state.energy+.3)}
- if(state.stallOpen&&state.step%170===0)spawnCustomer();updateCustomers(dt);
+ if(state.stallOpen&&state.step%170===0)spawnCustomer();state.quests.forEach(q=>{if(!q.done&&state.minute>q.deadline){q.done=true;toast('一笔商约逾期，行会已撤单')}});updateCustomers(dt);
  world.npcs.forEach(n=>{n.phase+=dt*n.speed;const nx=n.homeX+Math.sin(n.phase)*1.8,ny=n.homeY+Math.cos(n.phase*.7)*.9;if(!collides(nx,ny)){n.x=nx;n.y=ny}});
  if(state.step%90===0)sync();
 }

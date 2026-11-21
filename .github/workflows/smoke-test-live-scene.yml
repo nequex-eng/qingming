@@ -33,7 +33,7 @@ jobs:
             page.on('pageerror',e=>errors.push(e.message));
             await page.goto('https://qingming-riverside-2wq.pages.dev/',{waitUntil:'networkidle'});
             await page.waitForTimeout(700);
-            if(!(await page.title()).includes('像素市井'))throw new Error('Pixel game title missing');
+            if(!(await page.title()).includes('烟火人间'))throw new Error('Pixel game title missing');
             if(await page.locator('canvas').count()!==1)throw new Error('Canvas missing');
             const before=await page.evaluate(()=>window.__bianheState.x);
             await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{key:'d'})));await page.waitForTimeout(1000);await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{key:'d'})));
@@ -42,8 +42,11 @@ jobs:
             await page.locator('#bag').click();
             if(await page.locator('#panel').isHidden())throw new Error('Inventory panel did not open');
             await page.locator('#close').click();
-            await page.locator('#orders').click();
-            if(await page.locator('#panel').isHidden())throw new Error('Orders panel did not open');
+            await page.locator('#journal').click();
+            if(await page.locator('#panel').isHidden())throw new Error('Business journal did not open');
+            await page.locator('#close').click();
+            await page.locator('#stall').click();
+            if(await page.locator('#panel').isHidden())throw new Error('Stall management did not open');
             await page.locator('#close').click();
             await page.screenshot({path:'pixel-game-desktop.png'});
             const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
@@ -51,7 +54,7 @@ jobs:
             if(await mobile.locator('#mobile').isHidden())throw new Error('Mobile joystick is hidden');
             await mobile.screenshot({path:'pixel-game-mobile.png'});
             if(errors.length)throw new Error(errors.join(' | '));
-            console.log('PIXEL_GAME_SMOKE_OK '+JSON.stringify({title:await page.title(),desktopCanvas:await page.locator('canvas').count(),mobileJoystick:await mobile.locator('#mobile').isVisible(),movement:{before,after},errors}));
+            console.log('BIANJING_LIFE_SMOKE_OK '+JSON.stringify({title:await page.title(),desktopCanvas:await page.locator('canvas').count(),mobileJoystick:await mobile.locator('#mobile').isVisible(),movement:{before,after},errors}));
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS

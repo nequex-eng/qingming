@@ -35,7 +35,7 @@ jobs:
             await page.waitForTimeout(700);
             if(!(await page.title()).includes('像素市井'))throw new Error('Pixel game title missing');
             if(await page.locator('canvas').count()!==1)throw new Error('Canvas missing');
-            const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('bianhe-pixel-save')).x);
+            const before=await page.evaluate(()=>window.__bianheState.x);
             await page.keyboard.down('d');await page.waitForTimeout(700);await page.keyboard.up('d');
             const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('bianhe-pixel-save')).x);
             if(!(after>before))throw new Error('Keyboard movement failed');

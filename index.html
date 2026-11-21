@@ -1,105 +1,175 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#172b2a"><title>汴河小日子 · 像素市井</title>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#172b2a"><title>汴京：烟火人间</title>
 <style>
-:root{color-scheme:dark;--ink:#f2e7c9;--muted:#b4b99c;--gold:#f0c66d;--panel:#172b2aee;--line:#71816b}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#142827;color:var(--ink);font-family:ui-monospace,"SFMono-Regular",Consolas,"PingFang SC",monospace;touch-action:none}
-#game{position:fixed;inset:0;display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
-#top{position:fixed;top:env(safe-area-inset-top,8px);left:10px;right:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;pointer-events:none}
-.brand,.stats,.dock,.panel{background:var(--panel);border:2px solid var(--line);box-shadow:4px 4px 0 #091716aa}
-.brand{padding:7px 10px;font-size:12px;line-height:1.5}.brand b{color:var(--gold);font-size:14px}
-.stats{display:flex;gap:12px;padding:8px 10px;font-size:12px;flex-wrap:wrap;justify-content:flex-end}
-#bottom{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;justify-content:space-between;align-items:end;pointer-events:none}
-#bottom>*{pointer-events:auto}
-.dock{display:flex;gap:5px;padding:5px}
-button{font:inherit;color:var(--ink);background:#314c43;border:2px solid #829477;padding:8px 10px;cursor:pointer;box-shadow:2px 2px 0 #091716}
-button:active{transform:translate(2px,2px);box-shadow:none}button.primary{background:#8b6336;border-color:#d8b36b;color:#fff1c9}
-#hint{font-size:11px;color:#f7e9c3;background:#172b2ae8;border:2px solid #71816b;padding:8px 10px;max-width:45vw}
-.panel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,calc(100vw - 28px));max-height:min(76vh,620px);overflow:auto;padding:14px;z-index:4}
-.panel h2{font-size:16px;color:var(--gold);margin:0 0 10px}.panel p{font-size:12px;line-height:1.7;color:var(--muted)}
-.item{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px dashed #71816b;padding:9px 0;font-size:12px}.item small{display:block;color:var(--muted);margin-top:3px}
-.close{float:right;padding:3px 8px}.bar{height:8px;background:#394b40;margin:6px 0 10px}.bar i{display:block;height:100%;background:#e3b95e}
-#toast{position:fixed;top:23%;left:50%;transform:translateX(-50%);background:#172b2aee;border:2px solid var(--gold);padding:9px 14px;font-size:12px;z-index:6;opacity:0;transition:opacity .2s;pointer-events:none}
-#mobile{display:none;position:fixed;left:15px;bottom:calc(env(safe-area-inset-bottom,0px) + 82px);width:112px;height:112px;border:2px solid #d9d1a477;border-radius:50%;background:#172b2a77;touch-action:none}
-#stick{position:absolute;left:50%;top:50%;width:42px;height:42px;transform:translate(-50%,-50%);border-radius:50%;background:#e8d39c;border:2px solid #455b49}
-@media(max-width:700px){#mobile{display:block}.brand{font-size:10px}.stats{font-size:10px;gap:7px;padding:7px}.dock button{font-size:10px;padding:8px 7px}#hint{display:none}}
+:root{--ink:#f5e9ce;--muted:#c5b895;--gold:#efc66f;--panel:#182c2aee;--line:#8c8b69}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#172b2a;color:var(--ink);font-family:ui-monospace,"SFMono-Regular",Consolas,"PingFang SC",monospace;touch-action:none}canvas{position:fixed;inset:0;width:100%;height:100%;image-rendering:pixelated}
+#hud{position:fixed;inset:10px 12px auto;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}.plate,.panel,.toolbar{background:var(--panel);border:2px solid var(--line);box-shadow:4px 4px 0 #081714aa}.plate{padding:8px 11px;font-size:11px;line-height:1.6}.plate b{color:var(--gold)}#brand{font-size:13px;font-weight:bold;color:var(--gold)}#meters{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}.meter{white-space:nowrap}
+#bottom{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;justify-content:space-between;align-items:end;pointer-events:none}#bottom>*{pointer-events:auto}.toolbar{display:flex;gap:5px;padding:5px}button{font:inherit;font-size:11px;color:var(--ink);background:#345047;border:2px solid #9a9a70;padding:8px 10px;cursor:pointer;box-shadow:2px 2px 0 #091714}button:active{transform:translate(2px,2px);box-shadow:none}button.gold{background:#8b6034;border-color:#e3bd70}button:disabled{opacity:.4;cursor:not-allowed}#hint{font-size:11px;background:#182c2ae8;border:2px solid var(--line);padding:8px 10px;max-width:40vw}
+.panel{position:fixed;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 24px));max-height:min(80vh,680px);overflow:auto;padding:15px}.panel h2{margin:0 0 6px;color:var(--gold);font-size:17px}.panel p{font-size:12px;line-height:1.7;color:var(--muted)}.panel .sub{font-size:10px;color:var(--muted)}.close{float:right;padding:3px 9px}.rowitem{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px dashed #7d8267;padding:9px 0;font-size:12px}.rowitem small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.rowitem button{white-space:nowrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tilecard{background:#294039;border:1px solid #788468;padding:10px;font-size:11px}.tilecard b{color:var(--gold)}.progress{height:7px;background:#435249;margin:7px 0}.progress i{display:block;height:100%;background:#e6bc64}.tag{display:inline-block;padding:3px 6px;background:#665338;color:#ffe6a8;font-size:10px;margin:2px}.barline{height:1px;background:#77816a;margin:10px 0}
+#toast{position:fixed;z-index:9;top:22%;left:50%;transform:translateX(-50%);background:#182c2aee;border:2px solid var(--gold);padding:10px 14px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:85vw;text-align:center}
+#mobile{display:none;position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 82px);width:116px;height:116px;border:2px solid #d9d1a477;border-radius:50%;background:#172b2a77;touch-action:none}#stick{position:absolute;left:50%;top:50%;width:42px;height:42px;transform:translate(-50%,-50%);border-radius:50%;background:#e8d39c;border:2px solid #455b49}
+#action{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);display:none}
+@media(max-width:700px){#mobile{display:block}.plate{font-size:9px;padding:6px 8px}#brand{font-size:11px}#meters{gap:6px;max-width:65vw}.toolbar button{font-size:10px;padding:8px 7px}#hint{display:none}.panel{padding:12px}}
 </style></head><body>
-<canvas id="game" aria-label="汴河像素市井游戏"></canvas>
-<div id="top"><div class="brand"><b>汴河小日子</b><br><span id="day">开封 · 第1日</span></div><div class="stats"><span>铜钱 <b id="coins">80</b></span><span>名望 <b id="rep">0</b></span><span>等级 <b id="level">1</b></span></div></div>
-<div id="bottom"><div class="dock"><button id="bag">行囊</button><button id="orders">委托</button><button id="map">地图</button></div><div id="hint">走近摊位、人物或码头，按 E 互动</div><div class="dock"><button class="primary" id="act">互动 E</button></div></div>
-<div id="mobile"><div id="stick"></div></div><div id="toast"></div><section id="panel" class="panel" hidden></section>
+<canvas id="game"></canvas>
+<div id="hud"><div class="plate"><div id="brand">汴京 · 烟火人间</div><span id="date">春 · 初一 08:00</span><br><span id="weather">晴 · 市集正热闹</span></div><div class="plate" id="meters"><span class="meter">铜钱 <b id="coin">120</b></span><span class="meter">声望 <b id="rep">0</b></span><span class="meter">体力 <b id="energy">100</b></span><span class="meter">等级 <b id="lv">1</b></span></div></div>
+<div id="bottom"><div class="toolbar"><button id="bag">行囊</button><button id="journal">生意簿</button><button id="mapbtn">街巷图</button></div><div id="hint">WASD / 方向键移动 · E 互动 · 空格奔跑</div><div class="toolbar"><button id="stall" class="gold">摆摊</button><button id="interact" class="gold">互动 E</button></div></div>
+<div id="mobile"><div id="stick"></div></div><button id="action" class="gold">互动</button><div id="toast"></div><section id="panel" class="panel" hidden></section>
 <script>
-(()=>{
-const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d',{alpha:false});
-const W=480,H=270;canvas.width=W;canvas.height=H;ctx.imageSmoothingEnabled=false;
-const $=s=>document.querySelector(s),ui={coins:$('#coins'),rep:$('#rep'),level:$('#level'),day:$('#day'),panel:$('#panel'),toast:$('#toast')};
-const goods=[['茶叶',5,8],['瓷碗',8,13],['丝绸',14,23],['香料',11,18],['药材',9,15],['河鲜',6,11]];
-const shops=[{name:'茶摊',x:13,y:29,kind:'shop',stock:[0,5]},{name:'瓷器铺',x:22,y:32,kind:'shop',stock:[1]},{name:'绸缎庄',x:32,y:29,kind:'shop',stock:[2]},{name:'香料铺',x:41,y:32,kind:'shop',stock:[3,4]},{name:'鱼市',x:51,y:29,kind:'shop',stock:[5]}];
-const people=[{name:'老船夫',x:25,y:19,kind:'npc',line:'今早上游来了一船好茶，价钱还没涨。'},{name:'货郎阿福',x:37,y:36,kind:'npc',line:'走南闯北，消息灵通。想打听行情？'},{name:'说书先生',x:47,y:20,kind:'npc',line:'汴京城里每天都有新鲜事，坐下听一段？'},{name:'码头管事',x:8,y:23,kind:'npc',line:'帮我把货送到街市，少不了你的好处。'}];
-const state={x:29,y:34,coins:80,rep:0,day:1,inventory:{},level:1,streak:0,lastDate:'',quests:[],completed:[],prices:goods.map(g=>g[1]),step:0};
-try{const saved=JSON.parse(localStorage.getItem('bianhe-pixel-save'));if(saved&&saved.inventory)Object.assign(state,saved)}catch{}
-function save(){localStorage.setItem('bianhe-pixel-save',JSON.stringify(state));sync()}
-window.__bianheState=state;
-addEventListener('pagehide',()=>{try{localStorage.setItem('bianhe-pixel-save',JSON.stringify(state))}catch{}});
-function sync(){ui.coins.textContent=state.coins;ui.rep.textContent=state.rep;state.level=1+Math.floor(state.rep/35);ui.level.textContent=state.level;ui.day.textContent='开封 · 第'+state.day+'日'}
-let audio=null,ambience=null;
-function startAudio(){if(audio)return;try{audio=new (window.AudioContext||window.webkitAudioContext)();const n=audio.sampleRate*3,b=audio.createBuffer(1,n,audio.sampleRate),d=b.getChannelData(0);let v=0;for(let i=0;i<n;i++){v=(v+(Math.random()*2-1)*.012)*.992;d[i]=v}const src=audio.createBufferSource();src.buffer=b;src.loop=true;const filter=audio.createBiquadFilter();filter.type='lowpass';filter.frequency.value=430;const gain=audio.createGain();gain.gain.value=.035;src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();ambience={src,gain};}catch(e){}}
-function chime(freq=620){if(!audio)return;const o=audio.createOscillator(),g=audio.createGain();o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(.035,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.09);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.1)}
-addEventListener('pointerdown',startAudio,{once:true});addEventListener('keydown',startAudio,{once:true});
-function toast(s){chime();ui.toast.textContent=s;ui.toast.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>ui.toast.style.opacity=0,1500)}
+(()=>{'use strict';
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d',{alpha:false}),$=s=>document.querySelector(s);
+const VW=640,VH=360,T=16,MW=80,MH=54;
+canvas.width=VW;canvas.height=VH;ctx.imageSmoothingEnabled=false;
+const ui={coin:$('#coin'),rep:$('#rep'),energy:$('#energy'),lv:$('#lv'),date:$('#date'),weather:$('#weather'),panel:$('#panel'),toast:$('#toast')};
+const items=[
+ {id:'tea',name:'雨前茶',icon:'🍵',base:9,buy:10,desc:'清香回甘，文人最爱'},
+ {id:'fish',name:'鲜河鱼',icon:'🐟',base:8,buy:9,desc:'清早打捞，午后难卖'},
+ {id:'silk',name:'蜀锦',icon:'🧵',base:24,buy:25,desc:'远道而来的精细织物'},
+ {id:'porcelain',name:'青瓷碗',icon:'🏺',base:16,buy:17,desc:'龙泉窑口，易碎贵重'},
+ {id:'spice',name:'西域香料',icon:'🌶',base:18,buy:19,desc:'胡商带来的稀罕货'},
+ {id:'herb',name:'当归药材',icon:'🌿',base:12,buy:13,desc:'药铺常年收购'}
+];
+const locations={tea:{x:15,y:19},fish:{x:24,y:13},silk:{x:44,y:21},porcelain:{x:55,y:18},spice:{x:65,y:25},herb:{x:34,y:34}};
+const world={buildings:[],obstacles:[],decor:[],npcs:[],customers:[],boats:[],fishSpots:[]};
+const state={x:39,y:39,coins:120,rep:0,energy:100,day:1,minute:480,inventory:{},stock:{},price:1,stallOpen:false,stallSales:0,level:1,quests:[],done:[],daily:null,weather:'晴',seed:14,fishCaught:0,upgrade:0,story:0,unlocked:1,step:0};
+try{const old=JSON.parse(localStorage.getItem('bianhe-life-save'));if(old&&old.inventory)Object.assign(state,old)}catch{}
+function save(){try{localStorage.setItem('bianhe-life-save',JSON.stringify(state))}catch{};sync()}
+function sync(){ui.coin.textContent=state.coins;ui.rep.textContent=state.rep;ui.energy.textContent=Math.floor(state.energy);state.level=1+Math.floor(state.rep/60);ui.lv.textContent=state.level;ui.date.textContent='春 · 初'+['一','二','三','四','五','六','七','八','九','十'][Math.min(9,(state.day-1)%10)]+' '+clock();ui.weather.textContent=state.weather+' · '+(state.stallOpen?'摊位营业中':'市集正热闹')}
+function clock(){return String(Math.floor(state.minute/60)%24).padStart(2,'0')+':'+String(Math.floor(state.minute)%60).padStart(2,'0')}
+function rand(){state.seed=(state.seed*1664525+1013904223)>>>0;return state.seed/4294967296}
+function toast(s){ui.toast.textContent=s;ui.toast.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>ui.toast.style.opacity=0,1800)}
 function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
-function text(s,x,y,c='#f5e9c7'){ctx.fillStyle=c;ctx.font='8px monospace';ctx.fillText(s,x,y)}
-function tile(x,y,c){rect(x*8,y*8,8,8,c)}
-function drawWorld(){
- rect(0,0,W,H,'#78906a');
- for(let y=0;y<40;y++)for(let x=0;x<60;x++){const n=(x*13+y*7)%11;tile(x,y,n<2?'#84986d':n<5?'#7c9165':'#81956b');if(n===0){rect(x*8+2,y*8+3,1,1,'#b1a26d')}}
- // winding river
- for(let x=0;x<60;x++){const bend=Math.sin(x*.18)*1.7;for(let y=14;y<23;y++){const yy=y+bend;tile(x,Math.floor(yy),y%2?'#477f82':'#528b8a');if(y===14||y===22)rect(x*8,Math.floor(yy)*8,8,2,'#b5a274')}}
- for(let x=0;x<60;x+=3){const y=17+Math.sin(x*.18)*1.7;rect(x*8+2,y*8,8,1,'#8ab0a0')}
- // bridges
- for(const bx of [24,44]){rect(bx*8-5,105,10,70,'#6d5740');for(let n=0;n<7;n++)rect(bx*8-8+n*2,104-n%2,2,72,'#ad8a59');rect(bx*8-10,102,20,4,'#d2b57c')}
- // market street, paths
- rect(0,205,480,12,'#b39a6a');rect(0,218,480,2,'#d0b783');
- // buildings and trees
- for(let i=0;i<9;i++){const x=i*58-3;rect(x,0,28,62,'#9b7753');rect(x-3,5,34,20,'#765143');rect(x+2,8,24,14,'#b56d4b');rect(x+7,28,12,22,'#514b3b');rect(x+3,57,22,4,'#d1b47a')}
- for(let i=0;i<16;i++){const x=(i*37+11)%480,y=(i*53+18)%245;if(y<95||y>180){rect(x,y,3,8,'#694c36');rect(x-5,y-8,13,9,i%2?'#466d4c':'#54794e');rect(x-2,y-11,7,5,'#72905c')}}
- // stalls
- shops.forEach((s,i)=>{const x=s.x*8,y=s.y*8;rect(x-12,y-7,25,18,'#6b4937');rect(x-14,y-11,29,6,i%2?'#b45d45':'#d0a65e');rect(x-10,y-5,20,2,'#e1c58b');rect(x-8,y+1,5,4,'#d4b56e');rect(x+3,y+1,5,4,'#a8a36d');text(s.name,x-12,y-14,'#fff0c9')});
- // docks / boats
- rect(48,128,80,8,'#98754d');rect(65,125,35,4,'#c49c61');rect(80,119,14,6,'#76503a');rect(84,112,2,10,'#594b38');rect(86,113,15,6,'#bd9a5c');
- for(let i=0;i<3;i++){const x=300+i*68;rect(x,140+i%2*7,35,7,'#78533a');rect(x+8,134+i%2*7,16,6,'#b58b55');rect(x+15,128+i%2*7,2,9,'#624a36')}
+function txt(s,x,y,c='#f4e8c9',font='9px monospace'){ctx.fillStyle=c;ctx.font=font;ctx.fillText(s,Math.round(x),Math.round(y))}
+function box(x,y,w,h,c,edge='#392f26'){rect(x,y,w,h,c);rect(x,y,w,2,edge);rect(x,y+h-2,w,2,edge)}
+function addObstacle(x,y,w,h){world.obstacles.push({x,y,w,h})}
+function buildCity(){
+ // bank and river are tile zones; roads form a walkable commercial grid
+ const buildings=[
+  [5,4,12,8,'tea','茶坊','茶'],[21,3,12,9,'silk','锦绣庄','锦'],[40,4,13,8,'porcelain','青瓷坊','瓷'],[59,4,13,9,'spice','香料行','香'],
+  [7,34,13,9,'herb','同仁药铺','药'],[25,38,13,8,'inn','悦来客栈','客'],[47,36,13,9,'guild','行会','会'],[66,36,10,8,'home','民居','家']
+ ];
+ for(const [x,y,w,h,type,name,sign] of buildings){world.buildings.push({x,y,w,h,type,name,sign});addObstacle(x,y,w,h)}
+ // river band and bridge piers
+ for(let x=0;x<MW;x++){const cy=24+Math.sin(x*.12)*1.1;world.decor.push({type:'water',x,y:Math.floor(cy),w:1,h:5})}
+ // banks + two bridges are walkable crossing strips
+ world.bridges=[{x:18,y:23,w:5,h:7},{x:54,y:23,w:5,h:7}];
+ for(const b of world.bridges){world.obstacles=world.obstacles.filter(o=>!(o.y<29&&o.y+o.h>23&&o.x<b.x+b.w&&o.x+o.w>b.x))}
+ // street market awnings
+ world.stalls=[
+  {x:13,y:15,name:'早茶摊',kind:'shop',goods:['tea','fish']},
+  {x:29,y:16,name:'鱼鲜铺',kind:'shop',goods:['fish','herb']},
+  {x:38,y:31,name:'行商货栈',kind:'market',goods:['tea','silk','porcelain','spice','herb','fish']},
+  {x:49,y:16,name:'绸缎摊',kind:'shop',goods:['silk','porcelain']},
+  {x:65,y:17,name:'胡商香料',kind:'shop',goods:['spice','herb']}
+ ];
+ world.stalls.forEach(s=>{addObstacle(s.x,s.y,s.x===38?3:2,1)});
+ world.fishSpots=[{x:9,y:27},{x:31,y:27},{x:70,y:29}];
+ // decorative trees, lamps, barrels, crates
+ for(let i=0;i<75;i++){let x=2+Math.floor(rand()*75),y=2+Math.floor(rand()*49);if((y>22&&y<31)||world.buildings.some(b=>x>=b.x-1&&x<=b.x+b.w&&y>=b.y-1&&y<=b.y+b.h)||world.stalls.some(s=>Math.abs(x-s.x)<3&&Math.abs(y-s.y)<3))continue;world.decor.push({type:rand()>.48?'tree':'crate',x,y})}
+ for(let x=4;x<77;x+=8)world.decor.push({type:'lamp',x,y:31});
+ // townsfolk with routes
+ const folk=[['阿福',11,20,'merchant'],['小满',27,19,'child'],['王婆',35,33,'elder'],['赵掌柜',45,30,'merchant'],['船夫',13,29,'boatman'],['说书人',60,31,'story'],['巡街差役',73,31,'guard']];
+ folk.forEach((p,i)=>world.npcs.push({name:p[0],x:p[1],y:p[2],homeX:p[1],homeY:p[2],kind:p[3],phase:rand()*6.28,speed:.35+rand()*.3,dialogue:i}));
+ for(let i=0;i<8;i++)world.boats.push({x:rand()*75,y:24+rand()*4,phase:rand()*6.28,speed:.3+rand()*.4});
 }
-function drawPerson(x,y,color,hat=false){const sx=Math.round(x*8),sy=Math.round(y*8);rect(sx-3,sy-7,7,8,color);rect(sx-2,sy-12,5,5,'#d6a77b');rect(sx-3,sy-14,7,2,hat?'#423d35':'#8d6444');rect(sx-2,sy+1,2,4,'#443d35');rect(sx+1,sy+1,2,4,'#443d35')}
+buildCity();
+const player={x:state.x,y:state.y,dir:0,walk:0,frame:0};
+const camera={x:0,y:0};
+function collides(x,y){const r={x:x-.25,y:y-.2,w:.5,h:.35};return world.obstacles.some(o=>r.x<o.x+o.w&&r.x+r.w>o.x&&r.y<o.y+o.h&&r.y+r.h>o.y)}
+function move(dx,dy,dt){const speed=(keys.shift?4.4:2.65)*(state.energy<12?.78:1);if(keys.shift&&state.energy>0)state.energy=Math.max(0,state.energy-dt*8);else state.energy=Math.min(100,state.energy+dt*2.1);const nx=player.x+dx*speed*dt,ny=player.y+dy*speed*dt;if(!collides(nx,player.y))player.x=nx;if(!collides(player.x,ny))player.y=ny;player.x=Math.max(1,Math.min(MW-2,player.x));player.y=Math.max(1,Math.min(MH-2,player.y));if(Math.abs(dx)+Math.abs(dy)>.01){player.walk+=dt*9;player.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0)}state.x=player.x;state.y=player.y}
+function tile(x,y,c){rect(x*T,y*T,T,T,c)}
+function drawGround(){
+ rect(0,0,MW*T,MH*T,'#718b61');
+ for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){let n=(x*17+y*29+(x*y)%13)%19;tile(x,y,n<2?'#7d9569':n<5?'#748c60':'#789064');if(n===0)rect(x*T+5,y*T+7,2,2,'#9fa476')}
+ // main roads
+ for(let y=30;y<35;y++)for(let x=0;x<MW;x++)tile(x,y,(x+y)%3?'#b59b6d':'#c1a879');
+ for(let x=0;x<MW;x++)for(let y=20;y<23;y++)tile(x,y,'#ad9467');
+ // river banks and water
+ for(let x=0;x<MW;x++){const cy=24+Math.sin(x*.12)*1.1;for(let yy=0;yy<5;yy++){const y=Math.floor(cy)+yy;tile(x,y,yy===0||yy===4?'#b8a276':(Math.floor(x/3+yy)%2?'#477e83':'#528d91'));if(yy===2&&x%4===0)rect(x*T+3,y*T+5,8,1,'#9bc0ad')}}
+ // paths to houses and bridges
+ for(let y=12;y<20;y++)tile(18,y,'#b9a16f');for(let y=12;y<20;y++)tile(54,y,'#b9a16f');
+ // bridge planks
+ for(const b of world.bridges){for(let x=b.x;x<b.x+b.w;x++){for(let y=b.y;y<b.y+b.h;y++){tile(x,y,'#9c754a');rect(x*T,y*T,T,2,'#c49c63');if(x===b.x||x===b.x+b.w-1)rect(x*T+2,y*T,2,T,'#6b5038')}}}
+}
+function drawBuilding(b){
+ const x=b.x*T,y=b.y*T,w=b.w*T,h=b.h*T;
+ // deep shadow, walls, foundation
+ rect(x+5,y+8,w,h,'#3e4537');rect(x,y+5,w,h,'#b58d62');rect(x+4,y+10,w-8,h-12,'#d4b786');
+ rect(x+4,y+10,w-8,4,'#896046');rect(x+8,y+18,7,h-22,'#a97d55');
+ // roof tiers
+ rect(x-9,y-1,w+18,12,'#57483b');rect(x-5,y-5,w+10,8,'#8c503e');rect(x-2,y-8,w+4,4,'#bd7650');
+ for(let xx=x+8;xx<x+w-5;xx+=24){rect(xx,y+17,8,14,'#4d5b50');rect(xx+2,y+19,4,10,'#91a18a')}
+ rect(x+w/2-8,y+h-23,16,23,'#62432f');rect(x+w/2-6,y+h-21,12,21,'#493a2e');
+ rect(x+w/2-15,y+h-31,30,8,'#523a2d');rect(x+w/2-12,y+h-29,24,4,'#e3c47d');
+ box(x+w/2-15,y+13,30,12,'#654634');txt(b.sign,x+w/2-4,y+22,'#f7d68b','bold 10px monospace');
+ rect(x+2,y+h-5,w-4,5,'#8c6849');
+}
+function drawStall(s){
+ const x=s.x*T,y=s.y*T;
+ rect(x-4,y+7,45,23,'#5a4937');rect(x-2,y+5,42,3,'#d0b078');
+ rect(x-7,y-4,49,11,'#a64f3d');for(let i=0;i<5;i++)rect(x-7+i*10,y-4,5,11,i%2?'#e0b968':'#a64f3d');
+ rect(x+4,y+10,7,6,'#e0c17d');rect(x+19,y+10,8,6,'#87a3a0');rect(x+31,y+10,7,6,'#b18b5c');
+ txt(s.name,x-5,y-8,'#fff0c5','bold 8px monospace');
+}
+function drawTree(d){const x=d.x*T,y=d.y*T;rect(x+6,y+10,5,12,'#76533a');rect(x-1,y+1,18,13,'#355d43');rect(x+2,y-4,13,12,'#49734b');rect(x+4,y,4,3,'#77905a');rect(x+11,y+5,3,3,'#78925a')}
+function drawPerson(x,y,color,kind,frame=0,dir=2){const px=x*T,py=y*T;rect(px-5,py+7,11,3,'#37443a');rect(px-4,py-3,9,12,color);rect(px-3,py-9,7,7,'#d6a477');rect(px-4,py-11,9,3,kind==='guard'?'#4a4d55':'#574537');rect(px-3,py+9,3,4,'#473d34');rect(px+1,py+9,3,4,'#473d34');if(frame%2>1)rect(px-6,py+1,2,5,color);if(kind==='guard')rect(px+5,py-3,2,11,'#d4b45f')}
 function draw(){
- drawWorld();
- shops.forEach(s=>drawPerson(s.x,s.y+1,'#a65f4c',true));people.forEach((p,i)=>drawPerson(p.x,p.y,i%2?'#526b8c':'#a65b49',true));
- // drifting boat pixels
- const boatX=(state.step*.025)%510-20;rect(boatX,151+Math.sin(state.step*.025)*2,30,5,'#6c4936');rect(boatX+8,146+Math.sin(state.step*.025)*2,12,5,'#c7a66b');
- drawPerson(state.x,state.y,'#365b89',true);
- // camera centered
- const px=state.x*8,py=state.y*8,ox=Math.max(0,Math.min(480-W,px-W/2)),oy=Math.max(0,Math.min(320-H,py-H/2));
- // draw into a camera buffer via translated scene redraw
- ctx.save();ctx.translate(-ox,-oy);
- drawWorld();shops.forEach(s=>drawPerson(s.x,s.y+1,'#a65f4c',true));people.forEach((p,i)=>drawPerson(p.x,p.y,i%2?'#526b8c':'#a65b49',true));
- const bx=(state.step*.025)%510-20;rect(bx,151+Math.sin(state.step*.025)*2,30,5,'#6c4936');rect(bx+8,146+Math.sin(state.step*.025)*2,12,5,'#c7a66b');
- drawPerson(state.x,state.y,'#365b89',true);
- ctx.restore();
- // subtle location marker
- const near=nearest();if(near){rect(226,220,28,1,'#f3d27a');text('!',238,215,'#ffe28d')}
+ drawGround();for(const d of world.decor){if(d.type==='tree')drawTree(d);else if(d.type==='crate'){rect(d.x*T,d.y*T,10,9,'#8b6340');rect(d.x*T+2,d.y*T+2,6,2,'#bd925c')}else if(d.type==='lamp'){rect(d.x*T+7,d.y*T,2,16,'#514a39');rect(d.x*T+3,d.y*T,10,5,'#e0c27b')}}
+ world.buildings.forEach(drawBuilding);world.stalls.forEach(drawStall);
+ // docks and fishing spots
+ rect(4*T,27*T,9*T,2*T,'#96754e');for(let i=0;i<3;i++)rect((5+i*3)*T,26*T,2,4*T,'#6b5039');
+ world.fishSpots.forEach((p,i)=>{rect(p.x*T,p.y*T,18,2,'#d5c18b');if(Math.sin(state.step*.06+i)>0)rect(p.x*T+7,p.y*T-4,3,3,'#d8e3b2')});
+ // moving boats
+ world.boats.forEach(b=>{const x=b.x*T+Math.sin(state.step*.004+b.phase)*14,y=b.y*T+Math.sin(state.step*.007+b.phase)*2;rect(x,y,42,8,'#6b4934');rect(x+8,y-7,25,7,'#b48c56');rect(x+19,y-16,2,12,'#594733');rect(x+22,y-14,13,10,'#e1d1a4')});
+ // townfolk and roaming shoppers
+ world.npcs.forEach(n=>drawPerson(n.x,n.y,n.kind==='guard'?'#53647b':n.kind==='child'?'#9c6650':'#6c8057',n.kind,Math.floor(state.step/8),2));
+ world.customers.forEach(c=>drawPerson(c.x,c.y,'#ad7351','customer',Math.floor(state.step/8),2));
+ // player shadow, sprite with directional details
+ rect(player.x*T-6,player.y*T+10,13,3,'#3d4938');drawPerson(player.x,player.y,'#3d6388','player',Math.floor(player.walk),player.dir);
+ // labels & interact ring
+ const target=nearest();if(target){const x=target.x*T-camera.x,y=target.y*T-camera.y;ctx.strokeStyle='#f1cf7a';ctx.lineWidth=1;ctx.strokeRect(x-10,y-18,34,32);txt('E',x+3,y-22,'#ffe39b','bold 11px monospace')}
+ // camera offset
 }
-function nearest(){let all=[...shops,...people],best=null,d=2.7;for(const o of all){const n=Math.hypot(o.x-state.x,o.y-state.y);if(n<d){d=n;best=o}}return best}
-function panel(title,body){ui.panel.innerHTML='<button class="close" id="close">×</button><h2>'+title+'</h2>'+body;ui.panel.hidden=false;$('#close').onclick=()=>ui.panel.hidden=true}
-function shopMenu(s){const goodsHtml=s.stock.map(id=>{const g=goods[id],p=state.prices[id];return '<div class="item"><span>'+g[0]+'<small>买入价 '+p+'文 · 行囊 '+(state.inventory[g[0]]||0)+'</small></span><span><button data-buy="'+id+'">买入</button> <button data-sell="'+id+'">卖出 '+Math.max(1,Math.floor(p*.72))+'</button></span></div>'}).join('');panel(s.name,'<p>货价随每日行情波动。低买高卖，攒出自己的第一间铺子。</p>'+goodsHtml+'<p>当前铜钱：'+state.coins+'文</p>');ui.panel.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const id=+b.dataset.buy,g=goods[id],p=state.prices[id];if(state.coins<p){toast('铜钱不够');return}state.coins-=p;state.inventory[g[0]]=(state.inventory[g[0]]||0)+1;state.rep+=1;save();shopMenu(s);toast('买到'+g[0])});ui.panel.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const id=+b.dataset.sell,g=goods[id],p=Math.max(1,Math.floor(state.prices[id]*.72));if(!(state.inventory[g[0]]>0)){toast('行囊里没有');return}state.inventory[g[0]]--;state.coins+=p;state.rep+=2;save();shopMenu(s);toast('卖出'+g[0]+'，声望+2')})}
-function interact(){const o=nearest();if(!o){toast('附近没有可互动的人或摊位');return}if(o.kind==='shop'){shopMenu(o);return}if(o.name==='码头管事'){const q=state.quests.find(q=>!q.done);if(q){if((state.inventory[q.item]||0)<q.qty){toast('还差'+(q.qty-(state.inventory[q.item]||0))+'份'+q.item);return}state.inventory[q.item]-=q.qty;q.done=true;state.coins+=q.reward;state.rep+=8;save();toast('交货完成！铜钱+'+q.reward+'，名望+8')}else{const id=Math.floor(Math.random()*goods.length),g=goods[id];state.quests.push({name:'收集'+g[0],item:g[0],qty:2,reward:20+id*3,done:false});save();panel('码头委托','<p>替我收来两份<strong>'+g[0]+'</strong>，送到码头交货。报酬 '+(20+id*3)+' 文，另加名望。</p>')}}else{panel(o.name,'<p>'+o.line+'</p><p>城里人来人往，每个人都有自己的故事。</p><button id="talk">聊完了</button>');$('#talk').onclick=()=>{state.rep+=1;save();ui.panel.hidden=true;toast('闲谈片刻，名望+1')}}}
-function questPanel(){const active=state.quests.filter(q=>!q.done);panel('今日委托',active.length?active.map(q=>'<div class="item"><span>'+q.name+'<small>交付 '+q.qty+' 份 · 报酬 '+q.reward+'文</small></span><button data-q="'+q.item+'">交货</button></div>').join(''):'<p>暂无委托。去码头找管事接活，或者逛街做买卖。</p>');ui.panel.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const name=b.dataset.q,q=state.quests.find(q=>q.item===name&&!q.done);if((state.inventory[name]||0)<2){toast('货物还不够');return}state.inventory[name]-=2;q.done=true;state.coins+=q.reward;state.rep+=8;save();questPanel();toast('委托完成，名望+8')})}
-function bagPanel(){const rows=Object.entries(state.inventory).filter(([,n])=>n>0).map(([n,c])=>'<div class="item"><span>'+n+'</span><b>× '+c+'</b></div>').join('');panel('行囊','<p>名望越高，等级越高。多做买卖、完成委托，解锁更好的行情。</p>'+(rows||'<p>空空如也，去集市进点货吧。</p>')+'<div class="bar"><i style="width:'+(state.rep%35/35*100)+'%"></i></div><small>下一级还需 '+(35-state.rep%35)+' 名望</small>')}
-function newDay(){const date=new Date().toLocaleDateString();if(!state.lastDate){state.lastDate=date;save();return}if(state.lastDate!==date){state.lastDate=date;state.day++;state.coins+=12;state.prices=goods.map(g=>Math.max(2,Math.round(g[1]*(.8+Math.random()*.8))));state.quests=state.quests.filter(q=>!q.done);toast('新的一天！今日补贴 +12 文');save()}}
-let keys={},drag=null,joystick={x:0,y:0};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e'||e.key==='Enter')interact();if(e.key==='Escape')ui.panel.hidden=true});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;drag={x:e.clientX,y:e.clientY,moved:false};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>4)drag.moved=true;if(drag.moved){joystick.x=Math.max(-1,Math.min(1,dx/34));joystick.y=Math.max(-1,Math.min(1,dy/34));drag.x=e.clientX;drag.y=e.clientY}});canvas.addEventListener('pointerup',()=>{drag=null;joystick.x=joystick.y=0});
-const pad=$('#mobile'),stick=$('#stick');pad.addEventListener('pointerdown',e=>{pad.setPointerCapture(e.pointerId);pad.dataset.id=e.pointerId;movePad(e)});pad.addEventListener('pointermove',e=>{if(+pad.dataset.id===e.pointerId)movePad(e)});function movePad(e){const r=pad.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.max(1,Math.hypot(dx,dy)),k=Math.min(1,45/len);joystick.x=dx/len*k;joystick.y=dy/len*k;stick.style.transform='translate(calc(-50% + '+joystick.x*42+'px),calc(-50% + '+joystick.y*42+'px))'}function endPad(){joystick.x=joystick.y=0;pad.dataset.id='';stick.style.transform='translate(-50%,-50%)'}pad.addEventListener('pointerup',endPad);pad.addEventListener('pointercancel',endPad);
-$('#act').onclick=interact;$('#bag').onclick=bagPanel;$('#orders').onclick=questPanel;$('#map').onclick=()=>panel('汴京街巷','<p>北岸：茶摊、瓷器铺、绸缎庄、香料铺、鱼市。</p><p>河上：两座虹桥、往来货船。</p><p>南岸码头：找管事领取跑商委托。</p><p>探索路线由你决定。</p>');
-let last=0,saveClock=0;function loop(t){const dt=Math.min(.04,(t-last)/1000||0);last=t;saveClock+=dt;if(saveClock>5){saveClock=0;try{localStorage.setItem('bianhe-pixel-save',JSON.stringify(state))}catch{}}state.step++;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joystick.x,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joystick.y;const l=Math.hypot(x,y);if(l>.08){x/=Math.max(1,l);y/=Math.max(1,l);const nx=Math.max(2,Math.min(58,state.x+x*dt*9)),ny=Math.max(3,Math.min(38,state.y+y*dt*9));state.x=nx;state.y=ny}draw();requestAnimationFrame(loop)}newDay();sync();requestAnimationFrame(loop);
+function render(){const targetX=player.x*T-VW/2,targetY=player.y*T-VH/2;camera.x=Math.max(0,Math.min(MW*T-VW,targetX));camera.y=Math.max(0,Math.min(MH*T-VH,targetY));ctx.save();ctx.translate(-Math.floor(camera.x),-Math.floor(camera.y));draw();ctx.restore();
+ const hour=state.minute/60,night=hour<6.5||hour>18.5;if(night){ctx.fillStyle='rgba(12,24,38,.42)';ctx.fillRect(0,0,VW,VH)}else if(hour<8||hour>16){ctx.fillStyle='rgba(218,151,75,.12)';ctx.fillRect(0,0,VW,VH)}
+ // small minimap
+ rect(VW-91,64,80,58,'#172b26');rect(VW-89,66,76,54,'#6e855d');rect(VW-89,88,76,9,'#4e8386');rect(VW-89+player.x/MW*76-2,66+player.y/MH*54-2,5,5,'#f2d27c');rect(VW-89+18/MW*76,66+24/MH*54,2,5,'#c9a46d');rect(VW-89+54/MW*76,66+24/MH*54,2,5,'#c9a46d');
+}
+function nearest(){let all=[...world.stalls.map(s=>({...s,x:s.x+1,y:s.y+1})),...world.npcs.map(n=>({...n,type:'person'})),{name:'河边钓点',x:world.fishSpots[0].x,y:world.fishSpots[0].y,type:'fish'},{name:'行会告示板',x:50,y:33,type:'board'}];let best=null,dist=2.1;for(const o of all){const d=Math.hypot(o.x-player.x,o.y-player.y);if(d<dist){dist=d;best=o}}return best}
+function panel(title,html){ui.panel.innerHTML='<button class="close" id="close">×</button><h2>'+title+'</h2>'+html;ui.panel.hidden=false;$('#close').onclick=()=>ui.panel.hidden=true}
+function addRep(n){state.rep+=n;state.level=1+Math.floor(state.rep/60);save()}
+function shop(s){const allowed=s.goods||items.map(i=>i.id);let html='<p>街市货价随时辰、天气和供需变化。进货后可以转卖，也可以留着完成订单。</p>';html+=allowed.map(id=>{const g=items.find(i=>i.id===id),price=marketPrice(id);return '<div class="rowitem"><span>'+g.icon+' '+g.name+'<small>'+g.desc+' · 行囊 '+(state.inventory[id]||0)+' 件</small></span><span><b>'+price+'文</b><br><button data-buy="'+id+'">买一件</button> <button data-sell="'+id+'">卖一件</button></span></div>'}).join('');panel(s.name,html+'<p>现有铜钱：'+state.coins+'文</p>');ui.panel.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy));ui.panel.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>sell(b.dataset.sell))}
+function marketPrice(id){const i=items.find(x=>x.id===id),demand=state.daily?.demand?.[id]||1;const hour=state.minute/60;let tide=id==='fish'?(hour<11?1.22:.82):id==='tea'?(hour<12?1.15:1):1;return Math.max(2,Math.round(i.base*(state.daily?.prices?.[id]||1)*demand*tide))}
+function buy(id){const p=marketPrice(id);if(state.coins<p){toast('铜钱不够，先去接活或摆摊');return}state.coins-=p;state.inventory[id]=(state.inventory[id]||0)+1;toast('买入'+items.find(i=>i.id===id).name+'，-'+p+'文');save();const s=world.stalls.find(x=>x.name===ui.panel.querySelector('h2')?.textContent)||world.stalls[2];shop(s)}
+function sell(id){if(!(state.inventory[id]>0)){toast('行囊里没有这件货');return}const p=Math.round(marketPrice(id)*.78);state.inventory[id]--;state.coins+=p;state.rep+=1;toast('卖出一件，+'+p+'文');save();const s=world.stalls.find(x=>x.name===ui.panel.querySelector('h2')?.textContent)||world.stalls[2];shop(s)}
+function stallMenu(){const stocked=Object.entries(state.stock).filter(([,n])=>n>0);panel('我的小摊 · '+(state.stallOpen?'营业中':'尚未开张'),'<p>把行囊里的货摆上摊位，设置售价，顾客会在街上走来并自动购买。声望越高，客流越旺。</p><div class="grid"><div class="tilecard">摊位等级<br><b>'+ (1+state.upgrade) +'级</b></div><div class="tilecard">累计成交<br><b>'+state.stallSales+'件</b></div></div>'+items.map(i=>'<div class="rowitem"><span>'+i.icon+' '+i.name+'<small>行囊 '+(state.inventory[i.id]||0)+' · 摊上 '+(state.stock[i.id]||0)+'</small></span><span><button data-stock="'+i.id+'">上架1件</button></span></div>').join('')+'<div class="barline"></div><p>售价倍率：'+state.price.toFixed(1)+' 倍</p><button id="less">− 降价</button> <button id="more">+ 涨价</button> <button class="gold" id="openstall">'+(state.stallOpen?'收摊休息':'开张营业')+'</button>');ui.panel.querySelectorAll('[data-stock]').forEach(b=>b.onclick=()=>{const id=b.dataset.stock;if(!(state.inventory[id]>0)){toast('行囊里没有');return}state.inventory[id]--;state.stock[id]=(state.stock[id]||0)+1;save();stallMenu()});$('#less').onclick=()=>{state.price=Math.max(.6,+(state.price-.1).toFixed(1));stallMenu()};$('#more').onclick=()=>{state.price=Math.min(2,+(state.price+.1).toFixed(1));stallMenu()};$('#openstall').onclick=()=>{if(!state.stallOpen&&!Object.values(state.stock).some(n=>n>0)){toast('先把货物上架');return}state.stallOpen=!state.stallOpen;save();toast(state.stallOpen?'开张！客人马上来':'今日收摊');stallMenu()}}
+function generateOrders(){const pool=items.slice();state.quests=[];for(let n=0;n<3;n++){const i=pool.splice(Math.floor(rand()*pool.length),1)[0],qty=1+Math.floor(rand()*3);state.quests.push({id:'q'+state.day+n,item:i.id,qty,reward:Math.round(i.base*qty*2.3+18),deadline:state.minute+150+Math.floor(rand()*100),done:false})}}
+function boardMenu(){const rows=state.quests.filter(q=>!q.done).map(q=>{const i=items.find(x=>x.id===q.item);return '<div class="rowitem"><span>'+i.icon+' 采购：'+i.name+' × '+q.qty+'<small>报酬 '+q.reward+'文 · 截止 '+String(Math.floor(q.deadline/60)%24).padStart(2,'0')+':'+String(q.deadline%60).padStart(2,'0')+' · 已有 '+(state.inventory[q.item]||0)+'</small></span><button data-deliver="'+q.id+'">交货</button></div>'}).join('');panel('行会 · 今日商约','<p>商队、酒楼和大户人家每天发布采购需求。按时交货可获得高额报酬和声望。</p>'+(rows||'<p>今日商约已完成或过期。明日辰时会刷新。</p>')+'<p>已完成：'+state.done.length+' 笔商约</p>');ui.panel.querySelectorAll('[data-deliver]').forEach(b=>b.onclick=()=>deliver(b.dataset.deliver))}
+function deliver(id){const q=state.quests.find(x=>x.id===id&&!x.done);if(!q)return;if((state.inventory[q.item]||0)<q.qty){toast('货还不够，继续进货');return}state.inventory[q.item]-=q.qty;q.done=true;state.coins+=q.reward;state.rep+=12;state.done.push(id);save();toast('交货成功！+'+q.reward+'文，声望+12');boardMenu()}
+function bagMenu(){const html=items.map(i=>'<div class="rowitem"><span>'+i.icon+' '+i.name+'<small>'+i.desc+'</small></span><b>× '+(state.inventory[i.id]||0)+'</b></div>').join('');panel('行囊 · 随身货物','<div class="grid"><div class="tilecard">铜钱<br><b>'+state.coins+'文</b></div><div class="tilecard">体力<br><b>'+Math.floor(state.energy)+'/100</b></div></div>'+html)}
+function journal(){panel('生意簿 · '+state.day+'日','<div class="grid"><div class="tilecard">累计声望<br><b>'+state.rep+'</b></div><div class="tilecard">成交件数<br><b>'+state.stallSales+'</b></div><div class="tilecard">完成商约<br><b>'+state.done.length+'</b></div><div class="tilecard">钓获河鲜<br><b>'+state.fishCaught+'</b></div></div><div class="barline"></div><p>下一等级还需 '+(60-state.rep%60)+' 声望。升级会吸引更多顾客，并逐步解锁新的街区。</p><p>经营路线：采购 → 摆摊 → 调价 → 顾客成交 → 完成商约 → 扩张摊位。</p><button id="upgrade" class="gold">升级摊位（'+(100+state.upgrade*90)+'文）</button>');$('#upgrade').onclick=()=>{const cost=100+state.upgrade*90;if(state.coins<cost){toast('铜钱还不够');return}state.coins-=cost;state.upgrade++;state.rep+=8;save();journal();toast('摊位升级！客流增加')}}
+function mapMenu(){panel('汴京街巷','<div class="grid"><div class="tilecard">北市<br><b>茶坊 · 锦绣庄 · 青瓷坊</b></div><div class="tilecard">西市<br><b>鱼鲜铺 · 早茶摊</b></div><div class="tilecard">南街<br><b>药铺 · 客栈 · 行会</b></div><div class="tilecard">东市<br><b>胡商香料 · 民居</b></div></div><p>两座虹桥连接南北两岸。河边可以垂钓，集市中央可以摆摊。靠近建筑和摊位按 E 互动。</p>')}
+function npcTalk(n){const lines=['听说今儿有胡商进城，香料怕是要涨价。','城南的药铺缺当归，若有货送去准能卖个好价。','汴河上游刚来了新船，鱼鲜趁早买，午后就不新鲜了。','客栈今晚有贵客设宴，青瓷和蜀锦都紧俏。','听一段《东京梦华》，这汴京城的热闹说也说不尽。','巡街的说最近桥头人多，摆摊最好别挡了路。'];panel(n.name,'<p>“'+lines[n.dialogue%lines.length]+'”</p><p>街坊闲谈也能听到行情。声望高了，会有人主动来找你做生意。</p><button id="tip">谢过街坊（+1声望）</button>');$('#tip').onclick=()=>{state.rep++;save();ui.panel.hidden=true;toast('声望 +1')}}
+function fishGame(){let pos=0,dir=1,bar=0,playing=true;panel('河边垂钓','<p>鱼影经过金色区域时按下“提竿”。连续钓中可获得河鲜，失手会浪费时间。</p><div style="height:30px;background:#365c5d;border:2px solid #9caa83;position:relative;margin:18px 0" id="fishbar"><div id="zone" style="position:absolute;left:39%;width:18%;height:100%;background:#d1b56e"></div><div id="fishcursor" style="position:absolute;left:0;width:5px;height:100%;background:#fff0c7"></div></div><button class="gold" id="hook">提竿！</button> <span class="sub">空格也可提竿</span>');const cursor=$('#fishcursor');function frame(){if(!playing)return;pos+=dir*1.5;if(pos>95||pos<0)dir*=-1;cursor.style.left=pos+'%';bar=requestAnimationFrame(frame)}frame();$('#hook').onclick=()=>{playing=false;cancelAnimationFrame(bar);const win=pos>39&&pos<57;if(win){state.inventory.fish=(state.inventory.fish||0)+1;state.fishCaught++;state.rep+=2;toast('钓到一条鲜河鱼！')}else toast('鱼儿溜走了，再试一次');save();fishGameResult(win)}}
+function fishGameResult(win){panel('垂钓结果',win?'<p>好手艺！河鱼已放进行囊。</p>':'<p>差一点就钓到了。换个时机再试试。</p>');}
+function interact(){const o=nearest();if(!o){toast('走近摊位、街坊、告示板或河边再互动');return}if(o.type==='person'){npcTalk(o);return}if(o.type==='fish'){fishGame();return}if(o.type==='board'){boardMenu();return}if(o.kind==='market'){shop(o);return}if(o.kind==='shop'){shop(o);return}}
+function spawnCustomer(){if(!state.stallOpen||state.minute>1080||state.minute<450)return;if(world.customers.length>8)return;const side=rand()>.5?1:-1;world.customers.push({x:player.x+(rand()-.5)*13,y:player.y+(rand()-.5)*8,tx:player.x+(rand()-.5)*2,ty:player.y+(rand()-.5)*2,wait:0,side})}
+function updateCustomers(dt){for(let i=world.customers.length-1;i>=0;i--){const c=world.customers[i];const stocked=Object.entries(state.stock).filter(([,n])=>n>0);if(!stocked.length){world.customers.splice(i,1);continue}const dx=c.tx-c.x,dy=c.ty-c.y,d=Math.hypot(dx,dy);if(d>.3){const nx=c.x+dx/d*dt*1.25,ny=c.y+dy/d*dt*1.25;if(!collides(nx,ny)){c.x=nx;c.y=ny}}else{c.wait+=dt;if(c.wait>1.1){const choice=stocked[Math.floor(rand()*stocked.length)],id=choice[0],g=items.find(x=>x.id===id),price=Math.round(marketPrice(id)*state.price);const budget=g.base*3.5;if(price<=budget&&rand()<(state.price<=1.3?.85:.4)){state.stock[id]--;state.coins+=price;state.stallSales++;state.rep+=state.price<1.2?2:1;toast('顾客买走'+g.name+'，+'+price+'文');save()}else if(rand()>.5)toast('顾客嫌贵，转身离开');world.customers.splice(i,1)}}}}
+function newDay(){state.day++;state.minute=420;state.energy=100;state.weather=['晴','薄雾','小雨','晴','微风'][Math.floor(rand()*5)];state.daily={prices:{},demand:{}};items.forEach(i=>{state.daily.prices[i.id]=.78+rand()*.55;state.daily.demand[i.id]=.8+rand()*.7});generateOrders();if(state.day%3===0)state.coins+=25;state.stallOpen=false;save();toast('新的一天！行会送来新的商约。')}
+function update(dt){state.step++;state.minute+=dt*1.45; // one game day ~ 11 real minutes
+ if(state.minute>=1110){newDay()}if(state.minute%4<dt*1.45){state.energy=Math.min(100,state.energy+.3)}
+ if(state.stallOpen&&state.step%170===0)spawnCustomer();updateCustomers(dt);
+ world.npcs.forEach(n=>{n.phase+=dt*n.speed;const nx=n.homeX+Math.sin(n.phase)*1.8,ny=n.homeY+Math.cos(n.phase*.7)*.9;if(!collides(nx,ny)){n.x=nx;n.y=ny}});
+ if(state.step%90===0)sync();
+}
+let keys={},joy={x:0,y:0};addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(k==='e'||k==='enter')interact();if(k===' '&& !ui.panel.hidden){const b=$('#hook');if(b)b.click()}if(k==='escape')ui.panel.hidden=true});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+const pad=$('#mobile'),stick=$('#stick');function padMove(e){const r=pad.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,len=Math.max(1,Math.hypot(dx,dy)),k=Math.min(1,45/len);joy.x=dx/len*k;joy.y=dy/len*k;stick.style.transform='translate(calc(-50% + '+joy.x*40+'px),calc(-50% + '+joy.y*40+'px))'}pad.addEventListener('pointerdown',e=>{pad.setPointerCapture(e.pointerId);padMove(e)});pad.addEventListener('pointermove',e=>{if(e.buttons)padMove(e)});function padEnd(){joy.x=joy.y=0;stick.style.transform='translate(-50%,-50%)'}pad.addEventListener('pointerup',padEnd);pad.addEventListener('pointercancel',padEnd);
+canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){joy.x=(e.clientX<innerWidth/2?-1:1);joy.y=0}});canvas.addEventListener('pointerup',()=>{joy.x=joy.y=0});
+$('#interact').onclick=interact;$('#action').onclick=interact;$('#bag').onclick=bagMenu;$('#journal').onclick=journal;$('#mapbtn').onclick=mapMenu;$('#stall').onclick=stallMenu;
+let last=0,saveTimer=0;function loop(t){const dt=Math.min(.04,(t-last)/1000||0);last=t;const dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x,dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joy.y,l=Math.hypot(dx,dy);if(l>.05)move(dx/l,dy/l,dt);else state.energy=Math.min(100,state.energy+dt*1.2);update(dt);render();saveTimer+=dt;if(saveTimer>8){saveTimer=0;save()}requestAnimationFrame(loop)}
+// initialize deterministic day, first-time goals
+if(!state.daily){state.daily={prices:{},demand:{}};items.forEach(i=>{state.daily.prices[i.id]=.85+rand()*.35;state.daily.demand[i.id]=.9+rand()*.25})}
+if(!state.quests.length)generateOrders();if(!state.inventory.tea&&!state.done.length)state.inventory.tea=2;
+$('#date').textContent='春 · 初一 '+clock();sync();addEventListener('pagehide',save);requestAnimationFrame(loop);
 })();
 </script></body></html>

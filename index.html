@@ -1,78 +1,99 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#e7dfca">
-<title>清明宋 · 汴河市井</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#172b2a"><title>汴河小日子 · 像素市井</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e7dfca;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:#2f382f}
-#view{position:fixed;inset:0}
-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab} canvas:active{cursor:grabbing}
-#panel{position:fixed;left:14px;top:12px;max-width:min(250px,calc(100vw - 28px));padding:8px 11px;background:rgba(244,238,218,.9);border:1px solid rgba(91,77,54,.24);border-radius:10px;box-shadow:0 8px 28px #3d382a20;backdrop-filter:blur(9px);pointer-events:none}
-#panel h1{font-size:17px;letter-spacing:.09em;margin:0 0 6px;font-weight:680}
-#panel p{display:none}
-#status{display:none}
-#help{display:none}
-#loading{position:fixed;inset:0;display:grid;place-items:center;background:#e7dfca;color:#514936;font-size:15px;z-index:5;transition:opacity .45s}
-#loading.hide{opacity:0;pointer-events:none}
-#loading-label{padding:12px 18px;background:#f2ead7d9;border:1px solid #8c7b5b55;border-radius:9px}
-#nav{position:fixed;right:18px;top:18px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:48vw}
-#nav button{border:1px solid #6c624b55;background:#f3ecd9e8;color:#394237;border-radius:8px;padding:9px 12px;font-size:12px;box-shadow:0 4px 16px #2e342420;cursor:pointer;backdrop-filter:blur(8px)}
-#nav button:active{transform:translateY(1px);background:#d8c9a8}
-#wallet{position:fixed;right:18px;top:72px;padding:8px 12px;border-radius:8px;background:#f3ecd9e8;border:1px solid #6c624b55;color:#394237;font-size:12px;pointer-events:none}
-#trade-panel{position:fixed;right:18px;bottom:64px;width:min(340px,calc(100vw - 36px));max-height:62vh;overflow:auto;padding:15px;background:#f3ecdff2;border:1px solid #6c624b66;border-radius:12px;box-shadow:0 12px 38px #25291f44;backdrop-filter:blur(12px);color:#343c31}
-#trade-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-#trade-title{font-size:16px;font-weight:700}
-#trade-close{border:0;background:transparent;color:#5b5c4c;font-size:23px;cursor:pointer}
-.trade-desc{font-size:12px;line-height:1.6;color:#676756;margin:4px 0 10px}
-.trade-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #88785a33;font-size:13px}
-.trade-row button{border:1px solid #77644866;background:#e2d3b3;color:#3e382c;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
-.trade-row button:disabled{opacity:.45;cursor:not-allowed}
-.trade-section{font-size:11px;letter-spacing:.08em;color:#8a6e48;margin-top:12px}
-@media(max-width:600px){#wallet{right:10px;top:119px}#trade-panel{right:10px;bottom:58px;width:min(340px,calc(100vw - 20px));max-height:58vh}#nav{right:10px;top:76px;max-width:calc(100vw - 20px);gap:5px}#nav button{padding:7px 9px;font-size:11px}}
-@media(max-width:600px){#panel{left:10px;top:10px;padding:10px 12px}#panel h1{font-size:15px}#help{bottom:12px;font-size:11px;max-width:calc(100vw - 20px);white-space:normal;text-align:center}}
-
-#player-hud{position:fixed;left:18px;bottom:62px;width:min(350px,calc(100vw - 36px));padding:12px 15px;border-radius:10px;background:rgba(244,238,218,.92);border:1px solid rgba(91,77,54,.28);box-shadow:0 8px 24px #3d382a20;pointer-events:none}
-#player-hud .hud-kicker{font-size:10px;letter-spacing:.12em;color:#8a6b43;margin-bottom:4px}
-#player-hud strong{display:block;font-size:14px;margin-bottom:4px}
-#objective-text{font-size:12px;line-height:1.55;color:#5c6255}
-#player-hud[data-complete="true"]{border-color:#8a9a72}
-#interaction-prompt{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);padding:8px 13px;border-radius:999px;background:#29372fdf;color:#f5f0df;font-size:12px;pointer-events:none}
-#action-button{position:fixed;right:24px;bottom:82px;width:68px;height:68px;border:2px solid #f2e5c4;background:#71563b;color:#fff4dc;border-radius:50%;font-weight:700;font-size:13px;box-shadow:0 5px 20px #1e241e55;z-index:3}
-#joystick{position:fixed;left:22px;bottom:24px;width:116px;height:116px;border:1px solid #ffffff66;border-radius:50%;background:#29372f55;backdrop-filter:blur(3px);touch-action:none;z-index:3}
-#joystick-stick{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:#eee1c2dd;border:1px solid #65543c;box-shadow:0 2px 8px #0003;pointer-events:none}
-@media(min-width:701px){#joystick{display:none}#action-button{bottom:78px}#player-hud{bottom:62px}}
-@media(max-width:700px){#player-hud{left:10px;bottom:148px;width:min(290px,calc(100vw - 20px));padding:9px 11px}#player-hud strong{font-size:13px}#objective-text{font-size:11px}#joystick{left:16px;bottom:18px;width:108px;height:108px}#action-button{right:20px;bottom:38px;width:62px;height:62px}#interaction-prompt{bottom:116px;font-size:11px}#help{display:none}}
-</style>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/"}}</script>
-</head>
-<body>
-<div id="view"></div>
-<section id="panel">
-<h1>清明宋 · 汴河市井</h1>
-
-<div id="status">正在载入场景资产…</div>
-</section>
-<nav id="nav" aria-label="场景快速导航" style="display:none">
-<button data-view="overview">全景</button><button data-view="countryside">郊野</button><button data-view="bridge">虹桥</button><button data-view="market">街市</button>
-</nav>
-<div id="wallet">钱袋：<strong id="coin-count">30</strong> 文</div>
-<section id="trade-panel" hidden>
-<div id="trade-head"><div id="trade-title">市井</div><button id="trade-close" aria-label="关闭">×</button></div>
-<div id="trade-content"></div>
-</section>
-
-<section id="player-hud" data-complete="false" hidden>
-  <div class="hud-kicker">汴河行旅 · 今日目标</div>
-  <strong id="objective-text">初到汴河 · 前往虹桥，看看汴河上最热闹的渡口</strong>
-</section>
-<div id="interaction-prompt" hidden></div>
-<div id="joystick" aria-label="移动摇杆"><div id="joystick-stick"></div></div>
-<button id="action-button" hidden>交互</button>
-
-<div id="loading"><div id="loading-label">正在铺设河道与市街…</div></div>
-<script type="module" src="./scene.js"></script>
-</body>
-</html>
+:root{color-scheme:dark;--ink:#f2e7c9;--muted:#b4b99c;--gold:#f0c66d;--panel:#172b2aee;--line:#71816b}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#142827;color:var(--ink);font-family:ui-monospace,"SFMono-Regular",Consolas,"PingFang SC",monospace;touch-action:none}
+#game{position:fixed;inset:0;display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+#top{position:fixed;top:env(safe-area-inset-top,8px);left:10px;right:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;pointer-events:none}
+.brand,.stats,.dock,.panel{background:var(--panel);border:2px solid var(--line);box-shadow:4px 4px 0 #091716aa}
+.brand{padding:7px 10px;font-size:12px;line-height:1.5}.brand b{color:var(--gold);font-size:14px}
+.stats{display:flex;gap:12px;padding:8px 10px;font-size:12px;flex-wrap:wrap;justify-content:flex-end}
+#bottom{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;justify-content:space-between;align-items:end;pointer-events:none}
+#bottom>*{pointer-events:auto}
+.dock{display:flex;gap:5px;padding:5px}
+button{font:inherit;color:var(--ink);background:#314c43;border:2px solid #829477;padding:8px 10px;cursor:pointer;box-shadow:2px 2px 0 #091716}
+button:active{transform:translate(2px,2px);box-shadow:none}button.primary{background:#8b6336;border-color:#d8b36b;color:#fff1c9}
+#hint{font-size:11px;color:#f7e9c3;background:#172b2ae8;border:2px solid #71816b;padding:8px 10px;max-width:45vw}
+.panel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,calc(100vw - 28px));max-height:min(76vh,620px);overflow:auto;padding:14px;z-index:4}
+.panel h2{font-size:16px;color:var(--gold);margin:0 0 10px}.panel p{font-size:12px;line-height:1.7;color:var(--muted)}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px dashed #71816b;padding:9px 0;font-size:12px}.item small{display:block;color:var(--muted);margin-top:3px}
+.close{float:right;padding:3px 8px}.bar{height:8px;background:#394b40;margin:6px 0 10px}.bar i{display:block;height:100%;background:#e3b95e}
+#toast{position:fixed;top:23%;left:50%;transform:translateX(-50%);background:#172b2aee;border:2px solid var(--gold);padding:9px 14px;font-size:12px;z-index:6;opacity:0;transition:opacity .2s;pointer-events:none}
+#mobile{display:none;position:fixed;left:15px;bottom:calc(env(safe-area-inset-bottom,0px) + 82px);width:112px;height:112px;border:2px solid #d9d1a477;border-radius:50%;background:#172b2a77;touch-action:none}
+#stick{position:absolute;left:50%;top:50%;width:42px;height:42px;transform:translate(-50%,-50%);border-radius:50%;background:#e8d39c;border:2px solid #455b49}
+@media(max-width:700px){#mobile{display:block}.brand{font-size:10px}.stats{font-size:10px;gap:7px;padding:7px}.dock button{font-size:10px;padding:8px 7px}#hint{display:none}}
+</style></head><body>
+<canvas id="game" aria-label="汴河像素市井游戏"></canvas>
+<div id="top"><div class="brand"><b>汴河小日子</b><br><span id="day">开封 · 第1日</span></div><div class="stats"><span>铜钱 <b id="coins">80</b></span><span>名望 <b id="rep">0</b></span><span>等级 <b id="level">1</b></span></div></div>
+<div id="bottom"><div class="dock"><button id="bag">行囊</button><button id="orders">委托</button><button id="map">地图</button></div><div id="hint">走近摊位、人物或码头，按 E 互动</div><div class="dock"><button class="primary" id="act">互动 E</button></div></div>
+<div id="mobile"><div id="stick"></div></div><div id="toast"></div><section id="panel" class="panel" hidden></section>
+<script>
+(()=>{
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d',{alpha:false});
+const W=480,H=270;canvas.width=W;canvas.height=H;ctx.imageSmoothingEnabled=false;
+const $=s=>document.querySelector(s),ui={coins:$('#coins'),rep:$('#rep'),level:$('#level'),day:$('#day'),panel:$('#panel'),toast:$('#toast')};
+const goods=[['茶叶',5,8],['瓷碗',8,13],['丝绸',14,23],['香料',11,18],['药材',9,15],['河鲜',6,11]];
+const shops=[{name:'茶摊',x:13,y:29,kind:'shop',stock:[0,5]},{name:'瓷器铺',x:22,y:32,kind:'shop',stock:[1]},{name:'绸缎庄',x:32,y:29,kind:'shop',stock:[2]},{name:'香料铺',x:41,y:32,kind:'shop',stock:[3,4]},{name:'鱼市',x:51,y:29,kind:'shop',stock:[5]}];
+const people=[{name:'老船夫',x:25,y:19,kind:'npc',line:'今早上游来了一船好茶，价钱还没涨。'},{name:'货郎阿福',x:37,y:36,kind:'npc',line:'走南闯北，消息灵通。想打听行情？'},{name:'说书先生',x:47,y:20,kind:'npc',line:'汴京城里每天都有新鲜事，坐下听一段？'},{name:'码头管事',x:8,y:23,kind:'npc',line:'帮我把货送到街市，少不了你的好处。'}];
+const state={x:29,y:34,coins:80,rep:0,day:1,inventory:{},level:1,streak:0,lastDate:'',quests:[],completed:[],prices:goods.map(g=>g[1]),step:0};
+try{const saved=JSON.parse(localStorage.getItem('bianhe-pixel-save'));if(saved&&saved.inventory)Object.assign(state,saved)}catch{}
+function save(){localStorage.setItem('bianhe-pixel-save',JSON.stringify(state));sync()}
+function sync(){ui.coins.textContent=state.coins;ui.rep.textContent=state.rep;state.level=1+Math.floor(state.rep/35);ui.level.textContent=state.level;ui.day.textContent='开封 · 第'+state.day+'日'}
+function toast(s){ui.toast.textContent=s;ui.toast.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>ui.toast.style.opacity=0,1500)}
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function text(s,x,y,c='#f5e9c7'){ctx.fillStyle=c;ctx.font='8px monospace';ctx.fillText(s,x,y)}
+function tile(x,y,c){rect(x*8,y*8,8,8,c)}
+function drawWorld(){
+ rect(0,0,W,H,'#78906a');
+ for(let y=0;y<40;y++)for(let x=0;x<60;x++){const n=(x*13+y*7)%11;tile(x,y,n<2?'#84986d':n<5?'#7c9165':'#81956b');if(n===0){rect(x*8+2,y*8+3,1,1,'#b1a26d')}}
+ // winding river
+ for(let x=0;x<60;x++){const bend=Math.sin(x*.18)*1.7;for(let y=14;y<23;y++){const yy=y+bend;tile(x,Math.floor(yy),y%2?'#477f82':'#528b8a');if(y===14||y===22)rect(x*8,Math.floor(yy)*8,8,2,'#b5a274')}}
+ for(let x=0;x<60;x+=3){const y=17+Math.sin(x*.18)*1.7;rect(x*8+2,y*8,8,1,'#8ab0a0')}
+ // bridges
+ for(const bx of [24,44]){rect(bx*8-5,105,10,70,'#6d5740');for(let n=0;n<7;n++)rect(bx*8-8+n*2,104-n%2,2,72,'#ad8a59');rect(bx*8-10,102,20,4,'#d2b57c')}
+ // market street, paths
+ rect(0,205,480,12,'#b39a6a');rect(0,218,480,2,'#d0b783');
+ // buildings and trees
+ for(let i=0;i<9;i++){const x=i*58-3;rect(x,0,28,62,'#9b7753');rect(x-3,5,34,20,'#765143');rect(x+2,8,24,14,'#b56d4b');rect(x+7,28,12,22,'#514b3b');rect(x+3,57,22,4,'#d1b47a')}
+ for(let i=0;i<16;i++){const x=(i*37+11)%480,y=(i*53+18)%245;if(y<95||y>180){rect(x,y,3,8,'#694c36');rect(x-5,y-8,13,9,i%2?'#466d4c':'#54794e');rect(x-2,y-11,7,5,'#72905c')}}
+ // stalls
+ shops.forEach((s,i)=>{const x=s.x*8,y=s.y*8;rect(x-12,y-7,25,18,'#6b4937');rect(x-14,y-11,29,6,i%2?'#b45d45':'#d0a65e');rect(x-10,y-5,20,2,'#e1c58b');rect(x-8,y+1,5,4,'#d4b56e');rect(x+3,y+1,5,4,'#a8a36d');text(s.name,x-12,y-14,'#fff0c9')});
+ // docks / boats
+ rect(48,128,80,8,'#98754d');rect(65,125,35,4,'#c49c61');rect(80,119,14,6,'#76503a');rect(84,112,2,10,'#594b38');rect(86,113,15,6,'#bd9a5c');
+ for(let i=0;i<3;i++){const x=300+i*68;rect(x,140+i%2*7,35,7,'#78533a');rect(x+8,134+i%2*7,16,6,'#b58b55');rect(x+15,128+i%2*7,2,9,'#624a36')}
+}
+function drawPerson(x,y,color,hat=false){const sx=Math.round(x*8),sy=Math.round(y*8);rect(sx-3,sy-7,7,8,color);rect(sx-2,sy-12,5,5,'#d6a77b');rect(sx-3,sy-14,7,2,hat?'#423d35':'#8d6444');rect(sx-2,sy+1,2,4,'#443d35');rect(sx+1,sy+1,2,4,'#443d35')}
+function draw(){
+ drawWorld();
+ shops.forEach(s=>drawPerson(s.x,s.y+1,'#a65f4c',true));people.forEach((p,i)=>drawPerson(p.x,p.y,i%2?'#526b8c':'#a65b49',true));
+ // drifting boat pixels
+ const boatX=(state.step*.025)%510-20;rect(boatX,151+Math.sin(state.step*.025)*2,30,5,'#6c4936');rect(boatX+8,146+Math.sin(state.step*.025)*2,12,5,'#c7a66b');
+ drawPerson(state.x,state.y,'#365b89',true);
+ // camera centered
+ const px=state.x*8,py=state.y*8,ox=Math.max(0,Math.min(480-W,px-W/2)),oy=Math.max(0,Math.min(320-H,py-H/2));
+ // draw into a camera buffer via translated scene redraw
+ ctx.save();ctx.translate(-ox,-oy);
+ drawWorld();shops.forEach(s=>drawPerson(s.x,s.y+1,'#a65f4c',true));people.forEach((p,i)=>drawPerson(p.x,p.y,i%2?'#526b8c':'#a65b49',true));
+ const bx=(state.step*.025)%510-20;rect(bx,151+Math.sin(state.step*.025)*2,30,5,'#6c4936');rect(bx+8,146+Math.sin(state.step*.025)*2,12,5,'#c7a66b');
+ drawPerson(state.x,state.y,'#365b89',true);
+ ctx.restore();
+ // subtle location marker
+ const near=nearest();if(near){rect(226,220,28,1,'#f3d27a');text('!',238,215,'#ffe28d')}
+}
+function nearest(){let all=[...shops,...people],best=null,d=2.7;for(const o of all){const n=Math.hypot(o.x-state.x,o.y-state.y);if(n<d){d=n;best=o}}return best}
+function panel(title,body){ui.panel.innerHTML='<button class="close" id="close">×</button><h2>'+title+'</h2>'+body;ui.panel.hidden=false;$('#close').onclick=()=>ui.panel.hidden=true}
+function shopMenu(s){const goodsHtml=s.stock.map(id=>{const g=goods[id],p=state.prices[id];return '<div class="item"><span>'+g[0]+'<small>买入价 '+p+'文 · 行囊 '+(state.inventory[g[0]]||0)+'</small></span><span><button data-buy="'+id+'">买入</button> <button data-sell="'+id+'">卖出 '+Math.max(1,Math.floor(p*.72))+'</button></span></div>'}).join('');panel(s.name,'<p>货价随每日行情波动。低买高卖，攒出自己的第一间铺子。</p>'+goodsHtml+'<p>当前铜钱：'+state.coins+'文</p>');ui.panel.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const id=+b.dataset.buy,g=goods[id],p=state.prices[id];if(state.coins<p){toast('铜钱不够');return}state.coins-=p;state.inventory[g[0]]=(state.inventory[g[0]]||0)+1;state.rep+=1;save();shopMenu(s);toast('买到'+g[0])});ui.panel.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const id=+b.dataset.sell,g=goods[id],p=Math.max(1,Math.floor(state.prices[id]*.72));if(!(state.inventory[g[0]]>0)){toast('行囊里没有');return}state.inventory[g[0]]--;state.coins+=p;state.rep+=2;save();shopMenu(s);toast('卖出'+g[0]+'，声望+2')})}
+function interact(){const o=nearest();if(!o){toast('附近没有可互动的人或摊位');return}if(o.kind==='shop'){shopMenu(o);return}if(o.name==='码头管事'){const q=state.quests.find(q=>!q.done);if(q){q.done=true;state.coins+=q.reward;state.rep+=8;save();toast('交货完成！铜钱+'+q.reward+'，名望+8')}else{const id=Math.floor(Math.random()*goods.length),g=goods[id];state.quests.push({name:'收集'+g[0],item:g[0],qty:2,reward:20+id*3,done:false});save();panel('码头委托','<p>替我收来两份<strong>'+g[0]+'</strong>，送到码头交货。报酬 '+(20+id*3)+' 文，另加名望。</p>')}}else{panel(o.name,'<p>'+o.line+'</p><p>城里人来人往，每个人都有自己的故事。</p><button id="talk">聊完了</button>');$('#talk').onclick=()=>{state.rep+=1;save();ui.panel.hidden=true;toast('闲谈片刻，名望+1')}}}
+function questPanel(){const active=state.quests.filter(q=>!q.done);panel('今日委托',active.length?active.map(q=>'<div class="item"><span>'+q.name+'<small>交付 '+q.qty+' 份 · 报酬 '+q.reward+'文</small></span><button data-q="'+q.item+'">交货</button></div>').join(''):'<p>暂无委托。去码头找管事接活，或者逛街做买卖。</p>');ui.panel.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const name=b.dataset.q,q=state.quests.find(q=>q.item===name&&!q.done);if((state.inventory[name]||0)<2){toast('货物还不够');return}state.inventory[name]-=2;q.done=true;state.coins+=q.reward;state.rep+=8;save();questPanel();toast('委托完成，名望+8')})}
+function bagPanel(){const rows=Object.entries(state.inventory).filter(([,n])=>n>0).map(([n,c])=>'<div class="item"><span>'+n+'</span><b>× '+c+'</b></div>').join('');panel('行囊','<p>名望越高，等级越高。多做买卖、完成委托，解锁更好的行情。</p>'+(rows||'<p>空空如也，去集市进点货吧。</p>')+'<div class="bar"><i style="width:'+(state.rep%35/35*100)+'%"></i></div><small>下一级还需 '+(35-state.rep%35)+' 名望</small>')}
+function newDay(){const date=new Date().toLocaleDateString();if(state.lastDate!==date){state.lastDate=date;state.day++;state.coins+=12;state.prices=goods.map(g=>Math.max(2,Math.round(g[1]*(.8+Math.random()*.8))));state.quests=state.quests.filter(q=>!q.done);toast('新的一天！今日补贴 +12 文');save()}}
+let keys={},drag=null,joystick={x:0,y:0};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e'||e.key==='Enter')interact();if(e.key==='Escape')ui.panel.hidden=true});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;drag={x:e.clientX,y:e.clientY,moved:false};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>4)drag.moved=true;if(drag.moved){joystick.x=Math.max(-1,Math.min(1,dx/34));joystick.y=Math.max(-1,Math.min(1,dy/34));drag.x=e.clientX;drag.y=e.clientY}});canvas.addEventListener('pointerup',()=>{drag=null;joystick.x=joystick.y=0});
+const pad=$('#mobile'),stick=$('#stick');pad.addEventListener('pointerdown',e=>{pad.setPointerCapture(e.pointerId);pad.dataset.id=e.pointerId;movePad(e)});pad.addEventListener('pointermove',e=>{if(+pad.dataset.id===e.pointerId)movePad(e)});function movePad(e){const r=pad.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.max(1,Math.hypot(dx,dy)),k=Math.min(1,45/len);joystick.x=dx/len*k;joystick.y=dy/len*k;stick.style.transform='translate(calc(-50% + '+joystick.x*42+'px),calc(-50% + '+joystick.y*42+'px))'}function endPad(){joystick.x=joystick.y=0;pad.dataset.id='';stick.style.transform='translate(-50%,-50%)'}pad.addEventListener('pointerup',endPad);pad.addEventListener('pointercancel',endPad);
+$('#act').onclick=interact;$('#bag').onclick=bagPanel;$('#orders').onclick=questPanel;$('#map').onclick=()=>panel('汴京街巷','<p>北岸：茶摊、瓷器铺、绸缎庄、香料铺、鱼市。</p><p>河上：两座虹桥、往来货船。</p><p>南岸码头：找管事领取跑商委托。</p><p>探索路线由你决定。</p>');
+let last=0;function loop(t){const dt=Math.min(.04,(t-last)/1000||0);last=t;state.step++;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joystick.x,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joystick.y;const l=Math.hypot(x,y);if(l>.08){x/=Math.max(1,l);y/=Math.max(1,l);const nx=Math.max(2,Math.min(58,state.x+x*dt*9)),ny=Math.max(3,Math.min(38,state.y+y*dt*9));state.x=nx;state.y=ny}draw();requestAnimationFrame(loop)}newDay();sync();requestAnimationFrame(loop);
+})();
+</script></body></html>

@@ -31,10 +31,11 @@ jobs:
             const errors=[];
             const page=await browser.newPage({viewport:{width:1280,height:800}});
             page.on('pageerror',e=>errors.push(e.message));
-            await page.goto('https://qingming-riverside-2wq.pages.dev/',{waitUntil:'networkidle'});
+            await page.goto('https://630f2c0c.qingming-riverside-2wq.pages.dev/',{waitUntil:'networkidle'});
             await page.waitForTimeout(700);
             if(!(await page.title()).includes('烟火人间'))throw new Error('Pixel game title missing');
             if(await page.locator('canvas').count()!==1)throw new Error('Canvas missing');
+            if(errors.length)throw new Error('Startup errors: '+errors.join(' | '));
             const before=await page.evaluate(()=>window.__bianheState.x);
             await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{key:'d'})));await page.waitForTimeout(1000);await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{key:'d'})));
             const after=await page.evaluate(()=>window.__bianheState.x);

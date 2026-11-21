@@ -34,7 +34,8 @@ const world={buildings:[],obstacles:[],decor:[],npcs:[],customers:[],boats:[],fi
 const state={x:39,y:39,coins:120,rep:0,energy:100,day:1,minute:480,inventory:{},stock:{},price:1,stallOpen:false,stallSales:0,level:1,quests:[],done:[],daily:null,weather:'晴',seed:14,fishCaught:0,upgrade:0,story:0,unlocked:1,step:0};
 try{const old=JSON.parse(localStorage.getItem('bianhe-life-save'));if(old&&old.inventory)Object.assign(state,old)}catch{}
 function save(){try{localStorage.setItem('bianhe-life-save',JSON.stringify(state))}catch{};sync()}
-window.__bianheState=state;\nfunction sync(){ui.coin.textContent=state.coins;ui.rep.textContent=state.rep;ui.energy.textContent=Math.floor(state.energy);state.level=1+Math.floor(state.rep/60);ui.lv.textContent=state.level;ui.date.textContent='春 · 初'+['一','二','三','四','五','六','七','八','九','十'][Math.min(9,(state.day-1)%10)]+' '+clock();ui.weather.textContent=state.weather+' · '+(state.stallOpen?'摊位营业中':'市集正热闹')}
+window.__bianheState=state;
+function sync(){ui.coin.textContent=state.coins;ui.rep.textContent=state.rep;ui.energy.textContent=Math.floor(state.energy);state.level=1+Math.floor(state.rep/60);ui.lv.textContent=state.level;ui.date.textContent='春 · 初'+['一','二','三','四','五','六','七','八','九','十'][Math.min(9,(state.day-1)%10)]+' '+clock();ui.weather.textContent=state.weather+' · '+(state.stallOpen?'摊位营业中':'市集正热闹')}
 function clock(){return String(Math.floor(state.minute/60)%24).padStart(2,'0')+':'+String(Math.floor(state.minute)%60).padStart(2,'0')}
 function rand(){state.seed=(state.seed*1664525+1013904223)>>>0;return state.seed/4294967296}
 function toast(s){ui.toast.textContent=s;ui.toast.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>ui.toast.style.opacity=0,1800)}

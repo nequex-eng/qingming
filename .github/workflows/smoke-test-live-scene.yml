@@ -37,7 +37,7 @@ jobs:
             if(await page.locator('canvas').count()!==1)throw new Error('Canvas missing');
             const before=await page.evaluate(()=>window.__bianheState.x);
             await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{key:'d'})));await page.waitForTimeout(1000);await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{key:'d'})));
-            const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('bianhe-pixel-save')).x);
+            const after=await page.evaluate(()=>window.__bianheState.x);
             if(!(after>before))throw new Error('Keyboard movement failed: '+JSON.stringify({before,after,errors}));
             await page.locator('#bag').click();
             if(await page.locator('#panel').isHidden())throw new Error('Inventory panel did not open');
